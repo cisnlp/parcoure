@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Align</h1>
+    <script src={{ url_for('static', filename='main.js') }}></script>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.english.label }}<br>
+            {{ form.english(size=32) }}
+        </p>
+        <p>
+            {{ form.foreign.label }}<br>
+            {{ form.foreign(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+        {% if alignment %}
+        <p>{{ alignment }}</p>
+        {% else %}
+        <p>nada</p>
+        {% endif %}
+    </form>
+    {% if mydata %}
+    <div id="chart"></div>
+    <script> 
+        var HereData = {{ mydata | tojson | safe }}; 
+        createGraph(HereData)
+        // addCircle()
+    </script>
+    {% endif %}
+{% endblock %}

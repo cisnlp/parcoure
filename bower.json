@@ -1,0 +1,23 @@
+{
+  "name": "simaligndemo",
+  "authors": [
+    "Philipp Dufter <philipp.dufter@gmail.com>"
+  ],
+  "description": "",
+  "main": "demo.py",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "static/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "3.2.0",
+    "jquery": "2.1.1",
+    "d3": "3.4.11"
+  }
+}
