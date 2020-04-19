@@ -22,6 +22,7 @@
     </form>
     {% if mydata %}
     <div id="chart"></div>
+    <div id="alignment"></div>
     <script> 
         var HereData = {{ mydata | tojson | safe }}; 
         createGraph(HereData)

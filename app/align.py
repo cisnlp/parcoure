@@ -22,7 +22,9 @@ def index():
 
 @app.route("/data")
 def data():
-    return jsonify({"text": "an example text", "foreign": "another text", "alignment": 5.6})
+    return jsonify({"e": ["Das", "ist", "ein", "Beispiel", "."], 
+             "f": ["WWW", "is", "an", "example", "."], 
+             "alignment": [[0,1], [1,1], [3,2]]})
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -35,5 +37,8 @@ def login():
         print(form.english.data)
         print(form.foreign.data)
         alignment = form.english.data + "|||" + form.foreign.data
-        return render_template('login.html', title='Sign In', form=form, alignment=alignment, mydata=int(form.english.data))
+        mydata = {"e": form.english.data.split(" "),
+                "f": form.foreign.data.split(" "), 
+                "alignment": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
+        return render_template('login.html', title='Sign In', form=form, alignment=alignment, mydata=mydata)
     return render_template('login.html', title='Sign In', form=form, alignment=alignment, mydata=10.0)
