@@ -43,7 +43,7 @@ function addpositions(data, xperchar, dx) {
 };
 
 
-function drawnodes(svg, nodes, y) {
+function drawnodes(svg, nodes, y, fontsize) {
 	var nodes = svg.selectAll("node")
    .data(nodes)
    .enter()
@@ -55,7 +55,8 @@ function drawnodes(svg, nodes, y) {
      return y
    })
    .text(function(d){return d.word})
-   .attr("fill", "black");
+   .attr("fill", "black")
+   .attr("font-size", fontsize);
 };
 
 
@@ -80,12 +81,12 @@ function drawlinks(svg, data, yl1, yl2, ypadtop, ypadbottom) {
 	     return 0.75 * targetNode.xstart + 0.25 * targetNode.xend
 	   })
 	   .attr("fill", "none")
-	   .attr("stroke", "black");
+	   .attr("stroke", "grey");
 };
 
 
-function drawit(data) {
-
+function drawit(input) {
+	data = preprocess(input)
 	// SVG Container
 	var svg = d3.select("#container")
    .append("div")
@@ -106,24 +107,34 @@ function drawit(data) {
 
    // Get current width and compute size numbers.
 	var currentWidth = document.getElementById("my-svg-container").clientWidth;
-	var xperchar = 8;
-	var dx = 30;
+
+	var spaceperchar = currentWidth / data.max_chars;
+	var xperchar = Math.min(spaceperchar, 10);
+	var fontsize = 12 + 12 / 30 * (xperchar - 10);
+	var xrequired = xperchar * data.max_chars;
+	console.log(currentWidth);
+	console.log(xrequired);
+	// should actually divide by 2!
+	var dx = (currentWidth - xrequired) / 4;
+	var yl1 = 10;
+	var yl2 = 50;
+	var ypad = 5;
+	var fontpad = 8 + (fontsize - 12) * 0.5;
+
 	addpositions(data, xperchar, dx)
 	console.log(data)
 	// var text = svg.append("text").attr("x", 50).attr("y", 50).text("TESTING").attr("fill", "red");
- 	drawnodes(svg, data.nodes_e, 10);
- 	drawnodes(svg, data.nodes_f, 50);
-	drawlinks(svg, data, 10, 50, 5, 10 + 5);
+ 	drawnodes(svg, data.nodes_e, yl1, fontsize);
+ 	drawnodes(svg, data.nodes_f, yl2, fontsize);
+	drawlinks(svg, data, yl1, yl2, ypad, fontpad + ypad);
 };
 
 
 function main() {
 	input = {"e": ["Das", "ist", "ein", "Beispiel", "."], 
-			 "f": ["That", "is", "an", "example", "."], 
+			 "f": ["WWW", "is", "an", "example", "."], 
 			 "alignment": [[0,1], [1,1], [3,2]]}
-	result = preprocess(input)
-	drawit(result)
-	console.log(result)
+	drawit(input)
 };
 
 
