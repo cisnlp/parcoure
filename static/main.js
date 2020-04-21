@@ -112,16 +112,19 @@ function drawit(input) {
    // .attr("height", 100);
 
    // Get current width and compute size numbers.
-	var currentWidth = document.getElementById("my-svg-container").clientWidth;
+	// var currentWidth = document.getElementById("my-svg-container").clientWidth;
+	var currentWidth = 600;
 
 	var spaceperchar = currentWidth / data.max_chars;
 	var xperchar = Math.min(spaceperchar, 10);
-	var fontsize = 12 + 12 / 30 * (xperchar - 10);
+	var fontsize = 12 + 25 / 30 * (xperchar - 10);
 	var xrequired = xperchar * data.max_chars;
+	console.log(spaceperchar);
+	console.log(xperchar);
+	console.log(fontsize);
 	console.log(currentWidth);
 	console.log(xrequired);
-	// should actually divide by 2!
-	var dx = (currentWidth - xrequired) / 4;
+	var dx = (currentWidth - xrequired) / 2;
 	var yl1 = 10;
 	var yl2 = 50;
 	var ypad = 5;

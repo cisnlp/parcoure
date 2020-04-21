@@ -4,12 +4,12 @@ from app import app
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length, ValidationError
 
 
 class LoginForm(FlaskForm):
-    english = StringField('English', validators=[DataRequired()])
-    foreign = StringField('Foreign', validators=[DataRequired()])
+    english = StringField('Sentence A', validators=[DataRequired()], default="")
+    foreign = StringField('Sentence B', validators=[DataRequired()])
     submit = SubmitField('Align')
 
 
@@ -34,11 +34,8 @@ def login():
     if form.validate_on_submit():
         # flash('Login requested for user {}, remember_me={}'.format(
         #     form.username.data, form.remember_me.data))
-        print(form.english.data)
-        print(form.foreign.data)
-        alignment = form.english.data + "|||" + form.foreign.data
-        mydata = {"e": form.english.data.split(" "),
+        alignment = {"e": form.english.data.split(" "),
                 "f": form.foreign.data.split(" "), 
                 "alignment": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
-        return render_template('login.html', title='Sign In', form=form, alignment=alignment, mydata=mydata)
-    return render_template('login.html', title='Sign In', form=form, alignment=alignment, mydata=10.0)
+        return render_template('login.html', title='Sign In', form=form, alignment=alignment)
+    return render_template('login.html', title='Sign In', form=form, alignment=alignment)

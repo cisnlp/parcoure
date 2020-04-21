@@ -1,32 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Align</h1>
+<div id="tool">
+    <div id="cockpit">
+    <h1>SimAlign</h1>
+        <div id="description">
+        <div><a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a></div> 
+        <div><a href="https://github.com/masoudjs/simalign" target="_blank">Model code</a></div>
+        <div>Demo code (tbd) </div>
+        <div>Created by <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS / LMU Munich.</a></div>
+        <div>Impressum (tbd) </div>
+        <hr>
+      </div>
     <script src={{ url_for('static', filename='main.js') }}></script>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
             {{ form.english.label }}<br>
-            {{ form.english(size=32) }}
+            {{ form.english(size=64) }}
         </p>
         <p>
             {{ form.foreign.label }}<br>
-            {{ form.foreign(size=32) }}
+            {{ form.foreign(size=64) }}
         </p>
         <p>{{ form.submit() }}</p>
-        {% if alignment %}
-        <p>{{ alignment }}</p>
-        {% else %}
-        <p>nada</p>
-        {% endif %}
     </form>
-    {% if mydata %}
-    <div id="chart"></div>
+    </div>
+    {% if alignment %}
     <div id="alignment"></div>
     <script> 
-        var HereData = {{ mydata | tojson | safe }}; 
-        createGraph(HereData)
-        // addCircle()
+        var alignment = {{ alignment | tojson | safe }}; 
+        createGraph(alignment)
     </script>
     {% endif %}
+</div>
 {% endblock %}

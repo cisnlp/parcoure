@@ -2,6 +2,7 @@
   display: inline-block;
   position: relative;
   width: 100%;
+  max-height: 400px;
   padding-bottom: 100%; /* aspect ratio */
   vertical-align: top;
   overflow: hidden;
@@ -17,4 +18,20 @@ svg .rect {
   fill: gold;
   stroke: steelblue;
   stroke-width: 5px;
+}
+
+/*#container {
+  margin: 0 auto;
+}*/
+
+#cockpit {
+  text-align: center;
+/*  position: absolute;
+  width: 200px;
+  margin-left: -100px;
+  left: 50%;*/
+}
+
+#description {
+  text-align: center;
 }
