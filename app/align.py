@@ -2,14 +2,15 @@ from flask import render_template, flash, redirect, jsonify
 from app import app
 #from app.forms import LoginForm
 
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
 
 
 class LoginForm(FlaskForm):
-    english = StringField('Sentence A', validators=[DataRequired()], default="")
-    foreign = StringField('Sentence B', validators=[DataRequired()])
+    english = StringField('Sentence A:', validators=[DataRequired()], default="")
+    foreign = StringField('Sentence B:', validators=[DataRequired()])
+    recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
 

@@ -2,36 +2,38 @@
 
 {% block content %}
 <div id="tool">
-    <div id="cockpit">
-    <h1>SimAlign</h1>
-        <div id="description">
-        <div><a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a></div> 
-        <div><a href="https://github.com/masoudjs/simalign" target="_blank">Model code</a></div>
-        <div>Demo code (tbd) </div>
-        <div>Created by <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS / LMU Munich.</a></div>
-        <div>Impressum (tbd) </div>
+    <div id="description">
+        <h1 class="display-1">SimAlign</h1>
+        <div>
+            <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
+            <a href="https://github.com/masoudjs/simalign" target="_blank">Code</a> |
+            <!-- <div>Demo code (tbd) </div> -->
+            <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
+            Impressum (tbd)
         <hr>
-      </div>
-    <script src={{ url_for('static', filename='main.js') }}></script>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.english.label }}<br>
-            {{ form.english(size=64) }}
-        </p>
-        <p>
-            {{ form.foreign.label }}<br>
-            {{ form.foreign(size=64) }}
-        </p>
-        <p>{{ form.submit(class_="btn btn-primary btn-rounded") }}</p>
-    </form>
+    </div>
+    <div id="cockpit">
+        <script src={{ url_for('static', filename='main.js') }}></script>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.english.label(class="formlabel") }}
+                {{ form.english(size=48) }}
+            </p>
+            <p>
+                {{ form.foreign.label(class="formlabel") }}
+                {{ form.foreign(size=48) }}
+            </p>
+            <p>{{form.recaptcha(class="g-recaptcha")}}</p>
+            <p>{{ form.submit(class_="btn btn-primary btn-rounded formlabel") }}</p>
+        </form>
     </div>
     {% if alignment %}
-    <div id="alignment"></div>
-    <script> 
-        var alignment = {{ alignment | tojson | safe }}; 
-        createGraph(alignment)
-    </script>
+        <div id="alignment"></div>
+        <script> 
+            var alignment = {{ alignment | tojson | safe }}; 
+            createGraph(alignment)
+        </script>
     {% endif %}
 </div>
 {% endblock %}

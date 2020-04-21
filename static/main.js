@@ -77,17 +77,17 @@ function drawlinks(svg, data, yl1, yl2, ypadtop, ypadbottom) {
 	       return i == l.source
 	     })[0];
 	     d3.select(this).attr("y1", yl1 + ypadtop);
-	     return 0.75 * sourceNode.xstart + 0.25 * sourceNode.xend
+	     return 0.9 * sourceNode.xstart + 0.1 * sourceNode.xend
 	   })
 	   .attr("x2", function(l) {
 	     var targetNode = data.nodes_f.filter(function(d, i) {
 	       return i == l.target
 	     })[0];
 	     d3.select(this).attr("y2", yl2 - ypadbottom);
-	     return 0.75 * targetNode.xstart + 0.25 * targetNode.xend
+	     return 0.9 * targetNode.xstart + 0.1 * targetNode.xend
 	   })
 	   .attr("fill", "none")
-	   .attr("stroke", "grey");
+	   .attr("stroke", "#53A451");
 };
 
 
@@ -114,10 +114,11 @@ function drawit(input) {
    // Get current width and compute size numbers.
 	// var currentWidth = document.getElementById("my-svg-container").clientWidth;
 	var currentWidth = 600;
+	var basefontsize = 12;
 
 	var spaceperchar = currentWidth / data.max_chars;
 	var xperchar = Math.min(spaceperchar, 10);
-	var fontsize = 12 + 25 / 30 * (xperchar - 10);
+	var fontsize = basefontsize + 25 / 30 * (xperchar - 10);
 	var xrequired = xperchar * data.max_chars;
 	console.log(spaceperchar);
 	console.log(xperchar);
@@ -128,7 +129,7 @@ function drawit(input) {
 	var yl1 = 10;
 	var yl2 = 50;
 	var ypad = 5;
-	var fontpad = 8 + (fontsize - 12) * 0.5;
+	var fontpad = 8 + (fontsize - basefontsize) * 0.5;
 
 	addpositions(data, xperchar, dx)
 	console.log(data)

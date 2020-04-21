@@ -14,6 +14,10 @@
   left: 0;
 }
 
+.formlabel {
+  font-weight: bold;
+}
+
 svg .rect {
   fill: gold;
   stroke: steelblue;
@@ -34,4 +38,8 @@ svg .rect {
 
 #description {
   text-align: center;
+}
+
+.g-recaptcha {
+    display: inline-block;
 }
