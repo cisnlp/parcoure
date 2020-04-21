@@ -14,22 +14,9 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Align')
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    user = {'username': 'Miguel'}
-    return render_template('index.html', title='Home', user=user)
-
-
-@app.route("/data")
-def data():
-    return jsonify({"e": ["Das", "ist", "ein", "Beispiel", "."], 
-             "f": ["WWW", "is", "an", "example", "."], 
-             "alignment": [[0,1], [1,1], [3,2]]})
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
@@ -38,5 +25,5 @@ def login():
         alignment = {"e": form.english.data.split(" "),
                 "f": form.foreign.data.split(" "), 
                 "alignment": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
-        return render_template('login.html', title='Sign In', form=form, alignment=alignment)
-    return render_template('login.html', title='Sign In', form=form, alignment=alignment)
+        return render_template('index.html', title='SimAlign', form=form, alignment=alignment)
+    return render_template('index.html', title='SimAlign', form=form, alignment=alignment)

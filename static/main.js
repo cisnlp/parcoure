@@ -87,7 +87,7 @@ function drawlinks(svg, data, yl1, yl2, ypadtop, ypadbottom) {
 	     return 0.9 * targetNode.xstart + 0.1 * targetNode.xend
 	   })
 	   .attr("fill", "none")
-	   .attr("stroke", "#53A451");
+	   .attr("stroke", "#00A30B");
 };
 
 
@@ -102,7 +102,7 @@ function drawit(input) {
    .append("svg")
    // Responsive SVG needs these 2 attributes and no width and height attr.
    .attr("preserveAspectRatio", "xMinYMin meet")
-   .attr("viewBox", "0 0 600 200")
+   .attr("viewBox", "0 0 600 75")
    // Class to make it responsive.
    .classed("svg-content-responsive", true);
    // // Fill with a rectangle for visualization.
@@ -113,7 +113,7 @@ function drawit(input) {
 
    // Get current width and compute size numbers.
 	// var currentWidth = document.getElementById("my-svg-container").clientWidth;
-	var currentWidth = 600;
+	var currentWidth = 600 - 40;
 	var basefontsize = 12;
 
 	var spaceperchar = currentWidth / data.max_chars;
@@ -126,8 +126,8 @@ function drawit(input) {
 	console.log(currentWidth);
 	console.log(xrequired);
 	var dx = (currentWidth - xrequired) / 2;
-	var yl1 = 10;
-	var yl2 = 50;
+	var yl1 = 15;
+	var yl2 = 65;
 	var ypad = 5;
 	var fontpad = 8 + (fontsize - basefontsize) * 0.5;
 
