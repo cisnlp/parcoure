@@ -24,6 +24,12 @@
                 {{ form.foreign.label(class="formlabel") }}
                 {{ form.foreign(size=48) }}
             </p>
+            <p>
+                {{ form.model(size=24) }}
+            </p>
+            <p>
+                {{ form.method(size=24) }}
+            </p>
             <p>{{form.recaptcha(class="g-recaptcha")}}</p>
             <p>{{ form.submit(class_="btn btn-primary btn-rounded formlabel") }}</p>
         </form>
