@@ -13,13 +13,16 @@ DONE
 add captcha
 
 
-
-
 DEPLOYMENT
 Dual Stack :: -> ok
-do not set secret keys in repository!
+do not set secret keys in repository! -> ok now
+clean setup in terms of requirements.txt etc.
 Port 80  -> 8080 for now
 Access log -> ok
 Resource Requirements
 Flask in Produktion -> Gunicorn, ok
 set proper cachedir for transformer models
+Parameterize 
+
+
+
