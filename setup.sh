@@ -23,7 +23,7 @@ bower.json
 pip install gunicorn
 
 GUNICORN_CMD_ARGS="--bind='[::]:8000' --workers=1" gunicorn wsgi:app
-
+gunicorn -c gunicorn_config.py demo:app
 
 # get secrets
 #import os

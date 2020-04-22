@@ -24,12 +24,20 @@
                 {{ form.foreign.label(class="formlabel") }}
                 {{ form.foreign(size=48) }}
             </p>
-<!--             <p>
-                {{ form.model(size=24) }}
-            </p>
-            <p>
-                {{ form.method(size=24) }}
-            </p> -->
+
+            {% for subfield in form.model %}
+			<tr>
+			    <td>{{ subfield }}</td>
+			    <td>{{ subfield.label }}</td>
+			</tr>
+			{% endfor %}
+		</br>
+            {% for subfield in form.method %}
+			<tr>
+			    <td>{{ subfield }}</td>
+			    <td>{{ subfield.label }}</td>
+			</tr>
+			{% endfor %}
             <p>{{form.recaptcha(class="g-recaptcha")}}</p>
             <p>{{ form.submit(class_="btn btn-primary btn-rounded formlabel") }}</p>
         </form>
