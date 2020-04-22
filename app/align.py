@@ -26,8 +26,8 @@ def convert_alignment(initial_output):
 class LoginForm(FlaskForm):
     english = StringField('Sentence A:', validators=[DataRequired()], default="")
     foreign = StringField('Sentence B:', validators=[DataRequired()])
-    model = RadioField('Model', choices=[('mBERT', 'XlM-R'), ('bert', 'xlmr')])
-    method = RadioField('Method', choices=[('ArgMax', 'IterMax', 'Match'), ('inter', 'itermax', 'mwmf')])
+    model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XlM-R')])
+    method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax', 'IterMax'), ('mwmf', 'Match')])
     recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
