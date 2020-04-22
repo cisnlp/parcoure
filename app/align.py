@@ -30,7 +30,7 @@ def index():
         # flash('Login requested for user {}, remember_me={}'.format(
         #     form.username.data, form.remember_me.data))
         res = aligner.get_word_aligns([form.english.data.split(" "), form.foreign.data.split(" ")])
-        #print(res)
+        print(res)
         alignment = {"e": form.english.data.split(" "),
                 "f": form.foreign.data.split(" "), 
                 #"alignment": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
