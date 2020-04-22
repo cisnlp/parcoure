@@ -57,7 +57,7 @@ def index():
             res = convert_alignment(res[form.method.data])
             print(form.model.data)
             print(form.method.data)
-            print(convert_alignment(res[form.method.data]))
+            print(res)
             # {'mwmf': ['0-0', '1-1'], 'inter': ['0-0', '1-1'], 'itermax': ['0-0', '1-1']}
         else:
             res = [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]
