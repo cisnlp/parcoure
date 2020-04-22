@@ -5,6 +5,7 @@ add embedding similarities and other information
 add metadata and information
 make searchable by search engines
 add favicons
+highlight edges when hovering
 
 
 DEPLOYMENT
