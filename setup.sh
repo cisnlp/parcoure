@@ -25,3 +25,14 @@ pip install gunicorn
 GUNICORN_CMD_ARGS="--bind='[::]:8000' --workers=1" gunicorn wsgi:app
 
 
+# get secrets
+#import os
+#os.urandom(24)
+# captcha
+
+
+
+
+    
+# 
+
