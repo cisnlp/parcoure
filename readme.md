@@ -12,3 +12,14 @@ better alignment of result box
 DONE
 add captcha
 
+
+
+
+DEPLOYMENT
+Dual Stack :: -> ok
+do not set secret keys in repository!
+Port 80  -> 8080 for now
+Access log -> ok
+Resource Requirements
+Flask in Produktion -> Gunicorn, ok
+set proper cachedir for transformer models

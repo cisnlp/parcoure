@@ -1,13 +1,17 @@
 from flask import render_template, flash, redirect, jsonify
 from app import app
-#import sys
-#sys.path.append("/Users/philipp/Dropbox/Inbox/simalign")
-#import simalign
+# import sys
+# sys.path.append("/Users/philipp/Dropbox/Inbox/simalign")
+# import simalign
 #from app.forms import LoginForm
 
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
+
+# setting up alignment models
+print("SETTING UP ALIGNMENT MODELS")
+#aligner = simalign.SentenceAligner(model="bert", token_type="bpe")
 
 
 class LoginForm(FlaskForm):
@@ -20,7 +24,6 @@ class LoginForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    #aligner = simalign.SentenceAligner(model="bert", token_type="bpe")
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
