@@ -19,7 +19,7 @@ class PLM(object):
         print("SETTING UP ALIGNMENT MODELS...")
         self.aligners = {}
         self.aligners["bert"] = simalign.SentenceAligner(model="bert", token_type="bpe")
-        self.aligners["xlmr"] = simalign.SentenceAligner(model="xlmr", token_type="bpe")
+        # self.aligners["xlmr"] = simalign.SentenceAligner(model="xlmr", token_type="bpe")
         print("...Finished")
 
 
