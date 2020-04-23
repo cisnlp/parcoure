@@ -1,7 +1,14 @@
+SimAlign - Demo
+------
+Simple flask app to show word alignments. Uses flask as webserver, gunicorn server for production, d3.js for visualization. 
+
+
+
 TODOs
 ------
 * add embedding similarities and other information
 * add google analytics (GRPD issues...)
+* add requirements.txt
 
 
 DONE
