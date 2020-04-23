@@ -1,5 +1,6 @@
 TODOS
 add embedding similarities and other information
+add google analytics
 
 
 DONE
