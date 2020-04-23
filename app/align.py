@@ -40,8 +40,8 @@ def convert_alignment(initial_output):
 
 
 class LoginForm(FlaskForm):
-    english = StringField('Sentence A:', validators=[DataRequired()], default="")
-    foreign = StringField('Sentence B:', validators=[DataRequired()])
+    english = StringField('Sentence A:', validators=[DataRequired(), Length(min=1, max=500, message="INPUT TOO LONG")], default="")
+    foreign = StringField('Sentence B:', validators=[DataRequired(), Length(min=1, max=500, message="INPUT TOO LONG")])
     model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
     method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax', 'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
@@ -66,5 +66,14 @@ def index():
         alignment = {"e": form.english.data.split(" "),
                      "f": form.foreign.data.split(" "),
                      "alignment": res}
-        return render_template('index.html', title='SimAlign', form=form, alignment=alignment)
-    return render_template('index.html', title='SimAlign', form=form, alignment=alignment)
+        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None,  errorB=None)
+    else:
+        errorA = None
+        errorB = None
+        for error in form.errors:
+            if error == "english":
+                errorA = True
+            if error == "foreign":
+                errorB = True
+        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+    return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)

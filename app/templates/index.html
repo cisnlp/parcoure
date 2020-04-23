@@ -26,10 +26,20 @@
             <p>
                 {{ form.english.label(class="font-weight-bold") }}
                 {{ form.english(size=48) }}
+                {% if errorA %}
+                    <p class="font-weight-bold text-danger myerror">
+                        Input too long or empty!
+                    </p>
+                {% endif %}
             </p>
             <p>
                 {{ form.foreign.label(class="font-weight-bold") }}
                 {{ form.foreign(size=48) }}
+                {% if errorB %}
+                    <p class="font-weight-bold text-danger myerror">
+                        Input too long or empty!
+                    </p>
+                {% endif %}
             </p>
 <!--             {% for subfield in form.model %}
 			<tr>
@@ -38,6 +48,7 @@
 			</tr>
 			{% endfor %}
 		</br> -->
+
             {% for subfield in form.method %}
 			<tr>
 			    <td>{{ subfield }}</td>

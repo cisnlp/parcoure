@@ -34,6 +34,10 @@
   border-radius: 3px;
 }
 
+.myerror {
+  margin-top: -20px;
+}
+
 svg .rect {
   fill: gold;
   stroke: steelblue;
