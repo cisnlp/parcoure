@@ -1,5 +1,4 @@
 TODOS
-input validation in form
 add embedding similarities and other information
 
 
@@ -10,6 +9,7 @@ get rid of xperchar and do it smarter
 highlight edges when hovering
 add favicons
 add metadata and information
+input validation in form
 
 
 

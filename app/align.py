@@ -1,12 +1,11 @@
 from flask import render_template, flash, redirect, jsonify
 from app import app
 import sys
-if False:
+if True:
     sys.path.append("/mounts/work/philipp/simalign-demo/simalign")
 else:
     sys.path.append("/Users/Philipp/Dropbox/Inbox/simalign")
 import simalign
-#from app.forms import LoginForm
 
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, BooleanField, SubmitField, RadioField
@@ -27,7 +26,7 @@ class PLM(object):
 
 # setting up alignment models
 # TODO find better place
-if False:
+if True:
     plm = PLM()
 
 
@@ -40,10 +39,12 @@ def convert_alignment(initial_output):
 
 
 class LoginForm(FlaskForm):
-    english = StringField('Sentence A:', validators=[DataRequired(), Length(min=1, max=500, message="INPUT TOO LONG")], default="")
+    english = StringField('Sentence A:', validators=[DataRequired(), Length(
+        min=1, max=500, message="INPUT TOO LONG")], default="")
     foreign = StringField('Sentence B:', validators=[DataRequired(), Length(min=1, max=500, message="INPUT TOO LONG")])
     model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
-    method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax', 'IterMax'), ('mwmf', 'Match')], default="itermax")
+    method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
+                                                                 'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
@@ -54,19 +55,20 @@ def index():
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
-        if False:
-            res = plm.aligners[form.model.data].get_word_aligns([form.english.data.split(" "), form.foreign.data.split(" ")])
+        if True:
+            res = plm.aligners[form.model.data].get_word_aligns(
+                [form.english.data.split(" "), form.foreign.data.split(" ")])
             res = convert_alignment(res[form.method.data])
-            print(form.model.data)
-            print(form.method.data)
-            print(res)
+            # print(form.model.data)
+            # print(form.method.data)
+            # print(res)
             # {'mwmf': ['0-0', '1-1'], 'inter': ['0-0', '1-1'], 'itermax': ['0-0', '1-1']}
         else:
             res = [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]
         alignment = {"e": form.english.data.split(" "),
                      "f": form.foreign.data.split(" "),
                      "alignment": res}
-        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None,  errorB=None)
+        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
     else:
         errorA = None
         errorB = None
