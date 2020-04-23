@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__/
+app/__pycache__/
+static/bower_components/
+logs/
+secrets.sh
