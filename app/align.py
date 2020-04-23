@@ -1,8 +1,10 @@
 from flask import render_template, flash, redirect, jsonify
 from app import app
 import sys
-sys.path.append("/mounts/work/philipp/simalign-demo/simalign")
-#sys.path.append("/Users/Philipp/Dropbox/Inbox/simalign")
+if False:
+    sys.path.append("/mounts/work/philipp/simalign-demo/simalign")
+else:
+    sys.path.append("/Users/Philipp/Dropbox/Inbox/simalign")
 import simalign
 #from app.forms import LoginForm
 
@@ -25,7 +27,7 @@ class PLM(object):
 
 # setting up alignment models
 # TODO find better place
-if True:
+if False:
     plm = PLM()
 
 
@@ -52,7 +54,7 @@ def index():
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
-        if True:
+        if False:
             res = plm.aligners[form.model.data].get_word_aligns([form.english.data.split(" "), form.foreign.data.split(" ")])
             res = convert_alignment(res[form.method.data])
             print(form.model.data)

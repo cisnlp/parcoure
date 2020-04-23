@@ -23,6 +23,17 @@
   font-weight: bold;
 }
 
+#comment {
+  display: inline-block;
+  max-width: 600px;
+  margin: 0 auto;*/
+  text-align: left;
+  margin-bottom: 20px;
+  padding: 5px;
+  font-size: 10pt;
+  border-radius: 3px;
+}
+
 svg .rect {
   fill: gold;
   stroke: steelblue;
@@ -48,3 +59,9 @@ svg .rect {
 .g-recaptcha {
     display: inline-block;
 }
+
+.dummyText {
+  visibility: hidden;
+}
+
+.link:hover {stroke: red;stroke-width: 3px}

@@ -1,11 +1,17 @@
 TODOS
 input validation in form
-get rid of xperchar and do it smarter
 add embedding similarities and other information
-add metadata and information
-make searchable by search engines
-add favicons
+
+
+DONE
+add captcha
+prepare deployment
+get rid of xperchar and do it smarter
 highlight edges when hovering
+add favicons
+add metadata and information
+
+
 
 
 DEPLOYMENT

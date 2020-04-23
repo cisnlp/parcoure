@@ -18,3 +18,9 @@ svg .rect {
   stroke: steelblue;
   stroke-width: 5px;
 }
+
+.dummyText {
+  visibility: hidden;
+}
+
+.link:hover {stroke: red;stroke-width: 3px}

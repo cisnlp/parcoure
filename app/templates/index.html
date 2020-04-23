@@ -4,29 +4,33 @@
 <div id="tool">
     <div id="description">
         <h1 class="display-1">SimAlign</h1>
-        <div>
+        <div class="font-weight-light">
             <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
             <a href="https://github.com/masoudjs/simalign" target="_blank">Code</a> |
             <!-- <div>Demo code (tbd) </div> -->
             <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
-            Impressum (tbd)
+            <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a>
         <hr>
-    </div>
-    <div id="cockpit">
-    	<div>Enter two sentences, preferably paraphrases or translations, </br> in up to two languages.</div>
-    	</br>
+        </div>
+        <div id="cockpit">
+            <div id="comment" class="font-weight-light .bg-light">
+        	Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
+            Steer your desired tokenization using whitespaces.
+            Language coverage is identical to multilingual BERT.
+            Alignments are computed on subword level with multilingual BERT. For details see the paper.
+            </div>
+        </div>
         <script src={{ url_for('static', filename='main.js') }}></script>
         <form action="" method="post" novalidate>
             {{ form.hidden_tag() }}
             <p>
-                {{ form.english.label(class="formlabel") }}
+                {{ form.english.label(class="font-weight-bold") }}
                 {{ form.english(size=48) }}
             </p>
             <p>
-                {{ form.foreign.label(class="formlabel") }}
+                {{ form.foreign.label(class="font-weight-bold") }}
                 {{ form.foreign(size=48) }}
             </p>
-
 <!--             {% for subfield in form.model %}
 			<tr>
 			    <td>{{ subfield }}</td>
@@ -37,11 +41,11 @@
             {% for subfield in form.method %}
 			<tr>
 			    <td>{{ subfield }}</td>
-			    <td>{{ subfield.label }}</td>
+			    <td>{{ subfield.label(class="font-weight-normal") }}</td>
 			</tr>
 			{% endfor %}
             <p>{{form.recaptcha(class="g-recaptcha")}}</p>
-            <p>{{ form.submit(class_="btn btn-primary btn-rounded formlabel") }}</p>
+            <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
         </form>
     </div>
     {% if alignment %}
