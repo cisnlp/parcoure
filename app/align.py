@@ -14,7 +14,7 @@ def convert_alignment(initial_output):
     processed_output = {}
     for method, data in initial_output.items():
         result = []
-        for elem in initial_output:
+        for elem in data:
             i, j = elem.split("-")
             result.append([int(i), int(j)])
         processed_output[method] = result
