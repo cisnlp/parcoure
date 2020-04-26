@@ -1,33 +1,13 @@
-from flask import render_template, flash, redirect, jsonify
-from app import app
-import sys
-if True:
-    sys.path.append("/mounts/work/philipp/simalign-demo/simalign")
-else:
-    sys.path.append("/Users/Philipp/Dropbox/Inbox/simalign")
-import simalign
-
+from flask import render_template, request
+from app import app, models, utils
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, BooleanField, SubmitField, RadioField
-from wtforms.validators import DataRequired, Length, ValidationError
-
-
-class PLM(object):
-    """docstring for PLM"""
-
-    def __init__(self):
-        super(PLM, self).__init__()
-        print("SETTING UP ALIGNMENT MODELS...")
-        self.aligners = {}
-        self.aligners["bert"] = simalign.SentenceAligner(model="bert", token_type="bpe", cache_dir="/mounts/work/philipp/simalign-demo/cachedir")
-        # self.aligners["xlmr"] = simalign.SentenceAligner(model="xlmr", token_type="bpe")
-        print("...Finished")
+from wtforms import StringField, SubmitField, RadioField
+from wtforms.validators import DataRequired, Length
 
 
 # setting up alignment models
-# TODO find better place
-if True:
-    plm = PLM()
+if utils.CIS:
+    plm = models.PLM()
 
 
 def convert_alignment(initial_output):
@@ -52,10 +32,12 @@ class LoginForm(FlaskForm):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    utils.LOG.info("Running index ...")
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
-        if True:
+        utils.LOG.info("Received: {} ||| {} ({})".format(form.english.data, form.foreign.data, form.method.data))
+        if utils.CIS:
             res = plm.aligners[form.model.data].get_word_aligns(
                 [form.english.data.split(" "), form.foreign.data.split(" ")])
             res = convert_alignment(res[form.method.data])
@@ -68,6 +50,8 @@ def index():
         alignment = {"e": form.english.data.split(" "),
                      "f": form.foreign.data.split(" "),
                      "alignment": res}
+        utils.LOG.info("Sent: {}".format(alignment))
+        utils.LOG.info("Running index finished.")
         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
     else:
         errorA = None
@@ -77,5 +61,8 @@ def index():
                 errorA = True
             if error == "foreign":
                 errorB = True
+        utils.LOG.info("Input error: {}".format(form.errors))
+        utils.LOG.info("Running index finished.")
         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+    utils.LOG.info("Running index finished.")
     return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
