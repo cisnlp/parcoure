@@ -9,6 +9,7 @@ TODOs
 * add embedding similarities and other information
 * add google analytics (GRPD issues...)
 * add requirements.txt
+* remove unused css
 
 
 DONE

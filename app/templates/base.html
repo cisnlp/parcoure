@@ -1,7 +1,8 @@
 <html>
     <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href={{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }} rel="stylesheet" media="screen">
+    <link rel="preload" href={{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }} as="style" onload="this.onload=null;this.rel='stylesheet'" media="screen">
+    <noscript><link href={{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }} rel="stylesheet" media="screen"></noscript>
     <link href={{ url_for('static', filename='main.min.css') }} rel="stylesheet" media="screen">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <meta name="description" content="High quality word and token alignments without requiring any parallel data. 
