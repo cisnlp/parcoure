@@ -113,6 +113,33 @@ function drawlinks(svg, data, yl1, yl2, ypadtop, ypadbottom, dx, stroke) {
 };
 
 
+function drawseparator(svg, offset) {
+	if (offset > 0) {
+	var links = svg.append("line")
+	   .attr("class", "separator")
+	   .attr("x1", 0)
+	   .attr("x2", 600)
+	   .attr("y1", offset * 75)
+	   .attr("y2", offset * 75)
+	   .attr("fill", "none")
+	   .attr("stroke", "#00A30B")
+	   .attr("stroke-width", "0.5px");
+	}
+};
+
+
+function drawtitle(svg, offset, title, fontsize) {
+	var links = svg.append("text")
+		.attr("class", "methodtitle")
+	   .attr("x", 5)
+	   .attr("y", offset * 75 + 7)
+	   .text(title)
+	   .attr("fill", "#00A30B")
+	   .attr("font-size", fontsize)
+	   .attr("font-style", "italic");
+};
+
+
 function get_lengths(svg, data, fontsize) {
 	widths = [];
 	svg.append('g')
@@ -147,7 +174,7 @@ function compute_lengths(svg, input, basefontsize, spacewidth) {
    return lengths
 };
 
-function drawit(input, offset) {
+function drawit(input, offset, title) {
 	// some measures
 	var basefontsize = 12;
 	var spacewidth = 5;
@@ -156,52 +183,51 @@ function drawit(input, offset) {
 	var ypad = 5;
 	var stroke = 1.5;
 
-	if (!!document.getElementById("my-svg-container")) {
-		console.log("using existing")
-		var svgcont = d3.select("#my-svg-container")
+	if (!!document.getElementById("my-svg-content-responsive")) {
+		var svg = d3.select("#my-svg-content-responsive");
 	} else {
-		console.log("creating")
-			var svgcont = d3.select("#alignment")
+		var svgcont = d3.select("#alignment")
    .append("div")
    // Container class to make it responsive.
    .classed("svg-container", true) 
    .attr("id", "my-svg-container");
-	}
-
 	// SVG Container
 	var svg = svgcont.append("svg")
    // Responsive SVG needs these 2 attributes and no width and height attr.
    .attr("preserveAspectRatio", "xMinYMin meet")
-   .attr("viewBox", "0 " + offset * 75 + " 600 " + (offset + 1) * 75)
+   .attr("viewBox", "0 0 600 225")
    // Class to make it responsive.
-   .classed("svg-content-responsive", true);
+   .classed("svg-content-responsive", true)
+   .attr("id", "my-svg-content-responsive");
    // // Fill with a rectangle for visualization.
    // .append("rect")
    // .classed("rect", true)
    // .attr("width", 300)
    // .attr("height", 100);
+	};
 
-   var lengths = compute_lengths(svg, input, basefontsize, spacewidth)
+   var lengths = compute_lengths(svg, input, basefontsize, spacewidth);
 
    if (lengths.maxreq > currentWidth) {
-   		console.log("ADJUSTING SIZES")
-   		//reduce font size
-   		console.log((1 - lengths.maxreq / (currentWidth * 25) ))
-   		scalefactor = currentWidth / lengths.maxreq * (1 - lengths.maxreq / (currentWidth * 25) )
+   		console.log("ADJUSTING SIZES");
+   		//reduce font size;
+   		console.log((1 - lengths.maxreq / (currentWidth * 25) ));
+   		scalefactor = currentWidth / lengths.maxreq * (1 - lengths.maxreq / (currentWidth * 25) );
    		spacewidth *= scalefactor;
-   		basefontsize *= scalefactor
-   		fontpad *= scalefactor
-   		ypad *= scalefactor
-   		stroke *= scalefactor
-	    var lengths = compute_lengths(svg, input, basefontsize, spacewidth)
-	    console.log(lengths.maxreq)
+   		basefontsize *= scalefactor;
+   		fontpad *= scalefactor;
+   		ypad *= scalefactor;
+   		stroke *= scalefactor;
+	    var lengths = compute_lengths(svg, input, basefontsize, spacewidth);
+	    console.log(lengths.maxreq);
    };
-
+	drawseparator(svg, offset);
+	drawtitle(svg, offset, title, basefontsize * 0.5);
 	data = preprocess(input, lengths, spacewidth);
 
 	var dx = (currentWidth - lengths.maxreq) / 2;
-	var yl1 = 15;
-	var yl2 = 65;
+	var yl1 = 20 + offset * 75;
+	var yl2 = 65 + offset * 75;
 
  	drawnodes(svg, data.nodes_e, yl1, basefontsize, dx);
  	drawnodes(svg, data.nodes_f, yl2, basefontsize, dx);
@@ -224,11 +250,22 @@ function main() {
 };
 
 
-main()
+// main()
+
+function extractalignment(data, method) {
+	result = {};
+	result.e = data.e;
+	result.f = data.f;
+	result.alignment = data.alignment[method];
+	return result
+};
 
 
-function createGraph(HereData, offset) {
-	drawit(HereData, offset)
+
+function createGraph(alignment) {
+	drawit(extractalignment(alignment, "inter"), 0, "ArgMax");
+	drawit(extractalignment(alignment, "itermax"), 1, "IterMax");
+	drawit(extractalignment(alignment, "mwmf"), 2, "Match");
 };
 
 

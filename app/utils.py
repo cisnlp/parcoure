@@ -21,5 +21,5 @@ def get_logger(name, filename, level=logging.DEBUG):
     return logger
 
 
-CIS = False
+CIS = True
 LOG = get_logger("analytics", "logs/analytics.log")

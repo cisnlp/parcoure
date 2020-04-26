@@ -11,11 +11,14 @@ if utils.CIS:
 
 
 def convert_alignment(initial_output):
-    result = []
-    for elem in initial_output:
-        i, j = elem.split("-")
-        result.append([int(i), int(j)])
-    return result
+    processed_output = {}
+    for method, data in initial_output.items():
+        result = []
+        for elem in initial_output:
+            i, j = elem.split("-")
+            result.append([int(i), int(j)])
+        processed_output[method] = result
+    return processed_output
 
 
 class LoginForm(FlaskForm):
@@ -23,8 +26,8 @@ class LoginForm(FlaskForm):
         min=1, max=500, message="INPUT TOO LONG")], default="")
     foreign = StringField('Sentence B:', validators=[DataRequired(), Length(min=1, max=500, message="INPUT TOO LONG")])
     model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
-    method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
-                                                                 'IterMax'), ('mwmf', 'Match')], default="itermax")
+    # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
+    #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
@@ -36,17 +39,19 @@ def index():
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
-        utils.LOG.info("Received: {} ||| {} ({})".format(form.english.data, form.foreign.data, form.method.data))
+        utils.LOG.info("Received: {} ||| {}".format(form.english.data, form.foreign.data))
         if utils.CIS:
             res = plm.aligners[form.model.data].get_word_aligns(
                 [form.english.data.split(" "), form.foreign.data.split(" ")])
-            res = convert_alignment(res[form.method.data])
+            res = convert_alignment(res)
             # print(form.model.data)
             # print(form.method.data)
             # print(res)
             # {'mwmf': ['0-0', '1-1'], 'inter': ['0-0', '1-1'], 'itermax': ['0-0', '1-1']}
         else:
-            res = [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]
+            res = {"inter": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
+                   "itermax": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
+                   "mwmf": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
         alignment = {"e": form.english.data.split(" "),
                      "f": form.foreign.data.split(" "),
                      "alignment": res}
