@@ -10,6 +10,8 @@ TODOs
 * add google analytics (GRPD issues...)
 * add requirements.txt
 * remove unused css
+* add caching
+* defer loading of javascript
 
 
 DONE
