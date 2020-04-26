@@ -147,7 +147,7 @@ function compute_lengths(svg, input, basefontsize, spacewidth) {
    return lengths
 };
 
-function drawit(input) {
+function drawit(input, offset) {
 	// some measures
 	var basefontsize = 12;
 	var spacewidth = 5;
@@ -156,16 +156,23 @@ function drawit(input) {
 	var ypad = 5;
 	var stroke = 1.5;
 
-	// SVG Container
-	var svg = d3.select("#alignment")
+	if (!!document.getElementById("my-svg-container")) {
+		console.log("using existing")
+		var svgcont = d3.select("#my-svg-container")
+	} else {
+		console.log("creating")
+			var svgcont = d3.select("#alignment")
    .append("div")
    // Container class to make it responsive.
    .classed("svg-container", true) 
-   .attr("id", "my-svg-container") 
-   .append("svg")
+   .attr("id", "my-svg-container");
+	}
+
+	// SVG Container
+	var svg = svgcont.append("svg")
    // Responsive SVG needs these 2 attributes and no width and height attr.
    .attr("preserveAspectRatio", "xMinYMin meet")
-   .attr("viewBox", "0 0 600 75")
+   .attr("viewBox", "0 " + offset * 75 + " 600 " + (offset + 1) * 75)
    // Class to make it responsive.
    .classed("svg-content-responsive", true);
    // // Fill with a rectangle for visualization.
@@ -220,8 +227,8 @@ function main() {
 main()
 
 
-function createGraph(HereData) {
-	drawit(HereData)
+function createGraph(HereData, offset) {
+	drawit(HereData, offset)
 };
 
 

@@ -20,7 +20,7 @@
             Alignments are computed on subword level with multilingual BERT. For details see the paper.
             </div>
         </div>
-        <script src={{ url_for('static', filename='main.min.js') }}></script>
+        <script src={{ url_for('static', filename='main.js') }}></script>
         <form action="" method="post" novalidate>
             {{ form.hidden_tag() }}
             <p>
@@ -63,7 +63,8 @@
         <div id="alignment"></div>
         <script> 
             var alignment = {{ alignment | tojson | safe }}; 
-            createGraph(alignment)
+            createGraph(alignment, 0)
+            createGraph(alignment, 1)
         </script>
     {% endif %}
 </div>

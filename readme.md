@@ -12,6 +12,8 @@ TODOs
 * remove unused css
 * add caching
 * defer loading of javascript
+* design logo and improve favicon
+* add release script
 
 
 DONE
