@@ -14,7 +14,8 @@ TODOs
 * defer loading of javascript
 * design logo and improve favicon
 * add release script
-* update simalign library
+* update simalign library and reduce environment
+
 
 
 DONE
