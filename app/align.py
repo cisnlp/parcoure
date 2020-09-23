@@ -1,7 +1,7 @@
 from flask import render_template, request
 from app import app, models, utils
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, SubmitField, RadioField
+from wtforms import StringField, SubmitField, RadioField, SelectField
 from wtforms.validators import DataRequired, Length
 
 
@@ -29,6 +29,16 @@ class LoginForm(FlaskForm):
     # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
     #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
+    submit = SubmitField('Align')
+
+
+class MultAlignForm(FlaskForm):
+    langs = [('en_kingjames', 'English - KingJames'), ('de_genfer', 'German - Genfer'), ('es_newworld', 'Spanish - Newworld')]
+    verses = [(40001001, "40001001"), (40001002, "40001002")]
+    l1 = SelectField('Editions', choices=langs)
+    l2 = SelectField('Editions', choices=langs)
+    l3 = SelectField('Editions', choices=langs)
+    verseid = SelectField('VerseId', choices=verses)
     submit = SubmitField('Align')
 
 
@@ -71,3 +81,10 @@ def index():
         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
     utils.LOG.info("Running index finished.")
     return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
+
+
+@app.route('/multalign', methods=['GET', 'POST'])
+def multalign():
+    utils.LOG.info("Building multalign.")
+    form = MultAlignForm()
+    return render_template('multalign.html', title='SimAlign', form=form, errorA=None, errorB=None)

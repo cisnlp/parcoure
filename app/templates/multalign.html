@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="tool">
+    <div id="description">
+        <h1 class="display-1">SimAlign</h1>
+        <div class="font-weight-light">
+            <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
+            <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
+            <!-- <div>Demo code (tbd) </div> -->
+            <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
+            <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a></br>
+            <a href="/index">SimAlign</a> |
+            <a href="/multalign">MultAlign</a>
+        <hr>
+        </div>
+        <div id="cockpit">
+            <div id="comment" class="font-weight-light .bg-light">
+        	Align the Bible.
+            </div>
+        </div>
+        <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.l1.label(class="font-weight-bold") }}
+                        {{ form.l1() }}
+                        {{ form.l2() }}
+                        {{ form.l3() }}
+                    </p>
+                    <p>
+                        {{ form.verseid.label(class="font-weight-bold") }}
+                        {{ form.verseid() }}
+                    </p>
+                    <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+        </form>
+    </div>
+</div>
+{% endblock %}
