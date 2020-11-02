@@ -2,72 +2,153 @@
 
 {% block content %}
 <div id="tool">
-    <div id="description">
-        <h1 class="display-1">SimAlign</h1>
-        <div class="font-weight-light">
-            <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
-            <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
-            <!-- <div>Demo code (tbd) </div> -->
-            <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
-            <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a> </br>
-            <a href="/index">SimAlign</a> |
-            <a href="/multalign">MultAlign</a>
-        <hr>
-        </div>
-        <div id="cockpit">
-            <div id="comment" class="font-weight-light .bg-light">
-        	Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
-            Steer your desired tokenization using whitespaces.
-            Language coverage is identical to multilingual BERT.
-            Alignments are computed on subword level with multilingual BERT
-            for the three methods ArgMax, IterMax and Match. For details see the paper.
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1 class="display-1">SimAlign</h1>
             </div>
         </div>
-        <script src={{ url_for('static', filename='main.min.js') }}></script>
-        <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.english.label(class="font-weight-bold") }}
-                {{ form.english(size=48) }}
-                {% if errorA %}
-                    <p class="font-weight-bold text-danger myerror">
-                        Input too long or empty!
-                    </p>
-                {% endif %}
-            </p>
-            <p>
-                {{ form.foreign.label(class="font-weight-bold") }}
-                {{ form.foreign(size=48) }}
-                {% if errorB %}
-                    <p class="font-weight-bold text-danger myerror">
-                        Input too long or empty!
-                    </p>
-                {% endif %}
-            </p>
-<!--             {% for subfield in form.model %}
-			<tr>
-			    <td>{{ subfield }}</td>
-			    <td>{{ subfield.label }}</td>
-			</tr>
-			{% endfor %}
-		</br> -->
+        <div class="row">
+            <div class="col-sm">
+                <div class="font-weight-light">
+                    <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
+                    <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
+                    <!-- <div>Demo code (tbd) </div> -->
+                    <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
+                    <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a> 
+                    <a href="/index">SimAlign</a> |
+                    <a href="/multalign">MultAlign</a>
+                <hr>
+                </div>
+            </div>
+        </div>
 
-<!--             {% for subfield in form.method %}
-			<tr>
-			    <td>{{ subfield }}</td>
-			    <td>{{ subfield.label(class="font-weight-normal") }}</td>
-			</tr>
-			{% endfor %} -->
-            <p>{{form.recaptcha(class="g-recaptcha")}}</p>
-            <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
-        </form>
+
+
+        <div id="bootstrapize" >
+            
+            <!-- <script>
+                $('select').selectpicker();
+            </script> -->
+
+            <div class="row">
+                <div class="col-8 font-weight-light" style="">
+                Search through the Bible in different languages by typing in the below box.<br/> 
+                You can specify your language using `l:&ltlanguage&gt` at the beginning like: l:german jesus<br/>
+                You can specify a verse number using `v:&ltverse number&gt` at the beginning like: v:40002017<br/>
+                You can also specify both language and verse number like: l:german v:40002017
+                <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
+                Steer your desired tokenization using whitespaces.
+                Language coverage is identical to multilingual BERT.
+                Alignments are computed on subword level with multilingual BERT
+                for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                </div>
+            </div>
+            <br><br>
+
+            <div class="row">
+                <script src={{ url_for('static', filename='main.js') }}></script>
+                <form action="" method="post" novalidate class="col">
+
+                    <div class="form-group">
+                        {{ form.verse(class="form-control basicAutoComplete ") }}
+                    </div>
+                    {% if errorA %}
+                        <div class="col-6 justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorA}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        <!-- <div class="col-10"> -->
+                        {{ form.languages.label() }}
+                        {{ form.languages(class="selectpicker form-control ")}}
+                        <!-- </div> -->
+                    </div>
+
+                    {% if errorB %}
+                        <div class="col-6  justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorB}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    <div class="col-6 d-flex justify-content-center">
+                        <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                    </div>
+                </form>
+            </div>    
+            
+            <div class="row">
+                <div id="chart" class="col-sm"></div> 
+            </div>
+                    
+        </div>
     </div>
     {% if alignment %}
+        <script type="module">
+            var alignment = {{ alignment | tojson | safe }};
+        
+            import define from "./static/index.js";
+            import {Runtime, Library, Inspector} from "./static/runtime.js";
+            
+            const runtime = new Runtime();
+            // const main = runtime.module(define, Inspector.into(document.body));
+            const main = runtime.module(define, name => {
+              if (name === "chart") {
+                return new Inspector(document.querySelector("#chart"));
+              }
+            });
+
+            console.log(alignment);
+            try {
+                main.redefine("data", JSON.parse(alignment));
+            } catch (error) {
+                console.log(error);
+            }
+            
+            
+        </script>
+    {% endif %} 
+    
+
+    <!-- {% if alignment %}
         <div id="alignment"></div>
         <script> 
             var alignment = {{ alignment | tojson | safe }}; 
             createGraph(alignment);
         </script>
-    {% endif %}
+    {% endif %} -->
+
+      
 </div>
+<script>
+
+    $('.basicAutoComplete').autoComplete();
+
+    // let input = "";
+    // $('.basicAutoComplete').on('change', function() {
+    //                 console.log('eventsAutoComplete change' + $(this).val());
+    //                 input = $(this).val();
+	// 				// eventsCodeContainer.text(eventsCodeContainer.text() + 'fired change. value: ' + $(this).val() + '\n');
+	// 			});
+    // $('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
+    //     console.log('eventsAutoComplete autocomplete.freevalue');
+    //     // $(this).val = input;
+    //     // eventsCodeContainer.text(eventsCodeContainer.text() + 'fired autocomplete.freevalue. item: ' + item + ' value: ' + $(this).val() + '\n');
+    // });
+    // $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
+    //     console.log('eventsAutoComplete autocomplete.select');
+    //     // $(this).autoComplete('set', { value: input, text: input });        // eventsCodeContainer.text(eventsCodeContainer.text() + 'fired autocomplete.select. item: ' + item + ' value: ' + $(this).val() + '\n');
+    //     // $(this).autoComplete('show');
+    // });
+    
+
+</script>
 {% endblock %}

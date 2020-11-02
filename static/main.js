@@ -246,7 +246,7 @@ function main() {
 	// 		 "f": ['Das', 'ist', 'ein', 'extrem', 'langer', 'Satz', ',', 'ein', 'extrem', 'langer', 'Satz', ',', 'ein', 'extrem', 'langer', 'Satz', ','], 
 	// 		 "alignment": [[0,1], [1,1], [3,2]]}
 
-	drawit(input)
+	drawit(input, 0, "sag")
 };
 
 
@@ -267,8 +267,4 @@ function createGraph(alignment) {
 	drawit(extractalignment(alignment, "itermax"), 1, "IterMax");
 	drawit(extractalignment(alignment, "mwmf"), 2, "Match");
 };
-
-
-
-
 

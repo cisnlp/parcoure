@@ -23,17 +23,17 @@
 .formlabel {
   font-weight: bold;
 }
-
+ 
 #comment {
   display: inline-block;
   max-width: 600px;
   margin: 0 auto;*/
   text-align: left;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   padding: 5px;
   font-size: 10pt;
   border-radius: 3px;
-}
+} 
 
 .myerror {
   margin-top: -20px;
@@ -48,7 +48,7 @@ svg .rect {
 /*#container {
   margin: 0 auto;
 }*/
-
+/* 
 #cockpit {
   text-align: center;
 /*  position: absolute;
@@ -59,7 +59,7 @@ svg .rect {
 
 #description {
   text-align: center;
-}
+} */
 
 .g-recaptcha {
     display: inline-block;

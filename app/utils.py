@@ -23,3 +23,6 @@ def get_logger(name, filename, level=logging.DEBUG):
 
 CIS = False
 LOG = get_logger("analytics", "logs/analytics.log")
+
+
+es_index_url = "http://127.0.0.1:9200/bible_index"

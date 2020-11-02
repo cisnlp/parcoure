@@ -8,6 +8,26 @@ class AlignReader(object):
 		if config_path == "":
 			config_path = "/mounts/work/mjalili/projects/pbc_simalign/configs/"
 
+		#-------------------------- ayyoob, file lang name mapping -------------
+		self.file_lang_name_mapping = {}
+		with open(config_path + "file_language_name_mapping.txt", "r") as mapping_list:
+			for l in mapping_list:
+				if l.startswith('#'):
+					continue
+				pair = l.strip().split('\t')
+				self.file_lang_name_mapping[pair[0].strip()] = pair[1].strip()
+
+				
+		#-------------------------- ayyoob, lanugage name file mapping -------------
+		self.lang_name_file_mapping = {}
+		with open(config_path + "language_name_file_mapping.txt", "r") as mapping_list:
+			for l in mapping_list:
+				if l.startswith('#'):
+					continue
+				pair = l.strip().split('\t')
+				print(pair)
+				self.lang_name_file_mapping[pair[0].strip().lower()] = pair[1].strip()
+
 		#-------------------------- collect translation names ------------------------------
 		self.all_langs = []
 		with open(config_path + "bert_100.txt", "r") as lang_list:
@@ -37,6 +57,20 @@ class AlignReader(object):
 				l = l.strip().split()
 				self.ids[l[0]].append(l[1])
 				self.ids["all"].append(l[1])
+
+	#ayyoob
+	def get_text_for_lang(self, lang):
+		sentences = {}
+		with codecs.open(self.pbc_path + lang + ".txt", "r", "utf-8") as src_file:
+			for l in src_file:
+				if l[0] == "#":
+					continue
+				l = l.strip().split("\t")
+				if len(l) != 2:
+					continue
+				if l[0] in self.ids["all"]:
+					sentences[l[0]] = l[1]
+		return sentences
 
 	def sort_lang_pair(self, l_pair):
 		s, t = l_pair
@@ -68,7 +102,7 @@ class AlignReader(object):
 					q_sentences[l[0]] = ([i for i, w in enumerate(l[1].split()) if w.lower() == q_word], l[1])
 		return q_sentences
 
-	def get_text_for_lang(self, lang):
+	def get_text_for_prf(self, lang):
 		if lang not in self.prf_lang_map:
 			print("Language prefix not found.")
 			return None
@@ -125,8 +159,17 @@ if __name__ == "__main__":
 	print("Example Usage:")
 	ar = AlignReader()
 
-	eng_sents = ar.get_text_for_lang("engq")
-	deu_sents = ar.get_text_for_lang("deui")
+	# written = []
+	# with open("language_file_mapping.txt", 'w') as f:
+	# 	for fname in ar.all_langs:
+	# 		if fname[:3] == "nob":
+	# 			f.write("%s\t%s\n" % (fname, "Norwegian"))
+	# 		else:
+	# 			f.write("%s\t%s\n" % (fname, ar.lang_name_mapping[fname[:3]]))
+	# 			# written.append(prf[:3])
+
+	eng_sents = ar.get_text_for_prf("engq")
+	deu_sents = ar.get_text_for_prf("deui")
 	ende_verses = ar.get_intersect_verse_nums("engq", "deui")
 
 	aligns = ar.get_verse_alignment(ende_verses[:10], "engq", "deui")

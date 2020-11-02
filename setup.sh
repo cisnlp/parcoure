@@ -2,6 +2,9 @@
 # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-ii-templates
 # https://realpython.com/web-development-with-flask-fetching-data-with-requests/
 
+#ayyoob need more flask knowlege?
+# https://flask.palletsprojects.com/en/1.1.x/quickstart/
+
 
 
 
