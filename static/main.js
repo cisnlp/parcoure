@@ -250,7 +250,7 @@ function main() {
 };
 
 
-// main()
+// main();
 
 function extractalignment(data, method) {
 	result = {};

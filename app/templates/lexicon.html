@@ -9,10 +9,7 @@
 
             <div class="row">
                 <div class="col-8 font-weight-light" style="">
-                Search through the Bible in different languages by typing in the below box.<br/> 
-                You can specify your language using `l:&ltlanguage&gt` at the beginning like: l:german jesus<br/>
-                You can specify a verse number using `v:&ltverse number&gt` at the beginning like: v:40002017<br/>
-                You can also specify both language and verse number like: l:german v:40002017
+                    We should put a propper description here
                 <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
                 Steer your desired tokenization using whitespaces.
                 Language coverage is identical to multilingual BERT.
@@ -29,9 +26,21 @@
             <div class="row">
                 <script src={{ url_for('static', filename='main.js') }}></script>
                 <form action="" method="post" novalidate class="col">
-                    <div id="selected_verses_input"></div>
                     <div class="form-group">
-                        {{ form.verse(class="form-control basicAutoComplete") }}
+                        {{ form.source_language.label() }}
+                        {{ form.source_language(class="form-control") }}
+                    </div>
+                    {% if errorB %}
+                        <div class="col-6 justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorB}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    <div class="form-group">
+                        {{ form.query(class="form-control") }}
                     </div>
                     {% if errorA %}
                         <div class="col-6 justify-content-center">
@@ -45,8 +54,8 @@
                     {{ form.hidden_tag() }}
                     <div class="form-group">
                         <!-- <div class="col-10"> -->
-                        {{ form.languages.label() }}
-                        {{ form.languages(class="selectpicker form-control ")}}
+                        {{ form.target_languages.label() }}
+                        {{ form.target_languages(class="selectpicker form-control ")}}
                         <!-- </div> -->
                     </div>
 

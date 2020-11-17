@@ -9,15 +9,18 @@ corpus_location="/mounts/work/ayyoob/alignment/elastic/"
 
 curl -XDELETE http://localhost:9200/bible_index; echo;
 curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index -d @mapping.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index_noedge -d @mapping_noedge.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
 
 files=`ls $corpus_location`
 for file in $files
 do 
     curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index/_bulk?pretty&refresh" --data-binary "@$corpus_location$file";
+    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index_noedge/_bulk?pretty&refresh" --data-binary "@$corpus_location$file";
 done
 
 #see number of indexed verses(documents)
 curl  -XGET "localhost:9200/bible_index/_stats/docs"
+curl  -XGET "localhost:9200/bible_index_noedge/_stats/docs"
 
 # create another index, in this one use exact match for langauges (instead of n-gram)
 # curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index -d @mapping_langauge.json; echo;
@@ -39,4 +42,4 @@ export CAPTCHA_SITE_KEY='createonline'
 export CAPTCHA_SECRET_KEY='createonline'
 export FLASK_SECRET_KEY="ddddddddddddddddd"
 export FLASK_APP=align.py
-flask run
+FLASK_ENV=development flask run

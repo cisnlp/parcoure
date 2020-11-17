@@ -1,42 +1,46 @@
 export default function define(runtime, observer) {
-  // console.log(runtime);
-  // console.log(observer);
+
   const main = runtime.module();
   const fileAttachments = new Map([["miserables.json",new URL("./files/alignments",import.meta.url)]]);
   main.builtin("FileAttachment", runtime.fileAttachments(name => fileAttachments.get(name)));
-//   main.variable(observer()).define(["md"], function(md){return(
-// md`# Arc Diagram
+  
+  main.variable(observer("chart")).define("chart", ["d3","DOM","width","height","graph","margin","x","y","color","arc","step","invalidation"], function(d3,DOM,width,height,graph,margin,x,y,color,arc,step,invalidation)
+{
 
-// This diagram places nodes in a horizontal or vertical line, with circular arcs for links. Unlike other network visualizations such as a [force layout](/@d3/force-directed-graph), the appearance (and usefulness) of an arc diagram is highly dependent on the order of nodes. Hover over a node below to inspect its connections.`
-// )});
-// This part create a frame to choose the order in which nodes are shown, which we don't use
-  main.variable(observer("viewof order")).define("viewof order", ["d3","html"], function(d3,html)
-{
-  const options = [
-    {name: "Order by name", value: (a, b) => d3.ascending(a.id, b.id)},
-    {name: "Order by group", value: (a, b) => a.group - b.group || d3.ascending(a.id, b.id)},
-    {name: "Order by degree", value: (a, b) => d3.sum(b.sourceLinks, l => l.value) + d3.sum(b.targetLinks, l => l.value) - d3.sum(a.sourceLinks, l => l.value) - d3.sum(a.targetLinks, l => l.value) || d3.ascending(a.id, b.id)}
-  ];
-  const form = html`<form style="display: flex; align-items: center; min-height: 33px;"><select name=i>${options.map(o => Object.assign(html`<option>`, {textContent: o.name}))}`;
-  const timeout = setTimeout(() => {
-    form.i.selectedIndex = 1;
-    form.dispatchEvent(new CustomEvent("input"));
-  }, 2000);
-  form.onchange = () => {
-    form.dispatchEvent(new CustomEvent("input")); // Safari
-  };
-  form.oninput = (event) => {
-    if (event.isTrusted) form.onchange = null, clearTimeout(timeout);
-    form.value = options[form.i.selectedIndex].value;
-  };
-  form.value = options[form.i.selectedIndex].value;
-  return form;
-}
-);
-  // main.variable(observer("order")).define("order", ["Generators", "viewof order"], (G, _) => G.input(_));
-  main.variable(observer("chart")).define("chart", ["d3","DOM","width","height","graph","margin","x","y","color","arc","step","viewof order","invalidation"], function(d3,DOM,width,height,graph,margin,x,y,color,arc,step,$0,invalidation)
-{
-  const svg = d3.select(DOM.svg(width, height));
+  var svgcont = d3.select("#my-svg-content-responsive")   
+  .append("div")
+  // Container class to make it responsive.
+  .classed("svg-container", true) 
+  .attr("id", "my-svg-container");
+  // SVG Container
+  var svg2 = svgcont.append("svg")
+  .attr("id", "my-svg-content-responsive");
+  var maxWidth = 0;
+  var totalWidth = margin.left;
+  var prevHalfWidth = 0;
+  svg2.append('g')
+        .selectAll('.dummyText')
+        .data(graph.nodes)
+        .enter()
+        .append("text")
+        .attr("fill", "black")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 20)
+        .text(function(d) { return d.tag})
+        .each(function(d,i) {
+            var thisWidth = this.getComputedTextLength();
+            if (d.pos == 1) {
+              totalWidth = margin.left;
+            }
+            totalWidth = totalWidth + prevHalfWidth + thisWidth/2 +10;
+            d.x = totalWidth
+            prevHalfWidth = thisWidth/2
+            if(totalWidth>maxWidth) maxWidth = totalWidth;
+            this.remove() // remove them just after displaying them
+        });
+  
+
+  const svg = d3.select(DOM.svg(maxWidth+10, height)).attr("class", "bold");
 
   svg.append("style").text(`
 
@@ -62,27 +66,54 @@ export default function define(runtime, observer) {
   stroke-opacity: 1;
 }
 
+.bold path {
+  stroke: #ccc;
+}
+
+.bold text {
+  fill: #ccc;
+}
+
+.bold g.preset_primary text {
+  fill: black;
+  font-weight: bold;
+}
+
+.bold g.preset_secondary text {
+  fill: #333;
+}
+
+.bold path.preset_primary {
+  stroke: #333;
+  stroke-opacity: 1;
+}
 `);
 
+
+      
   // insert dots and text for nodes
   const label = svg.append("g")
       .attr("font-family", "sans-serif")
       .attr("font-size", 20)
-      .attr("text-anchor", "end")
+      // .attr("text-anchor", "end")
     .selectAll("g")
     .data(graph.nodes)
     .join("g")
-      .attr("transform", d => `translate(${d.x = x(d.pos)},${d.y = y(d.group)})`)
+      .attr("transform", d => `translate(${d.x = d.x},${d.y = y(d.group)})`)
+      .classed("preset_primary", d=> d.bold)
+      .classed("preset_secondary", d=> d.sbold)
       .call(g => g.append("text")
           .attr("y", -16)
           // .attr("x", d => (d.pos - 1) * step /2)
           // .attr("dy", "0.35em")
           .attr("fill", d => d3.lab(color(d.group)).darker(2))
-          .text(d => d.tag))
+          .text(d => d.tag)
+          )
           .style("text-anchor", "middle")
+          
       .call(g => g.append("circle")
           .attr("r", 9)
-          .attr("fill", d => color(d.group)));
+          .attr("fill", d => color(d.group)))
 
   // inserting links
   const path = svg.insert("g", "*")
@@ -93,7 +124,8 @@ export default function define(runtime, observer) {
     .data(graph.links)
     .join("path")
       .attr("stroke", d => d.source.group === d.target.group ? color(d.source.group) : "#aaa")
-      .attr("d", arc);
+      .attr("d", arc)
+      .classed("preset_primary", d => d.bold);
 
   const overlay = svg.append("g")
       .attr("fill", "none")
@@ -104,7 +136,7 @@ export default function define(runtime, observer) {
       .attr("width", margin.left + 40)
       .attr("height", step)
       .attr("y", d => y(d.group) - step / 2)
-      .attr("x", d => x(d.pos) - step / 2)
+      .attr("x", d => d.x - 5)
       .on("mouseover", d => {
         svg.classed("hover", true);
         label.classed("primary", n => n === d);
@@ -182,27 +214,39 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
 )});
   main.variable(observer("graph")).define("graph", ["data"], function(data)
 {
-  const nodes = data.nodes.map(({id, tag, group, pos}) => ({
+  const nodes = data.nodes.map(({id, tag, group, pos, bold}) => ({
     id,
     tag,
     sourceLinks: [],
     targetLinks: [],
     group,
-    pos
+    pos, 
+    bold,
+    sbold: false
   }));
 
   const nodeById = new Map(nodes.map(d => [d.id, d]));
 
-  const links = data.links.map(({source, target, value}) => ({
+  const links = data.links.map(({source, target, bold}) => ({
     source: nodeById.get(source),
     target: nodeById.get(target),
-    value
+    bold
   }));
 
   for (const link of links) {
-    const {source, target, value} = link;
+    const {source, target, bold} = link;
     source.sourceLinks.push(link);
     target.targetLinks.push(link);
+    if (source.bold || target.bold){
+      link.bold = true;
+      if (source.bold){
+        target.sbold = true;
+      } else {
+        source.sbold = true;
+      }
+
+    }
+
   }
 
   return {nodes, links};
