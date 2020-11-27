@@ -27,7 +27,8 @@
             </div>
             <br>
             <div class="row">
-                <script src={{ url_for('static', filename='main.js') }}></script>
+                <!-- <script src={{ url_for('static', filename='main.js') }}></script> -->
+
                 <form action="" method="post" novalidate class="col">
                     <div id="selected_verses_input"></div>
                     <div class="form-group">
@@ -42,7 +43,7 @@
                     {% endif %}
                     <br/>
 
-                    {{ form.hidden_tag() }}
+                    <!-- {{ form.hidden_tag() }} -->
                     <div class="form-group">
                         <!-- <div class="col-10"> -->
                         {{ form.languages.label() }}
@@ -128,9 +129,6 @@
 				});
     $('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
         console.log('eventsAutoComplete autocomplete.freevalue');
-        // $(this).autoComplete('set', { text: inputString, value: inputString });
-        // $(this).val = input;
-        // eventsCodeContainer.text(eventsCodeContainer.text() + 'fired autocomplete.freevalue. item: ' + item + ' value: ' + $(this).val() + '\n');
     });
     $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
         console.log('eventsAutoComplete autocomplete.select: '+ item.text + " " + item.value);
@@ -168,8 +166,6 @@
             //append to form element that you want .
             document.getElementById("selected_verses_input").appendChild(input);
             document.getElementById("selected_verses").appendChild(outerDiv);
-            // document.getElementById("selected_verses").appendChild(removeBtn);
-            // document.getElementById("selected_verses").appendChild(br);
 
             selectedCount ++;
         }

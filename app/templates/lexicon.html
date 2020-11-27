@@ -30,10 +30,10 @@
                         {{ form.source_language.label() }}
                         {{ form.source_language(class="form-control") }}
                     </div>
-                    {% if errorB %}
+                    {% if errorA %}
                         <div class="col-6 justify-content-center">
                             <p class="font-weight-bold text-danger myerror">
-                                {{errorB}}
+                                {{errorA}}
                             </p>
                         </div>
                     {% endif %}
@@ -42,10 +42,10 @@
                     <div class="form-group">
                         {{ form.query(class="form-control") }}
                     </div>
-                    {% if errorA %}
+                    {% if errorB %}
                         <div class="col-6 justify-content-center">
                             <p class="font-weight-bold text-danger myerror">
-                                {{errorA}}
+                                {{errorB}}
                             </p>
                         </div>
                     {% endif %}
@@ -58,11 +58,10 @@
                         {{ form.target_languages(class="selectpicker form-control ")}}
                         <!-- </div> -->
                     </div>
-
-                    {% if errorB %}
+                    {% if errorC %}
                         <div class="col-6  justify-content-center">
                             <p class="font-weight-bold text-danger myerror">
-                                {{errorB}}
+                                {{errorC}}
                             </p>
                         </div>
                     {% endif %}
@@ -77,113 +76,108 @@
                  
         </div>
     </div>
-    <div style="display: block; margin-left: auto; margin-right: auto; text-align: center;" >
-        {% if docs_alignment %}
-            {% for i in range(0, doc_count) %}
-                <div id="chart{{i}}" style="margin-right: 100;"></div> 
-                <br/><br/>
-            {% endfor %} 
-        {% endif %}
-        <div id="my-svg-content-responsive"  >
-        </div>   
-    </div>
+    
+    
+    {% if dictionary %}
+    <div class="row" style="text-align: center;">
+    <!-- {{dictionary}} -->
+         {% for term, translations in dictionary.items()%}
+            {% for lang in translations.keys()%}
+                <div id="dataviz_{{term}}_{{lang}}" class="col"></div>
+                <script>
+                    // set the dimensions and margins of the graph
+                    var margin = {top: 30, right: 10, bottom: 10, left: 10},
+                    width = 445 - margin.left - margin.right,
+                    height = 445 - margin.top - margin.bottom;
 
-    {% if docs_alignment %}
-        {%for i in range(0, doc_count)%}
-        
-            <script type="module">
+                    // append the svg object to the body of the page
+                    var svg = d3.select("#dataviz_{{term}}_{{lang}}")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
 
-                var alignment = {{ docs_alignment[i] | tojson | safe }};
-            
-                import define from "./static/index.js";
-                import {Runtime, Library, Inspector} from "./static/runtime.js";
-                
-                const runtime = new Runtime();
-                // const main = runtime.module(define, Inspector.into(document.body));
-                const main = runtime.module(define, name => {
-                if (name === "chart") {
-                    return new Inspector(document.querySelector("#chart{{i}}"));
-                }
-                });
+                    var data = {{translations[lang] | tojson | safe}}
+                    
+                    // Give the data to this cluster layout:
+                    var root = d3.hierarchy(data).sum(function(d){ return d.value}) // Here the size of each leave is given in the 'value' field in input data
 
-                // console.log(alignment);
-                try {
-                    main.redefine("data", JSON.parse(alignment));
-                } catch (error) {
-                    console.log(error);
-                }
-                
-                
-            </script>
+                    // Then d3.treemap computes the position of each element of the hierarchy
+                    d3.treemap()
+                        .size([width, height])
+                        .padding(2)
+                        (root)
+
+                    // use this information to add rectangles:
+                    svg
+                        .selectAll("rect")
+                        .data(root.leaves())
+                        .enter()
+                        .append("rect")
+                        .attr('x', function (d) { return d.x0; })
+                        .attr('y', function (d) { return d.y0; })
+                        .attr('width', function (d) { return d.x1 - d.x0; })
+                        .attr('height', function (d) { return d.y1 - d.y0; })
+                        .style("stroke", "black")
+                        .style("fill", "slateblue")
+                        .on("mouseover", function() {
+                                    d3.select(this).style("cursor", "pointer")
+                                })
+                        .on("click", function(e,d){
+                            console.log(d['source_word']);
+                            var newForm = jQuery('<form>', {
+                                'action': '/',
+                                'method': 'post',
+                            })
+                            .append(jQuery('<input>', {
+                                'name': 'verse',
+                                'value': d['data']['source_word']
+                            }))
+                            .append(jQuery('<input>', {
+                                'name': 'languages',
+                                'value': d['data']['target_language']
+                            }));
+
+                            for(i = 0; i< d['data']['verses'].length; i++){
+                                newForm.append(jQuery('<input>', {
+                                    'name': "verses-"+i+"-verse_id",
+                                    'value': d['data']['verses'][i]
+                                }))
+                            }
+                            
+                            newForm.appendTo('body').submit();
+                        })
+
+                    // and to add the text labels
+                    svg
+                        .selectAll("text")
+                        .data(root.leaves())
+                        .enter()
+                        .append("text")
+                        .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
+                        .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+                        .text(function(d){ return d.data.name + "(" + d.data.value + ")" })
+                        .attr("font-size", "15px")
+                        .attr("fill", "white")
+                    
+                    svg.append("text")
+                        .attr("x", (width / 2))             
+                        .attr("y", 0 - (margin.top /3))
+                        .attr("text-anchor", "middle")  
+                        .style("font-size", "16px") 
+                        .style("text-decoration", "underline")  
+                        .text("{{term}} alignments in " + data['l_name']);
+
+
+                </script>
+            {%endfor%}
         {%endfor%}
-    {% endif %} 
+    </div>        
+    {% endif %}
+
+ 
     
 
-      
-<script>
-
-    function remove(me) {
-        document.getElementById("selecteddiv" + me).remove();
-    }
-
-    $('.basicAutoComplete').autoComplete({autoSelect: false,});
-
-    let inputString = "";
-    let selectedCount = 0;
-    $('.basicAutoComplete').on('change', function() {
-                    console.log('eventsAutoComplete change' + $(this).val());
-                    inputString = $(this).val();
-					// eventsCodeContainer.text(eventsCodeContainer.text() + 'fired change. value: ' + $(this).val() + '\n');
-				});
-    $('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
-        console.log('eventsAutoComplete autocomplete.freevalue');
-        // $(this).autoComplete('set', { text: inputString, value: inputString });
-        // $(this).val = input;
-        // eventsCodeContainer.text(eventsCodeContainer.text() + 'fired autocomplete.freevalue. item: ' + item + ' value: ' + $(this).val() + '\n');
-    });
-    $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
-        console.log('eventsAutoComplete autocomplete.select: '+ item.text + " " + item.value);
-        console.log("select input string : " + inputString)
-        if (item.value != inputString) {
-            $(this).autoComplete('set', { text: inputString, value: inputString });       
-            $(this).focus();
-            $(this).autoComplete('show');
-            
-            
-            let input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "verses-"+selectedCount+"-verse_id");
-            input.setAttribute("value", item.value);
-
-            let outerDiv = document.createElement("div");
-            outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
-            outerDiv.setAttribute("class", "row");
-            let inputLabel = document.createElement("div");
-            inputLabel.setAttribute("class", "col");
-            inputLabel.innerHTML = "<p>" + item.text +" </p>";
-            let removeBtn = document.createElement("button");
-            removeBtn.setAttribute("type", "button");
-            removeBtn.setAttribute("class", "close");
-            removeBtn.setAttribute("aria-label", "Close");
-            removeBtn.setAttribute("id", "selectedrm"+selectedCount);
-            removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
-            let removeSpn = document.createElement("span");
-            removeSpn.setAttribute("aria-hidden", "true");
-            removeSpn.innerHTML="&times;";
-            removeBtn.appendChild(removeSpn);
-            outerDiv.appendChild(inputLabel);
-            outerDiv.appendChild(removeBtn);
-            
-            //append to form element that you want .
-            document.getElementById("selected_verses_input").appendChild(input);
-            document.getElementById("selected_verses").appendChild(outerDiv);
-            // document.getElementById("selected_verses").appendChild(removeBtn);
-            // document.getElementById("selected_verses").appendChild(br);
-
-            selectedCount ++;
-        }
-    });
-    
-
-</script>
 {% endblock %}

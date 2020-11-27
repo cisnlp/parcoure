@@ -26,5 +26,4 @@ LOG = get_logger("analytics", "logs/analytics.log")
 
 
 es_index_url = "http://127.0.0.1:9200/bible_index"
-# es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge" TODO FXME
-es_index_url_noedge = "http://127.0.0.1:9200/bible_index" 
+es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"

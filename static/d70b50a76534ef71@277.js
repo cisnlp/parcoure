@@ -95,7 +95,6 @@ export default function define(runtime, observer) {
   const label = svg.append("g")
       .attr("font-family", "sans-serif")
       .attr("font-size", 20)
-      // .attr("text-anchor", "end")
     .selectAll("g")
     .data(graph.nodes)
     .join("g")
@@ -104,16 +103,14 @@ export default function define(runtime, observer) {
       .classed("preset_secondary", d=> d.sbold)
       .call(g => g.append("text")
           .attr("y", -16)
-          // .attr("x", d => (d.pos - 1) * step /2)
-          // .attr("dy", "0.35em")
           .attr("fill", d => d3.lab(color(d.group)).darker(2))
           .text(d => d.tag)
           )
           .style("text-anchor", "middle")
-          
       .call(g => g.append("circle")
           .attr("r", 9)
           .attr("fill", d => color(d.group)))
+      
 
   // inserting links
   const path = svg.insert("g", "*")
@@ -139,16 +136,42 @@ export default function define(runtime, observer) {
       .attr("x", d => d.x - 5)
       .on("mouseover", d => {
         svg.classed("hover", true);
+        svg.style("cursor", "pointer");
         label.classed("primary", n => n === d);
         label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
         path.classed("primary", l => l.source === d || l.target === d).filter(".primary").raise();
       })
       .on("mouseout", d => {
         svg.classed("hover", false);
+        svg.style("cursor", "");
         label.classed("primary", false);
         label.classed("secondary", false);
         path.classed("primary", false).order();
-      });
+      })
+      .on("click", d => {
+        console.log(d.tag);
+        var newForm = jQuery('<form>', {
+            'action': '/lexicon',
+            'method': 'post',
+        })
+        .append(jQuery('<input>', {
+            'name': 'source_language',
+            'value': d.source_language
+        }))
+        .append(jQuery('<input>', {
+            'name': 'query',
+            'value': d.tag
+        }));
+
+        for(let i = 0; i< d.target_languages.length; i++){
+            newForm.append(jQuery('<input>', {
+                'name': "target_languages",
+                'value': d.target_languages[i]
+            }))
+        }
+        
+        newForm.appendTo('body').submit();
+    });
 
   // function update() {
   //   y.domain(graph.nodes.sort($0.value).map(d => d.id));
@@ -214,7 +237,7 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
 )});
   main.variable(observer("graph")).define("graph", ["data"], function(data)
 {
-  const nodes = data.nodes.map(({id, tag, group, pos, bold}) => ({
+  const nodes = data.nodes.map(({id, tag, group, pos, bold, source_language, target_langs}) => ({
     id,
     tag,
     sourceLinks: [],
@@ -222,7 +245,9 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
     group,
     pos, 
     bold,
-    sbold: false
+    sbold: false,
+    source_language,
+    target_languages: target_langs
   }));
 
   const nodeById = new Map(nodes.map(d => [d.id, d]));

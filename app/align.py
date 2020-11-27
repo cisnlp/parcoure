@@ -18,8 +18,8 @@ if utils.CIS:
 
 align_reader = AlignReader()
 parser = reqparse.RequestParser()
-docRetriever = DocumentRetriever()
-Lexicon = Lexicon()
+doc_retriever = DocumentRetriever()
+lexicon = Lexicon()
 
 def convert_alignment(initial_output):
     processed_output = {}
@@ -35,19 +35,15 @@ class VerseForm(Form):
     verse_id = StringField("verse_id")
 
 class LoginForm(FlaskForm):
-    # languages = SelectMultipleField('Target languages: ', choices=alignReader.all_langs)
+    class Meta:
+        csrf = False
     languages = SelectMultipleField('Target languages: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_lang_name_mapping.items())
     verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
-    # verse = StringField('Sentence B:', render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
     verses = FieldList(
         FormField(VerseForm),
         min_entries=1,
-        max_entries=20
+        max_entries=50
     )
-    # model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
-    # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
-    #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
-    # recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
 
@@ -60,32 +56,20 @@ class MultAlignForm(FlaskForm):
     verseid = SelectField('VerseId', choices=verses)
     submit = SubmitField('Align')
 
-def retrieve_document(document):
-    ealstic_url = utils.es_index_url + '/_doc/' + document 
-    resp = requests.get(ealstic_url, headers = {'Content-Type': 'application/json'})
-    data = resp.json()
-    if data["found"] == True:
-        return data["_source"]["content"]
-    else:
-        print("error", "counld not retrieve the document from elastic searcch", document)
-        return ""
-    
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = LoginForm()
     alignment = None
-
     if form.validate_on_submit():
         doc_alignments = []
         errorA = None
         utils.LOG.info("Received: {} ||| {} ".format(form.languages.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)) + "_" + str(form.verses[0].verse_id) )))
         documents = [x.verse_id.data.strip() for x in form.verses]
-        print(documents)
+        
         documents = list(filter(lambda x: len(x.split('@')) > 1, documents))
         input_tokens = form.verse.data.strip().split()
-        print(documents)
+        
         if len(documents) == 0:
             errorA = 'Please select at least one bible verse.'
         else:
@@ -103,11 +87,15 @@ def index():
                 for li in range(len(all_langs)):
                     lang1 = all_langs[li]
                     lang_token_offset[lang1] = token_nom
-                    tokens = retrieve_document(verse_id + "@" + lang1).split()
+                    tokens = doc_retriever.retrieve_document(verse_id + "@" + lang1).split()
+                    target_langs = all_langs[:]
+                    target_langs.remove(lang1)
                     alignments["nodes"].extend([{
                         "id" : token_nom + i ,
                         "tag": w,
                         "group":li + 1,
+                        "source_language": lang1,
+                        "target_langs": target_langs,
                         "pos": i+1,
                         "bold": True if lang1 == source_language and any(filter(lambda x: w.lower().startswith(x.lower()) ,input_tokens)) else False
                         } for i,w in enumerate(tokens)])
@@ -119,7 +107,8 @@ def index():
                     for li2 in range(li+1,len(all_langs)):
                         lang2 = all_langs[li2]
                         aligns = align_reader.get_verse_alignment([verse_id], align_reader.lang_prf_map[lang1], align_reader.lang_prf_map[lang2])
-                        alignments["links"].extend([{"source": lang_token_offset[lang1] + f, "target":lang_token_offset[lang2] + s, "value":1} for f,s in aligns[verse_id]])
+                        if verse_id in aligns: # TODO sometimes we don't have a verse in another lang.
+                            alignments["links"].extend([{"source": lang_token_offset[lang1] + f, "target":lang_token_offset[lang2] + s, "value":1} for f,s in aligns[verse_id]])
                 print(json.dumps(alignments))
                 alignment = json.dumps(alignments)
                 doc_alignments.append(alignment)
@@ -175,9 +164,9 @@ def search():
         else:
             q = q[2:]
             tokens = q.split(' ')
-            print(tokens)
             try:
                 verse_id = int(tokens[0])
+                verse_id = str(verse_id)
             except Exception as e:
                 print(e)
                 pass
@@ -192,7 +181,7 @@ def search():
         mimetype='application/json'
     )
 
-    data = docRetriever.get_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id)
+    data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id)
     print(data)
     beers = []
     i = 1
@@ -211,45 +200,65 @@ def search():
     return response
 
 class LexiconForm(FlaskForm):
+    class Meta:
+        csrf = False
     source_language = SelectField('Source language: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_lang_name_mapping.items())
     target_languages = SelectMultipleField('Target languages: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_lang_name_mapping.items())
     # query = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
-    query = StringField('source word:', default="", render_kw={"placeholder":"Enter a word to translate"})
+    query = StringField('source word:', validators=[Required()], render_kw={"placeholder":"Enter a word to translate"})
     
     submit = SubmitField('Translate')
 
-@app.route('/lexicon', methods=['GET', 'POST'])
-def lexicon():
-    form = LexiconForm()
-    alignment = None
-    
+def convert_to_view_jason(translations, source_lang, source_word):
+    # print(translations)
+    res = {}
+    for lang, words in translations.items():
+        res[lang] = {}
+        res[lang]["source_lang"] = source_lang
+        res[lang]["target_language"] = lang
+        res[lang]["l_name"] = align_reader.file_lang_name_mapping[lang]
+        res[lang]['source_word'] = source_word
+        res[lang]["children"] = []
+        tot = sum([x['count'] for x in words.values()])
+        for word,data in words.items():
+            if data['count']/tot > 0.05:
+                res[lang]["children"].append({"name":word, "value":data['count'], "verses":data['verses'], "target_language": lang, 'source_word': source_word})
+    return res
 
+@app.route('/lexicon', methods=['GET', 'POST'])
+def dictionary():
+    form = LexiconForm()
+    res = None
     utils.LOG.info("Received: {} ||| {} ||| {}".format(form.target_languages.data, form.query.data, form.source_language.data))
 
     if form.validate_on_submit():
+        res = {}
         query = form.query.data
-        target_langs = form.target_languages
-        query_terms = query.split(' ')
+        target_langs = form.target_languages.data
+        query_terms = query.strip().split(' ')
         source_language = form.source_language.data
 
-
         for query_term in query_terms:
-            lexicon.get_translations(query_term, source_language, target_langs)
+            translations = lexicon.get_translations(query_term, source_language, target_langs)
+            res[query_term] = convert_to_view_jason(translations, source_language, query_term)
             
     else:
         errorA = None
         errorB = None
+        errorC = None
         for error in form.errors:
+            if error == "source_language":
+                errorA = form.errors['source_language'][0]
             if error == "query":
-                errorA = form.errors['query'][0]
-            if error == "languages":
-                errorB = form.errors['languages'][0]
+                errorC = form.errors['query'][0]
+            if error == "target_languages":
+                errorB = form.errors['target_languages'][0]
         utils.LOG.info("Input error: {}".format(form.errors))
         utils.LOG.info("1 Running lexicon finished.")
-        return render_template('lexicon.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+        return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
     utils.LOG.info("2 Running lexicon finished.")
 
-    return render_template('lexicon.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
+    return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
 
 
 @app.after_request

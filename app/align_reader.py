@@ -20,8 +20,8 @@ class AlignReader(object):
 				
 		#-------------------------- ayyoob, lanugage name file mapping -------------
 		self.lang_name_file_mapping = {}
-		# with open(config_path + "language_name_file_mapping.txt", "r") as mapping_list:
-		with open("/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/app/" + "language_name_file_mapping.txt", "r") as mapping_list:
+		with open(config_path + "language_name_file_mapping.txt", "r") as mapping_list:
+		# with open("/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/app/" + "language_name_file_mapping.txt", "r") as mapping_list:
 			for l in mapping_list:
 				if l.startswith('#'):
 					continue
