@@ -58,9 +58,11 @@ class DocumentRetriever(object):
         resp = requests.get(ealstic_url, headers = {'Content-Type': 'application/json'}, data=json.dumps(req))
         data = resp.json()
         res = {}
-        for d in data['docs']:
-            if d['found']:  # TODO why we cannot find some documents in one language?
-                res[d["_id"]] = d["_source"]["content"] 
-            else:
-                print(d)
+
+        if 'docs' in data:
+            for d in data['docs']:
+                if d['found']:  # TODO why we cannot find some documents in one language?
+                    res[d["_id"]] = d["_source"]["content"] 
+                else:
+                    print(d)
         return res

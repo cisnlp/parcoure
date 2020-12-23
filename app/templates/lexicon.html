@@ -117,7 +117,7 @@
                     .on("click", function(d){
                         
                         var newForm = jQuery('<form>', {
-                            'action': '/',
+                            'action': '/multalign',
                             'method': 'post',
                         })
                         .append(jQuery('<input>', {
@@ -255,105 +255,6 @@
         </div>        
     {% endif %}
 
-<!--     
-    {% if dictionary %}
-    <div class="row" style="text-align: center;">
-    
-        {% for term, translations in dictionary.items()%}
-            {% for lang in translations.keys()%}
-                <div id="dataviz_{{term}}_{{lang}}" class="col"></div>
-                <script>
-                    // set the dimensions and margins of the graph
-                    var margin = {top: 30, right: 10, bottom: 10, left: 10},
-                    width = 445 - margin.left - margin.right,
-                    height = 445 - margin.top - margin.bottom;
-
-                    // append the svg object to the body of the page
-                    var svg = d3.select("#dataviz_{{term}}_{{lang}}")
-                    .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    .append("g")
-                    .attr("transform",
-                            "translate(" + margin.left + "," + margin.top + ")");
-
-                    var data = {{translations[lang] | tojson | safe}}
-                    
-                    // Give the data to this cluster layout:
-                    var root = d3.hierarchy(data).sum(function(d){ return d.value}) // Here the size of each leave is given in the 'value' field in input data
-
-                    // Then d3.treemap computes the position of each element of the hierarchy
-                    d3.treemap()
-                        .size([width, height])
-                        .padding(2)
-                        (root)
-
-                    // use this information to add rectangles:
-                    svg
-                        .selectAll("rect")
-                        .data(root.leaves())
-                        .enter()
-                        .append("rect")
-                        .attr('x', function (d) { return d.x0; })
-                        .attr('y', function (d) { return d.y0; })
-                        .attr('width', function (d) { return d.x1 - d.x0; })
-                        .attr('height', function (d) { return d.y1 - d.y0; })
-                        .style("stroke", "black")
-                        .style("fill", "slateblue")
-                        .on("mouseover", function() {
-                                    d3.select(this).style("cursor", "pointer")
-                                })
-                        .on("click", function(e,d){
-                            console.log(d['source_word']);
-                            var newForm = jQuery('<form>', {
-                                'action': '/',
-                                'method': 'post',
-                            })
-                            .append(jQuery('<input>', {
-                                'name': 'verse',
-                                'value': d['data']['source_word']
-                            }))
-                            .append(jQuery('<input>', {
-                                'name': 'languages',
-                                'value': d['data']['target_language']
-                            }));
-
-                            for(i = 0; i< d['data']['verses'].length; i++){
-                                newForm.append(jQuery('<input>', {
-                                    'name': "verses-"+i+"-verse_id",
-                                    'value': d['data']['verses'][i]
-                                }))
-                            }
-                            
-                            newForm.appendTo('body').submit();
-                        })
-
-                    // and to add the text labels
-                    svg
-                        .selectAll("text")
-                        .data(root.leaves())
-                        .enter()
-                        .append("text")
-                        .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
-                        .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
-                        .text(function(d){ return d.data.name + "(" + d.data.value + ")" })
-                        .attr("font-size", "15px")
-                        .attr("fill", "white")
-                    
-                    svg.append("text")
-                        .attr("x", (width / 2))             
-                        .attr("y", 0 - (margin.top /3))
-                        .attr("text-anchor", "middle")  
-                        .style("font-size", "16px") 
-                        .style("text-decoration", "underline")  
-                        .text("{{term}} alignments in " + data['l_name']);
-
-
-                </script>
-            {%endfor%}
-        {%endfor%}
-    </div>        
-    {% endif %} -->
 
  
     
