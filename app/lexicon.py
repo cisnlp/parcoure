@@ -137,7 +137,7 @@ class Lexicon(object):
                     # alignments.append(align_reader.get_verse_alignment(verses, source_edition, target_edition))
 
             if len(edition_pairs) > 0:
-                args.append((verses[:], edition_pairs[:], './af', './if'))
+                args.append((verses[:], edition_pairs[:], './af', './if')) #TODO fixme
                 
             with Pool(cpu_count) as p:  
                 alignment_groups = p.starmap(align_reader.get_verse_alignment_mp, args) 

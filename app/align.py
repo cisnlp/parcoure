@@ -114,25 +114,13 @@ def search():
     query_string = parser.parse_args()
     q = query_string['q'].strip()
 
-    languages = None
+    languages = ""
     verse_id = -1
     while q[:2] == "l:" or q[:2] == "L:" or q[:2] == "v:" or q[:2] == "V:":
         if q[:2] == "l:" or q[:2] == "L:":
             q = q[2:]
 
             tokens = q.split(' ')
-            # if len(tokens) > 1 and tokens[0].lower() + " " + tokens[1].lower() in align_reader.lang_name_file_mapping:
-            #     languages += align_reader.lang_name_file_mapping[tokens[0].lower() + " " + tokens[1].lower()] + " "
-            #     tokens.pop(0)
-            # elif tokens[0].lower() in align_reader.lang_name_file_mapping:
-            #     languages += align_reader.lang_name_file_mapping[tokens[0].lower()] + " "
-            # else:
-            #     # unknown language, we neglect it
-            #     pass
-            # if tokens[0] in align_reader.lang_name_file_mapping:
-            #     languages = align_reader.lang_name_file_mapping[tokens[0]]
-            # else:
-            #     languages = tokens[0] + "-x-bible" # TODO fixme 
             if len(tokens[0]) > 2:
                 for edition in align_reader.lang_name_file_mapping:
                     if edition.startswith(tokens[0]):
