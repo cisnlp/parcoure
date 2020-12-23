@@ -59,22 +59,27 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm">
-                <div class="font-weight-light">
-                    <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
-                    <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
-                    <!-- <div>Demo code (tbd) </div> -->
-                    <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
-                    <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a> |
-                    <a href="/index">{% if request.path == "/index" or request.path == "/" %} <b>SimAlign</b> {% else %} SimAlign {% endif %}</a> |
-                    <a href="/multalign">{% if request.path == "/multlign"  %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> |
-                    <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a>
-                <hr>
-                </div>
+            <div class="col">
+                <a href="/index">{% if request.path == "/index" or request.path == "/" %} <b>SimAlign</b> {% else %} SimAlign {% endif %}</a> |
+                    <a href="/multalign">{% if request.path == "/multalign"  %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> |
+                    <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a> |
+                    <a href="/stats">{% if request.path == "/stats"  %} <b>Stats</b> {% else %} Stats {% endif %}</a>
+                    <hr/>
             </div>
         </div>
+        
 
         {% block content %}{% endblock %}
-    </div>
+    
+    <footer class="fixed-bottom">
+        <div class="container">
+            <hr>
+                        <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
+                        <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
+                        <!-- <div>Demo code (tbd) </div> -->
+                        <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> 
+            <hr>
+        </div>
+    </footer>
     </body>
 </html>

@@ -1,38 +1,176 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="tool">
-    <div id="description">
-        <h1 class="display-1">SimAlign</h1>
-        <div class="font-weight-light">
-            <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
-            <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
-            <!-- <div>Demo code (tbd) </div> -->
-            <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
-            <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a></br>
-            <a href="/index">SimAlign</a> |
-            <a href="/multalign">MultAlign</a>
-        <hr>
-        </div>
-        <div id="cockpit">
-            <div id="comment" class="font-weight-light .bg-light">
-        	Align the Bible.
+        <!-- <div id="bootstrapize" > -->
+            
+            <!-- <script>
+                $('select').selectpicker();
+            </script> -->
+
+            <div class="row">
+                <div class="col-8 font-weight-light" style="">
+                Search through the Bible in different languages by typing in the below box.<br/> 
+                You can specify your language using `l:&ltlanguage&gt` at the beginning like: l:deu jesus<br/>
+                You can specify a verse number using `v:&ltverse number&gt` at the beginning like: v:40002017<br/>
+                You can also specify both language and verse number like: l:eng-basic v:40002017
+                <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
+                Steer your desired tokenization using whitespaces.
+                Language coverage is identical to multilingual BERT.
+                Alignments are computed on subword level with multilingual BERT
+                for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                </div>
             </div>
-        </div>
-        <form action="" method="post" novalidate>
-                    {{ form.hidden_tag() }}
-                    <p>
-                        {{ form.l1.label(class="font-weight-bold") }}
-                        {{ form.l1() }}
-                        {{ form.l2() }}
-                        {{ form.l3() }}
-                    </p>
-                    <p>
-                        {{ form.verseid.label(class="font-weight-bold") }}
-                        {{ form.verseid() }}
-                    </p>
-                    <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
-        </form>
+            <br><br>
+
+            <div  id="selected_verses">
+                
+            </div>
+            <br>
+            <div class="row">
+                <!-- <script src={{ url_for('static', filename='main.js') }}></script> -->
+
+                <form action="" method="post" novalidate class="col">
+                    <div id="selected_verses_input"></div>
+                    <div class="form-group">
+                        {{ form.verse(class="form-control basicAutoComplete") }}
+                    </div>
+                    {% if errorA %}
+                        <div class="col-6 justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorA}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    <!-- {{ form.hidden_tag() }} -->
+                    <div class="form-group">
+                        <!-- <div class="col-10"> -->
+                        {{ form.languages.label() }}
+                        {{ form.languages(class="selectpicker form-control ")}}
+                        <!-- </div> -->
+                    </div>
+
+                    {% if errorB %}
+                        <div class="col-6  justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorB}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    <div class="col-6 d-flex justify-content-center">
+                        <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                    </div>
+                </form>
+            </div>    
+
+                 
+        <!-- </div> -->
     </div>
-</div>
+    <div style="display: block; margin-left: auto; margin-right: auto; text-align: center;" >
+        {% if docs_alignment %}
+            {% for i in range(0, doc_count) %}
+                <div id="chart{{i}}" style="margin-right: 100;"></div> 
+                <br/><br/>
+            {% endfor %} 
+        {% endif %}
+        <div id="my-svg-content-responsive"  >
+        </div>   
+    </div>
+
+    {% if docs_alignment %}
+        {%for i in range(0, doc_count)%}
+        
+            <script type="module">
+
+                var alignment = {{ docs_alignment[i] | tojson | safe }};
+            
+                import define from "./static/index.js";
+                import {Runtime, Library, Inspector} from "./static/runtime.js";
+                
+                const runtime = new Runtime();
+                // const main = runtime.module(define, Inspector.into(document.body));
+                const main = runtime.module(define, name => {
+                if (name === "chart") {
+                    return new Inspector(document.querySelector("#chart{{i}}"));
+                }
+                });
+
+                // console.log(alignment);
+                try {
+                    main.redefine("data", alignment);
+                } catch (error) {
+                    console.log(error);
+                }
+                
+                
+            </script>
+        {%endfor%}
+    {% endif %} 
+    
+
+      
+<script>
+
+    function remove(me) {
+        document.getElementById("selecteddiv" + me).remove();
+    }
+
+    $('.basicAutoComplete').autoComplete({autoSelect: false,});
+
+    let inputString = "";
+    let selectedCount = 0;
+    $('.basicAutoComplete').on('change', function() {
+                    console.log('eventsAutoComplete change' + $(this).val());
+                    inputString = $(this).val();
+					// eventsCodeContainer.text(eventsCodeContainer.text() + 'fired change. value: ' + $(this).val() + '\n');
+				});
+    $('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
+        console.log('eventsAutoComplete autocomplete.freevalue');
+    });
+    $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
+        console.log('eventsAutoComplete autocomplete.select: '+ item.text + " " + item.value);
+        console.log("select input string : " + inputString)
+        if (item.value != inputString) {
+            $(this).autoComplete('set', { text: inputString, value: inputString });       
+            $(this).focus();
+            $(this).autoComplete('show');
+            
+            
+            let input = document.createElement("input");
+            input.setAttribute("type", "hidden");
+            input.setAttribute("name", "verses-"+selectedCount+"-verse_id");
+            input.setAttribute("value", item.value);
+
+            let outerDiv = document.createElement("div");
+            outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
+            outerDiv.setAttribute("class", "row");
+            let inputLabel = document.createElement("div");
+            inputLabel.setAttribute("class", "col");
+            inputLabel.innerHTML = "<p>" + item.text +" </p>";
+            let removeBtn = document.createElement("button");
+            removeBtn.setAttribute("type", "button");
+            removeBtn.setAttribute("class", "close");
+            removeBtn.setAttribute("aria-label", "Close");
+            removeBtn.setAttribute("id", "selectedrm"+selectedCount);
+            removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
+            let removeSpn = document.createElement("span");
+            removeSpn.setAttribute("aria-hidden", "true");
+            removeSpn.innerHTML="&times;";
+            removeBtn.appendChild(removeSpn);
+            outerDiv.appendChild(inputLabel);
+            outerDiv.appendChild(removeBtn);
+            
+            //append to form element that you want .
+            document.getElementById("selected_verses_input").appendChild(input);
+            document.getElementById("selected_verses").appendChild(outerDiv);
+
+            selectedCount ++;
+        }
+    });
+    
+
+</script>
 {% endblock %}

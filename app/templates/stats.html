@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+            
+        <!-- <script>
+            $('select').selectpicker();
+        </script> -->
+
+        <div class="row">
+            <div class="col-8 font-weight-light" style="">
+                We should put a propper description here
+            </div>
+        </div>
+        <br><br>
+
+        <div class="row">
+            <script src={{ url_for('static', filename='main.js') }}></script>
+            <form action="" method="post" novalidate class="col">
+                <div class="form-group">
+                    {{ form.file_path.label() }}
+                    {{ form.file_path(class="form-control") }}
+                </div>
+                {% if errorA %}
+                    <div class="col-6 justify-content-center">
+                        <p class="font-weight-bold text-danger myerror">
+                            {{errorA}}
+                        </p>
+                    </div>
+                {% endif %}
+                <br/>
+
+                <div class="form-group">
+                    {{ form.minimum.label() }}
+                    {{ form.minimum(class="form-control") }}
+                </div>
+                <br/>
+
+                <div class="form-group">
+                    {{ form.maximum.label() }}
+                    {{ form.maximum(class="form-control") }}
+                </div>
+                <br/>
+
+                <div class="form-group">
+                    {{ form.bin_size.label() }}
+                    {{ form.bin_size(class="form-control") }}
+                </div>
+                <br/>
+
+                {{ form.hidden_tag() }}
+
+                <div class="col-6 d-flex justify-content-center">
+                    <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                </div>
+            </form>
+        </div>    
+    </div>
+    
+    <div id="chart"></div>
+    <div id="data" class="container"></div>
+
+    {% if stats %}
+
+        <script type="module">
+            console.log("hi")
+            var stats = {{ stats | tojson | safe }};
+            var bins = {{ stats["items"] | tojson | safe }};
+
+            import define from "./static/stats.js";
+            import {Runtime, Library, Inspector} from "./static/runtime.js";
+            
+            const runtime = new Runtime();
+            // const main = runtime.module(define, Inspector.into(document.body));
+            const main = runtime.module(define, name => {
+            if (name === "chart") {
+                return new Inspector(document.querySelector("#chart"));
+            }
+            });
+
+            console.log(stats);
+            try {
+                main.redefine("data", stats);
+                // main.redefine("bins", bins);
+            } catch (error) {
+                console.log(error);
+            }
+            
+            
+        </script>    
+    {% endif %}
+    
+
+{% endblock %}

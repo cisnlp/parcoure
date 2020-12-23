@@ -4,7 +4,7 @@ if utils.CIS:
     sys.path.append("/mounts/work/philipp/simalign-demo/simalign")
 else:
     sys.path.append("/Users/philipp/Dropbox/PhD/projects/simalign")
-import simalign
+# import simalign
 
 
 class PLM(object):

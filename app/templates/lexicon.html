@@ -9,17 +9,15 @@
 
             <div class="row">
                 <div class="col-8 font-weight-light" style="">
-                    We should put a propper description here
-                <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
-                Steer your desired tokenization using whitespaces.
-                Language coverage is identical to multilingual BERT.
-                Alignments are computed on subword level with multilingual BERT
-                for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                Select a source language and enter a few words to translate.<br/>
+                Select your desired target languages and hit the Submit button.<br>
+                You will see an alignment based translation of the words in target languages.
+                
                 </div>
             </div>
             <br><br>
 
-            <div  id="selected_verses">
+            <div  id="file_path">
                 
             </div>
             <br>
@@ -125,11 +123,13 @@
                         .append(jQuery('<input>', {
                             'name': 'verse',
                             'value': d['data']['source_word']
-                        }))
-                        .append(jQuery('<input>', {
-                            'name': 'languages',
-                            'value': d['data']['target_language']
                         }));
+                        for (i = 0; i< d['data']['target_language'].length; i++){
+                            newForm.append(jQuery('<input>', {
+                                'name': 'languages',
+                                'value': d['data']['target_language'][i]
+                            }));
+                        }
 
                         for(i = 0; i< d['data']['verses'].length; i++){
                             newForm.append(jQuery('<input>', {
