@@ -60,7 +60,8 @@ class GeneralAlignReader(AlignReader):
 				else:
 					self.lang_files[lang_name].append(file_name)
 
-		self.all_langs = list(self.lang_files.keys()).sort()
+		self.all_langs = list(self.lang_files.keys())
+		self.all_langs.sort()
 
 	def get_source_target_order(self, lang_1, lang_2):
 		for lang in self.all_langs:

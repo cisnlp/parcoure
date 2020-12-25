@@ -21,15 +21,6 @@ class MultialignForm(FlaskForm):
     )
     submit = SubmitField('Align')
 
-class MultAlignForm(FlaskForm):
-    langs = [('en_kingjames', 'English - KingJames'), ('de_genfer', 'German - Genfer'), ('es_newworld', 'Spanish - Newworld')]
-    verses = [(40001001, "40001001"), (40001002, "40001002")]
-    l1 = SelectField('Editions', choices=langs)
-    l2 = SelectField('Editions', choices=langs)
-    l3 = SelectField('Editions', choices=langs)
-    verseid = SelectField('VerseId', choices=verses)
-    submit = SubmitField('Align')
-
 class LexiconForm(FlaskForm):
     class Meta:
         csrf = False
