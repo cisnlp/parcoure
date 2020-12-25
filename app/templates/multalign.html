@@ -116,12 +116,47 @@
 
     function remove(me) {
         document.getElementById("selecteddiv" + me).remove();
+        document.getElementById("hiddeninputverse"+me).remove();
     }
 
     $('.basicAutoComplete').autoComplete({autoSelect: false,});
 
     let inputString = "";
     let selectedCount = 0;
+
+    function add_selected_doc_item(value, text) {
+        let input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", "verses-"+selectedCount+"-verse_id");
+        input.setAttribute("value", value);
+        input.setAttribute("id", "hiddeninputverse"+selectedCount)
+
+        let outerDiv = document.createElement("div");
+        outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
+        outerDiv.setAttribute("class", "row");
+        let inputLabel = document.createElement("div");
+        inputLabel.setAttribute("class", "col");
+        inputLabel.innerHTML = "<p>" + text +" </p>";
+        let removeBtn = document.createElement("button");
+        removeBtn.setAttribute("type", "button");
+        removeBtn.setAttribute("class", "close");
+        removeBtn.setAttribute("aria-label", "Close");
+        removeBtn.setAttribute("id", "selectedrm"+selectedCount);
+        removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
+        let removeSpn = document.createElement("span");
+        removeSpn.setAttribute("aria-hidden", "true");
+        removeSpn.innerHTML="&times;";
+        removeBtn.appendChild(removeSpn);
+        outerDiv.appendChild(inputLabel);
+        outerDiv.appendChild(removeBtn);
+        
+        //append to form element that you want .
+        document.getElementById("selected_verses_input").appendChild(input);
+        document.getElementById("selected_verses").appendChild(outerDiv);
+
+        selectedCount ++;
+    };
+    
     $('.basicAutoComplete').on('change', function() {
                     console.log('eventsAutoComplete change' + $(this).val());
                     inputString = $(this).val();
@@ -138,39 +173,16 @@
             $(this).focus();
             $(this).autoComplete('show');
             
+            add_selected_doc_item(item.value, item.text);
             
-            let input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "verses-"+selectedCount+"-verse_id");
-            input.setAttribute("value", item.value);
-
-            let outerDiv = document.createElement("div");
-            outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
-            outerDiv.setAttribute("class", "row");
-            let inputLabel = document.createElement("div");
-            inputLabel.setAttribute("class", "col");
-            inputLabel.innerHTML = "<p>" + item.text +" </p>";
-            let removeBtn = document.createElement("button");
-            removeBtn.setAttribute("type", "button");
-            removeBtn.setAttribute("class", "close");
-            removeBtn.setAttribute("aria-label", "Close");
-            removeBtn.setAttribute("id", "selectedrm"+selectedCount);
-            removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
-            let removeSpn = document.createElement("span");
-            removeSpn.setAttribute("aria-hidden", "true");
-            removeSpn.innerHTML="&times;";
-            removeBtn.appendChild(removeSpn);
-            outerDiv.appendChild(inputLabel);
-            outerDiv.appendChild(removeBtn);
             
-            //append to form element that you want .
-            document.getElementById("selected_verses_input").appendChild(input);
-            document.getElementById("selected_verses").appendChild(outerDiv);
-
-            selectedCount ++;
         }
     });
     
+    {% for x in prev_verses %}
+        console.log($.parseHTML( '{{prev_verses[x]}}'));
+        add_selected_doc_item('{{x}}', $.parseHTML( '{{prev_verses[x]}}')[0].data)
+    {% endfor%}
 
 </script>
 {% endblock %}

@@ -16,7 +16,7 @@ class MultialignForm(FlaskForm):
     verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
     verses = FieldList(
         FormField(VerseForm),
-        min_entries=1,
+        min_entries=0,
         max_entries=50
     )
     submit = SubmitField('Align')

@@ -33,25 +33,29 @@ def convert_alignment(initial_output):
 def multalign():
     form = MultialignForm()
     alignment = None
+    prev_verses = {}
     if form.validate_on_submit():
         doc_alignments = []
         errorA = None
         utils.LOG.info("Received: {} ||| {} ".format(form.languages.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)) + "_" + str(form.verses[0].verse_id) )))
         documents = [x.verse_id.data.strip() for x in form.verses]
-        
-        documents = list(filter(lambda x: len(x.split('@')) > 1, documents))
+        documents = list(filter(lambda x: len(x.split('@')) > 1, documents)) 
         input_tokens = form.verse.data.strip().split()
         
         if len(documents) == 0:
             errorA = 'Please select at least one bible verse.'
         else:
-            for document in documents:
-                verse_id, source_language = (document.split('@')[0], document.split('@')[1])
 
-                alignments = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
-                doc_alignments.append(alignments)
+            for document in documents: 
+                if document not in prev_verses: # the user may select a verse twice
+                    verse_id, source_language = (document.split('@')[0], document.split('@')[1])
 
-        return render_template('multalign.html', title='SimAlign', form=form, docs_alignment=doc_alignments, doc_count=len(doc_alignments), errorA=errorA, errorB=None)
+                    alignments = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
+                    doc_alignments.append(alignments)
+                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_lang_name_mapping[source_language] + "</span>: " 
+                    prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
+
+        return render_template('multalign.html', title='SimAlign', form=form, docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, errorA=errorA, errorB=None)
         
     else:
         errorA = None
@@ -79,10 +83,6 @@ def index():
             res = plm.aligners[form.model.data].get_word_aligns(
                 [form.english.data.split(" "), form.foreign.data.split(" ")])
             res = convert_alignment(res)
-            # print(form.model.data)
-            # print(form.method.data)
-            # print(res)
-            # {'mwmf': ['0-0', '1-1'], 'inter': ['0-0', '1-1'], 'itermax': ['0-0', '1-1']}
         else:
             res = {"inter": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
                     "itermax": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],

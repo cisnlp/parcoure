@@ -3,6 +3,7 @@ import codecs
 import os
 from app.utils import LOG, Cache
 import pickle
+import collections
 
 class GeneralAlignReader(AlignReader):
 
@@ -20,8 +21,8 @@ class GeneralAlignReader(AlignReader):
 		self.read_prefix_file()
 		self.content_cache = Cache(self.read_alignment_file)
 		self.indexes_cache = Cache(self.read_index_file)
-		self.lang_name_file_mapping = self.read_dict_file(config_path + "language_name_file_mapping.txt")
-		self.file_lang_name_mapping = self.read_dict_file(config_path + "file_language_name_mapping.txt")
+		self.lang_name_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "language_name_file_mapping.txt").items()))
+		self.file_lang_name_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_language_name_mapping.txt").items()))
 		self.index_size = 121447 #TODO put me in config
 
 	def setup_dict_entry(self, _dict, entry, val):
