@@ -109,17 +109,6 @@ class Lexicon(object):
             LOG.info(4)
             all_verses_alignments = {}
 
-            # if os.path.exists()
-            aligns = align_reader.read_alignment_file(align_reader.get_align_file_path(source_lang, target_lang))
-            index = align_reader.read_index_file(align_reader.get_index_file_path(source_lang, target_lang))
-
-            
-            # align_reader.content_cache.get(align_reader.get_align_file_path(source_lang, target_lang))
-            # align_reader.indexes_cache.get(align_reader.get_index_file_path(source_lang, target_lang))
-
-            with open("./af", "wb") as af, open("./if", "wb") as iif:
-                pickle.dump(aligns, af)
-                pickle.dump(index, iif) 
 
             per_processor = 10 #TODO make me config
             cpu_count = math.floor((len(align_reader.lang_files[source_lang]) * len(align_reader.lang_files[target_lang]))/10) + 1
@@ -129,15 +118,14 @@ class Lexicon(object):
             edition_pairs = [] 
             for source_edition in align_reader.lang_files[source_lang]:
                 for target_edition in align_reader.lang_files[target_lang]:
-                    LOG.info((source_edition, target_edition))
                     edition_pairs.append((source_edition, target_edition))
                     if (len(edition_pairs) == per_processor):
-                        args.append((verses[:], edition_pairs[:], './af', './if'))
+                        args.append((verses[:], edition_pairs[:]))
                         edition_pairs = []
                     # alignments.append(align_reader.get_verse_alignment(verses, source_edition, target_edition))
 
             if len(edition_pairs) > 0:
-                args.append((verses[:], edition_pairs[:], './af', './if')) #TODO fixme
+                args.append((verses[:], edition_pairs[:])) #TODO fixme
                 
             with Pool(cpu_count) as p:  
                 alignment_groups = p.starmap(align_reader.get_verse_alignment_mp, args) 
@@ -145,7 +133,6 @@ class Lexicon(object):
             for group in alignment_groups:
                 for item in group:
                     alignments.append(item[2])
-                    LOG.info((item[0], item[1]))
             LOG.info(6)
 
             i = 0
@@ -153,7 +140,6 @@ class Lexicon(object):
                 all_verses_alignments[source_edition] = {}
                 for target_edition in align_reader.lang_files[target_lang]:
                     all_verses_alignments[source_edition][target_edition] = alignments[i]
-                    LOG.info(len(alignments[i].keys()))
                     i += 1
             LOG.info(7)
             for source_edition in align_reader.lang_files[source_lang]:
