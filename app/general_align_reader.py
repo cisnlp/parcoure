@@ -274,15 +274,21 @@ class GeneralAlignReader(AlignReader):
 				index_t = self.get_index(s_lang, t_lang)
 				ps_lang, pt_lang = s_lang, t_lang
 
-
+			index = None
 			if s_edition in index_t:
 				if t_edition in index_t[s_edition]:
 					index = index_t[s_edition][t_edition]
+			
+			if index is not None:
 
-			LOG.info("getting verse, {}, {}, {}, {}, {}, {}, {}".format(edition_pairs[0], edition_1, edition_2, s_lang, t_lang, ps_lang, pt_lang, len(index_t), len(index)))
-			for verse in verse_nums:
-				if verse in index:
-					aligns[verse] = self.create_ordered_alignment(alignments, index[verse], revert) 
-			LOG.info("verses got")
+				LOG.info("getting verse, {}, {}, {}, {}, {}, {}, {}, {}".format( edition_1, edition_2, s_lang, t_lang, ps_lang, pt_lang, len(index_t), len(index)))
+				for verse in verse_nums:
+					if verse in index:
+						aligns[verse] = self.create_ordered_alignment(alignments, index[verse], revert) 
+				LOG.info("verses got")
+				
+			else: 
+				LOG.warning("couldn't find index for: " + s_edition + ", " + t_edition)
+				
 			res.append((edition_1, edition_2, aligns))
 		return res
