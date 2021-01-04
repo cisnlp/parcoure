@@ -59,6 +59,10 @@ def get_logger(name, filename, level=logging.DEBUG):
     return logger
 
 
+def setup_dict_entry(_dict, entry, val):
+    if entry not in _dict:
+        _dict[entry] = val
+
 CIS = False
 LOG = get_logger("analytics", "logs/analytics.log")
 

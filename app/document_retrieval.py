@@ -1,6 +1,7 @@
 from app import utils
 import requests
 import json
+from app.utils import LOG
 
 class DocumentRetriever(object):
 
@@ -36,7 +37,7 @@ class DocumentRetriever(object):
         if verse != None:
             query["query"]["bool"]["filter"]  = {"match": { "verse_id" : verse }}
 
-        print(query)
+        LOG.info(query)
         resp = requests.get(
             self.ealstic_search_autocomplete_url if prefixed_search else self.ealstic_search_normal_url, 
             data=json.dumps(query), headers = {'Content-Type': 'application/json'})

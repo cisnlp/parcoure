@@ -10,6 +10,3 @@ with open(align_reader.lang_order_file_path, 'w') as of:
                 of.write(lang1 + "," + lang2 + "\n")
             else:
                 of.write(lang2 + "," + lang1 + "\n")
-
-
-

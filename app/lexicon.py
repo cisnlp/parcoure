@@ -1,10 +1,11 @@
 from app.general_align_reader import GeneralAlignReader
 from app.document_retrieval import DocumentRetriever
 from datetime import datetime
-from app.utils import LOG
+from app.utils import LOG, Cache
 from multiprocessing import Pool
 import math
 import os
+from copy import deepcopy
 
 import pickle
 
@@ -14,6 +15,57 @@ doc_retriever = DocumentRetriever()
 
 
 class Lexicon(object):
+
+    def __init__(self, lexicon_path=""):
+        if lexicon_path != "":
+            self.lexicon_path = lexicon_path
+        else:
+            self.lexicon_path = "/mounts/work/ayyoob/alignment/output/lexicon/"
+        
+        self.lexicon_cache = Cache(self.read_lexicon)
+        
+    def lexicon_file(self, src_lang, trg_lang):
+        return self.lexicon_path + "/" + src_lang + "_" + trg_lang + ".txt"
+
+    def read_lexicon(self, path):
+        LOG.info("reading lexicon: " + path)
+        with open(path, 'rb') as inf:
+            return pickle.load(inf)
+
+    def get_from_pre_computed_lexicon(self, src_lang, trg_lang, word):
+        """[summary]
+
+        Args:
+            src_lang ([type]): [description]
+            trg_lang ([type]): [description]
+            word ([type]): [description]
+
+        Returns:
+            dictionary: {translation_in_trg_lang : {"count":2, "verses":[...], "trg_editions":[...]}
+        """
+
+        if not os.path.exists(self.lexicon_file(src_lang, trg_lang)):
+            return None
+        
+        lexicon = self.lexicon_cache.get(self.lexicon_file(src_lang, trg_lang))
+
+        if word not in lexicon:
+            return {}
+
+        res = deepcopy(lexicon[word])
+        
+
+        for trg_word in res:
+            res[trg_word]["trg_editions"] = []
+
+            for verse in res[trg_word]["verses"]:
+                edition = verse.split('@')[1]
+                if edition not in res[trg_word]["trg_editions"]:
+                    res[trg_word]["trg_editions"].append(edition)
+        
+        return res
+
+        
 
     def keep_only_containing_verses(self, docs, term, source_langauge):
         verses = []
@@ -86,8 +138,30 @@ class Lexicon(object):
 
 
     def get_translations(self, term, source_lang, target_langs):
+        """[summary]
+
+        Args:
+            term (string): a single term to find the translation for
+            source_lang (string): 3 letter lang name
+            target_langs (list): list of 3 letter target lang name
+
+        Returns:
+            dictionary: of shape {target_lang : {translation_in_trg_lang : {"count":2, "verses":[...], "trg_editions":[...]}} }
+        """
+        target_langs_copy = target_langs[:]
         res = {}
 
+        for target_lang in target_langs_copy[:]:
+            if source_lang == target_lang:
+                target_langs_copy.remove(target_lang)
+
+            if self.get_from_pre_computed_lexicon(source_lang, target_lang, term) != None:
+                res[target_lang] = self.get_from_pre_computed_lexicon(source_lang, target_lang, term)
+                target_langs_copy.remove(target_lang)
+        
+        if len(target_langs_copy) == 0:
+            return res
+        
         LOG.info(1)
         docs = doc_retriever.search_documents(term + " " + source_lang.strip()+"-x-bible",
             all_docs=True, prefixed_search=True)
@@ -96,9 +170,8 @@ class Lexicon(object):
         docs, verses = self.keep_only_containing_verses(docs, term, source_lang)
         LOG.info("sourcee lang verses: {}, {}".format(source_lang, len(verses)))
             
-        for target_lang in target_langs:
-            if source_lang == target_lang:
-                continue
+        for target_lang in target_langs_copy:
+
             res[target_lang] = {} 
             doc_ids = []
             LOG.info(3) 
