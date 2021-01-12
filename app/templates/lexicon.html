@@ -227,20 +227,20 @@
         </script>
         <div class="row" style="text-align: center;">
             
-
+            {% set counter = 1 %}
             {% for term, translations in dictionary.items()%}
                 {% for lang in translations.keys()%}
-                    <div id="dataviz_{{term}}_{{lang}}" class="col" style="margin-bottom: 100px;"></div>
+                    <div id="dataviz_{{counter}}_{{lang}}" class="col" style="margin-bottom: 100px;"></div>
                     <script>
                     
                         // append the svg object to the body of the page
-                        var svg = d3.select("#dataviz_{{term}}_{{lang}}")
+                        var svg = d3.select("#dataviz_{{counter}}_{{lang}}")
                         .append("svg")
                         .attr("width", width )
                         .attr("height", height )
                         .append("g")
                                                 
-                        var data = {{translations[lang] | tojson | safe}}
+                        var data = {{translations[lang] | tojson |safe}}
 
                         var color = d3.scale.ordinal()
                             .domain(data["children"].map(function(d){return d["label"]}))
@@ -248,6 +248,14 @@
 
                         change(data["children"], svg, color);
 
+                        svg.append("text")
+                        .attr("y", 0 - height/2 + 20 )
+                        .attr("text-anchor", "middle")  
+                        .style("font-size", "16px") 
+                        .style("text-decoration", "underline")  
+                        .text("{{term|safe}} alignments in " + data['l_name']);
+
+                        {% set counter = counter + 1 %}
                     </script>
                 {%endfor%}
             {%endfor%}

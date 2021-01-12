@@ -177,7 +177,11 @@ def convert_to_view_jason(translations, source_lang, source_word):
         # res[lang]["l_name"] = align_reader.file_lang_name_mapping[lang]
         res[trg_lang]["l_name"] = trg_lang
         res[trg_lang]["children"] = []
+
+        if len(words) == 0:
+            words['*no translation*'] = {'count':-1, 'verses':[], 'trg_editions':[], }
         tot = sum([x['count'] for x in words.values()])
+
         for word,data in words.items():
             if data['count']/tot > 0.05:
                 res[trg_lang]["children"].append({"label":word, "value":data['count']/tot, "verses":data['verses'], "target_language": data['trg_editions'], 'source_word': source_word, "count":data['count']})
