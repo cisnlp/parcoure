@@ -1,5 +1,7 @@
 import logging
 import multiprocessing
+import codecs
+import sys
 
 def synchronized_method(method):
     
@@ -39,6 +41,29 @@ class Cache():
 
 		return self.cache[key] 
 
+
+def read_dict_file_data(f_path):
+    res = {}
+    min = sys.maxsize
+    max = -min -1
+    with codecs.open(f_path, 'r', "utf-8") as f:
+        for line in f:
+            parts = line.split('\t')
+            if len(parts) == 2 or len(parts) == 3:
+                if len(parts) == 2:
+                    val = int(parts[1])
+                    key = parts[0]
+                else:
+                    val = int(parts[2])
+                    key = parts[0] + "  " + parts[1]
+                res[key] = val
+                if val > max:
+                    max = val
+                if val < min:
+                    min = val
+
+    return (res, min, max)
+
 def get_logger(name, filename, level=logging.DEBUG):
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -69,3 +94,5 @@ LOG = get_logger("analytics", "logs/analytics.log")
 
 es_index_url = "http://127.0.0.1:9200/bible_index"
 es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"
+
+

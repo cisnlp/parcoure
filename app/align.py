@@ -9,6 +9,7 @@ from app.document_retrieval import DocumentRetriever
 from app.lexicon import Lexicon
 import app.controler as controler
 import app.alignment_controller as alignment_controler
+from app.stats import one_lang_stat_vals, two_langs_stat_vals, one_edition_stat_vals, two_edition_stat_vals, no_lang_stat_vals
 
 # setting up alignment models
 if utils.CIS:
@@ -217,23 +218,41 @@ def dictionary():
 
     return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
 
+def checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2):
+    if stat_type in two_langs_stat_vals:
+        if lang1 not in align_reader.all_langs or lang2 not in align_reader.all_langs:
+            return 'you should select two languages for this stat'
+    elif stat_type in two_edition_stat_vals:
+        if edition1 not in align_reader.file_lang_name_mapping.keys() or edition2 not in align_reader.file_lang_name_mapping.keys():
+            return 'you should select two editions for this stat'
+    elif stat_type in one_lang_stat_vals:
+        if lang1 not in align_reader.all_langs:
+            return 'you should select one languages for this stat'
+    elif stat_type in one_edition_stat_vals:
+        if edition1 not in align_reader.file_lang_name_mapping.keys():
+            return 'you should select one editions for this stat'
 
 @app.route('/stats', methods=['GET', 'POST'])
-def stats():
+def statitics():
+    errorA = None
     form = statsForm()
     res = None
-    utils.LOG.info("Received: {} ||| {} ||| {} ||| {}".format(form.file_path.data, form.minimum.data, form.maximum.data, form.bin_size.data))
+    utils.LOG.info("Received: {} ||| {} ||| {} ||| {} ||| {} ||| {} ||| {} ||| {}".format(form.stat_type.data, form.lang1.data, form.lang2.data, form.edition_1.data, form.edition_2.data, form.minimum.data, form.maximum.data, form.bin_count.data))
     
     if form.validate_on_submit():
         res = []
-        f_path = form.file_path.data
+        stat_type = form.stat_type.data 
+        lang1 = form.lang1.data
+        lang2 = form.lang2.data
+        edition1 = form.edition_1.data
+        edition2 = form.edition_2.data
         min = form.minimum.data
         max = form.maximum.data
-        bin_size = 20 if form.bin_size.data == None or form.bin_size.data < 1 else form.bin_size.data
-        if not os.path.exists(f_path):
-            errorA = "Bad file path!"
-        else:
-            res = controler.extract_data_from_file(f_path, bin_size, min, max)
+        bin_count = 20 if form.bin_count.data == None or form.bin_count.data < 1 else form.bin_count.data
+        
+        errorA = checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2)
+        if errorA == None:
+            res = controler.extract_data_from_file(stat_type, lang1, lang2, edition1, edition2, bin_count, min, max)
     else:
         print("sag")
     #     query = form.query.data
@@ -261,7 +280,7 @@ def stats():
     #     return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
     # utils.LOG.info("2 Running lexicon finished.")
 
-    return render_template('stats.html', title='SimAlign-Demo-stats', form=form, stats=res, errorA=None)
+    return render_template('stats.html', title='SimAlign-Demo-stats', form=form, stats=res, errorA=errorA)
 
 
 @app.after_request

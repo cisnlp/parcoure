@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, SubmitField, SelectField, SelectMultipleField, FieldList, FormField, Form, IntegerField, RadioField
+from wtforms import StringField, SubmitField, SelectField, SelectMultipleField, FieldList, FormField, Form, IntegerField, RadioField, FloatField
 from wtforms.validators import DataRequired, Length, Required, Optional
 from app.general_align_reader import GeneralAlignReader 
+from app import stats
 
 
 align_reader = GeneralAlignReader()
@@ -31,10 +32,20 @@ class LexiconForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class statsForm(FlaskForm):
-    file_path = StringField('File:', validators=[Required()], render_kw={"placeholder":"Enter a file for stats"})
-    minimum = IntegerField('Min', validators=[Optional()])
-    maximum = IntegerField('Max', validators=[Optional()])
-    bin_size = IntegerField('Bin Size', validators=[Optional()], render_kw={"placeholder":20})
+    valid_edition_1 = list(align_reader.file_lang_name_mapping.items())[:]
+    for edition in valid_edition_1[:]:
+        if not edition[0].startswith('eng') or edition[0].startswith('prs'):
+            valid_edition_1.remove(edition)
+    #file_path = StringField('File:', validators=[Required()], render_kw={"placeholder":"Enter a file for stats"})
+    stat_type = SelectField('stat type', validators=[Required()], choices=stats.stat_types)
+    lang1 = SelectField('language 1', validators=[Optional()], choices = [('eng', 'eng'), ('prs', 'prs')])
+    lang2 = SelectField('language 2', validators=[Optional()], choices = [(x,x) for x in align_reader.all_langs])
+    edition_1 = SelectField('edition 1', validators=[Optional()], choices = valid_edition_1)
+    edition_2 = SelectField('edition 1', validators=[Optional()], choices = align_reader.file_lang_name_mapping.items())
+    
+    minimum = FloatField('Min', validators=[Optional()])
+    maximum = FloatField('Max', validators=[Optional()])
+    bin_count = IntegerField('Bin count', validators=[Optional()], render_kw={"placeholder":20})
     submit = SubmitField('Submit')
 
 

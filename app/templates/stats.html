@@ -17,8 +17,8 @@
             <script src={{ url_for('static', filename='main.js') }}></script>
             <form action="" method="post" novalidate class="col">
                 <div class="form-group">
-                    {{ form.file_path.label() }}
-                    {{ form.file_path(class="form-control") }}
+                    {{ form.stat_type.label() }}
+                    {{ form.stat_type(class="form-control") }}
                 </div>
                 {% if errorA %}
                     <div class="col-6 justify-content-center">
@@ -28,6 +28,41 @@
                     </div>
                 {% endif %}
                 <br/>
+                
+                <div class="row">
+                    <div class="col">
+                    <div class="form-group">
+                        {{ form.lang1.label() }}
+                        {{ form.lang1(class="form-control") }}
+                    </div>
+                    </div>
+                    
+                    <div class="col">
+                    <div class="form-group">
+                        {{ form.lang2.label() }}
+                        {{ form.lang2(class="form-control") }}
+                    </div>
+                    </div>
+                </div>
+                <br/>
+
+                <div class="row">
+                    <div class="col">
+                    <div class="form-group">
+                        {{ form.edition_1.label() }}
+                        {{ form.edition_1(class="form-control") }}
+                    </div>
+                    </div>
+                    
+                    <div class="col">
+                    <div class="form-group">
+                        {{ form.edition_2.label() }}
+                        {{ form.edition_2(class="form-control") }}
+                    </div>
+                    </div>
+                </div>
+                <br/>
+
 
                 <div class="form-group">
                     {{ form.minimum.label() }}
@@ -42,8 +77,8 @@
                 <br/>
 
                 <div class="form-group">
-                    {{ form.bin_size.label() }}
-                    {{ form.bin_size(class="form-control") }}
+                    {{ form.bin_count.label() }}
+                    {{ form.bin_count(class="form-control") }}
                 </div>
                 <br/>
 
