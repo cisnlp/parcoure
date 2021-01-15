@@ -20,7 +20,7 @@ class MultialignForm(FlaskForm):
         min_entries=0,
         max_entries=50
     )
-    recaptcha = RecaptchaField()
+    #recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
 class LexiconForm(FlaskForm):
@@ -29,7 +29,7 @@ class LexiconForm(FlaskForm):
     source_language = SelectField('Source language: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=[(x,x) for x in align_reader.all_langs])
     target_languages = SelectMultipleField('Target languages: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=[(x,x) for x in align_reader.all_langs])
     query = StringField('source word:', validators=[Required()], render_kw={"placeholder":"Enter a word to translate"})
-    recaptcha = RecaptchaField()
+    #recaptcha = RecaptchaField()
     submit = SubmitField('Submit')
 
 class statsForm(FlaskForm):
