@@ -84,6 +84,13 @@
 
                 {{ form.hidden_tag() }}
 
+                {% if form.recaptcha%}
+                    <div class="form-group">
+                    {{form.recaptcha(class="g-recaptcha")}}
+                    </div>
+                    <br>
+                {% endif %}
+                
                 <div class="col-6 d-flex justify-content-center">
                     <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
                 </div>

@@ -20,6 +20,7 @@ class MultialignForm(FlaskForm):
         min_entries=0,
         max_entries=50
     )
+    recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
 class LexiconForm(FlaskForm):
@@ -28,7 +29,7 @@ class LexiconForm(FlaskForm):
     source_language = SelectField('Source language: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=[(x,x) for x in align_reader.all_langs])
     target_languages = SelectMultipleField('Target languages: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=[(x,x) for x in align_reader.all_langs])
     query = StringField('source word:', validators=[Required()], render_kw={"placeholder":"Enter a word to translate"})
-    
+    recaptcha = RecaptchaField()
     submit = SubmitField('Submit')
 
 class statsForm(FlaskForm):
@@ -46,6 +47,7 @@ class statsForm(FlaskForm):
     minimum = FloatField('Min', validators=[Optional()])
     maximum = FloatField('Max', validators=[Optional()])
     bin_count = IntegerField('Bin count', validators=[Optional()], render_kw={"placeholder":20})
+    recaptcha = RecaptchaField()
     submit = SubmitField('Submit')
 
 
@@ -56,5 +58,5 @@ class AlignForm(FlaskForm):
     model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
     # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
     #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
-    # recaptcha = RecaptchaField()
+    recaptcha = RecaptchaField()
     submit = SubmitField('Align')

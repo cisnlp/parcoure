@@ -36,9 +36,10 @@ def multalign():
     alignment = None
     prev_verses = {}
     if form.validate_on_submit():
+
         doc_alignments = []
         errorA = None
-        utils.LOG.info("Received: {} ||| {} ".format(form.languages.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)) + "_" + str(form.verses[0].verse_id) )))
+        utils.LOG.info("Received: {} ||| {} ".format(form.languages.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)))))
         documents = [x.verse_id.data.strip() for x in form.verses]
         documents = list(filter(lambda x: len(x.split('@')) > 1, documents)) 
         input_tokens = form.verse.data.strip().split()
