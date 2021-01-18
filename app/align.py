@@ -151,7 +151,10 @@ def search():
     )
 
     utils.LOG.info("searching for: query: {}, langs: {}, verse: {}".format(q,languages, verse_id))
-    data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id)
+    if len(q) < 10 or len(q.split()) == 1:
+        data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=True)
+    else:
+        data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=False)
     utils.LOG.info(data)
     beers = []
     i = 1

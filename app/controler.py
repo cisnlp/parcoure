@@ -18,7 +18,7 @@ def find_bin(bins, value):
             return bin
 
 def bin_to_str(bin):
-    return "%.3f-%.3f" % (bin[0], bin[1])
+    return "%.1f-%.1f" % (bin[0], bin[1])
 
 def divide_dict_by_dict(numerator, denominator):
     res = {}

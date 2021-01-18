@@ -126,7 +126,36 @@
         document.getElementById("hiddeninputverse"+me).remove();
     }
 
-    $('.basicAutoComplete').autoComplete({autoSelect: false,});
+    $('.basicAutoComplete').autoComplete({
+        autoSelect: true,
+        events: {
+             typed: function (newValue, origJQElement) {
+                inputString = newValue;
+                return newValue;
+            },
+            searchPre: function (newValue, origJQElement) {
+                console.log("search pre " + newValue);
+                inputString = newValue;
+                return newValue;
+            }
+        },
+        formatResult: function(item) {
+            console.log("hi");
+            if (item.AlreadyVisited) {
+                add_selected_doc_item(item.value, item.text);
+                //$(this).focus();
+                //$(this).autoComplete('show');
+                return {text:inputString, value:item.value};
+            } else {
+                item.AlreadyVisited = true;
+                //$(this).focus();
+                $(".basicAutoComplete").focus();
+            }
+            //$(this).autoComplete('set', { text: inputString, value: inputString });
+            //item.text = inputString;
+            return item;
+        }
+    });
 
     let inputString = "";
     let selectedCount = 0;
@@ -164,27 +193,32 @@
         selectedCount ++;
     };
     
-    $('.basicAutoComplete').on('change', function() {
-                    console.log('eventsAutoComplete change' + $(this).val());
-                    inputString = $(this).val();
+  //  $('.basicAutoComplete').on('change', function() {
+    //                console.log('eventsAutoComplete change' + $(this).val());
+      //              inputString = $(this).val();
 					// eventsCodeContainer.text(eventsCodeContainer.text() + 'fired change. value: ' + $(this).val() + '\n');
-				});
-    $('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
-        console.log('eventsAutoComplete autocomplete.freevalue');
-    });
-    $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
-        console.log('eventsAutoComplete autocomplete.select: '+ item.text + " " + item.value);
-        console.log("select input string : " + inputString)
-        if (item.value != inputString) {
-            $(this).autoComplete('set', { text: inputString, value: inputString });       
-            $(this).focus();
-            $(this).autoComplete('show');
+		//		});
+    //$('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
+    //    console.log('eventsAutoComplete autocomplete.freevalue');
+    //});
+   $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
+       console.log("select");
+       $(this).autoComplete('show');
+        
+        //( ".dropdown-menu" ).addClass("show");
+   });
+    //    console.log('eventsAutoComplete autocomplete.select: '+ " " + item.value );
+    //    console.log("select input string : " + inputString )
+    //    if (item.value != inputString) {
+    //        $(this).autoComplete('set', { text: inputString, value: inputString });       
+    //        $(this).focus();
+    //        $(this).autoComplete('show');
             
-            add_selected_doc_item(item.value, item.text);
+    //        add_selected_doc_item(item.value, item.text);
             
             
-        }
-    });
+    //    }
+    //});
     
     {% for x in prev_verses %}
         console.log($.parseHTML( '{{prev_verses[x]}}'));
