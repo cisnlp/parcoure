@@ -60,3 +60,4 @@ class AlignForm(FlaskForm):
     #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
     submit = SubmitField('Align')
+

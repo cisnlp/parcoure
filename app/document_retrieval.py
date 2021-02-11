@@ -17,25 +17,38 @@ class DocumentRetriever(object):
         stick to at most 10000 retrieved docs,
         we can later implement retrieval of all matched docs
         """
-        query = {
-            "query": {
-                "bool":{
-                    "must": {
-                        "multi_match": {
-                            "fields": ["content", "language"],
-                            "query": q ,
-                            "type": "cross_fields"#,
-                            # "use_dis_max": False
-                            # , "analyzer":"autocomplete"
+        if q.strip() != "":
+            query = {
+                "query": {
+                    "bool":{
+                        "must": {
+                            "multi_match": {
+                                "fields": ["content", "language"],
+                                "query": q ,
+                                "type": "cross_fields"#,
+                                # "use_dis_max": False
+                                # , "analyzer":"autocomplete"
+                            }
                         }
                     }
                 }
             }
-        }
+
+            if verse != None:
+                query["query"]["bool"]["filter"]  = {"match": { "verse_id" : verse }}
+        else:
+            query = {
+                "query": {
+                    "bool":{
+                        "must": {
+                            "match": { "verse_id" : verse }
+                        }
+                    }
+                }
+            }
+
         query["size"] = 10000 if all_docs == True or doc_count > 10000 else doc_count
 
-        if verse != None:
-            query["query"]["bool"]["filter"]  = {"match": { "verse_id" : verse }}
 
         LOG.info(query)
         resp = requests.get(

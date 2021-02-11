@@ -1,6 +1,7 @@
 import json
 from app.general_align_reader import GeneralAlignReader
 import argparse
+from app.utils import read_files
 
 align_reader = GeneralAlignReader()
 
@@ -28,15 +29,18 @@ def convert_text_to_index_json( text, lang, res_path):
 
 def create_json_file_for_edition(edition, path):
     print("creating json file for: ", edition)
-    text = align_reader.get_text_for_lang(edition)
+    text = read_files([edition])[edition]
+    print("read %d sentences" % len(text))
     convert_text_to_index_json(text, edition, path)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="create json objects proper to feed to elasticSearch index, -b:only parse bert supported files, -n:only parse non-bert supported files.", 
+    parser = argparse.ArgumentParser(description="create json objects proper to feed to elasticSearch index, -b:only parse bert supported files, -n:only parse non-bert supported files -e edition_name do it for one edition.", 
 	epilog="example: python bible_to_json_convertor.py -n")
 
     parser.add_argument("-b", action="store_true")
     parser.add_argument("-n", action="store_true")
+    parser.add_argument("-e", default="")
+    parser.add_argument("-a", action="store_true")
 
     args = parser.parse_args()
     
@@ -48,9 +52,19 @@ if __name__ == "__main__":
             for edition in align_reader.lang_files[lang]:
                 if edition not in align_reader.bert_langs:
                     create_json_file_for_edition(edition, elastic_search_index_files_path_non_bert)
-    else:
+    elif args.e != "":
+        edition = args.e
+        if edition in align_reader.bert_langs:
+            create_json_file_for_edition(edition, elastic_search_index_files_path)
+        else:
+            create_json_file_for_edition(edition, elastic_search_index_files_path_non_bert)
+    elif args.a:
         for lang in align_reader.all_langs:
             for edition in align_reader.lang_files[lang]:
                 create_json_file_for_edition(edition, elastic_search_index_files_path)
+    else:
+        print("please provide correct arguments")
+        print(parser.description)
+        print(parser.epilog)
 
 

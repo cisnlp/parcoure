@@ -64,9 +64,12 @@ class AlignReader(object):
 		sentences = {}
 		with codecs.open(self.pbc_path + lang + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
+				print(l)
 				if l[0] == "#":
 					continue
+
 				l = l.strip().split("\t")
+				print(len(l))
 				if len(l) != 2:
 					continue
 				if l[0] in self.ids["all"]:

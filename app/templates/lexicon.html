@@ -53,7 +53,12 @@
                     <div class="form-group">
                         <!-- <div class="col-10"> -->
                         {{ form.target_languages.label() }}
-                        {{ form.target_languages(class="selectpicker form-control ")}}
+                        {{ form.target_languages(class="js-example-basic-multiple form-control ", multiple="multiple", style="width: 100%")}}
+                        <script type="text/javascript">
+                            $(".js-example-basic-multiple").select2({
+                                theme: "bootstrap4"
+                              });
+                        </script>
                         <!-- </div> -->
                     </div>
                     {% if errorC %}

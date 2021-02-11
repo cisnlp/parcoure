@@ -3,8 +3,8 @@ export default function define(runtime, observer) {
   const main = runtime.module();
   const fileAttachments = new Map([["miserables.json",new URL("./files/alignments",import.meta.url)]]);
   main.builtin("FileAttachment", runtime.fileAttachments(name => fileAttachments.get(name)));
-  
-  main.variable(observer("chart")).define("chart", ["d3","DOM","width","height","graph","margin","x","y","color","arc","step","invalidation"], function(d3,DOM,width,height,graph,margin,x,y,color,arc,step,invalidation)
+
+  main.variable(observer("chart")).define("chart", ["d3","DOM","width","height","graph","margin","x","y","color","arc","step","invalidation", "clusterView"], function(d3,DOM,width,height,graph,margin,x,y,color,arc,step,invalidation, clusterView)
 {
 
   var svgcont = d3.select("#my-svg-content-responsive")   
@@ -122,7 +122,7 @@ export default function define(runtime, observer) {
     .join("path")
       .attr("stroke", d => d.source.group === d.target.group ? color(d.source.group) : "#aaa")
       .attr("d", arc)
-      .classed("preset_primary", d => d.bold);
+      .classed("preset_primary", d => d.source.bold || d.target.bold || ((d.source.sbold || d.target.sbold) && clusterView) );
 
   const overlay = svg.append("g")
       .attr("fill", "none")
@@ -137,9 +137,9 @@ export default function define(runtime, observer) {
       .on("mouseover", d => {
         svg.classed("hover", true);
         svg.style("cursor", "pointer");
-        label.classed("primary", n => n === d);
+        label.classed("primary", n => n == d );
         label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-        path.classed("primary", l => l.source === d || l.target === d).filter(".primary").raise();
+        path.classed("primary", l => l.source === d || l.target === d || (d.connectedNodes.some(p => l.source === p) && clusterView) || (d.connectedNodes.some(p => l.target === p) && clusterView));
       })
       .on("mouseout", d => {
         svg.classed("hover", false);
@@ -173,31 +173,7 @@ export default function define(runtime, observer) {
         newForm.appendTo('body').submit();
     });
 
-  // function update() {
-  //   y.domain(graph.nodes.sort($0.value).map(d => d.id));
-
-  //   const t = svg.transition()
-  //       .duration(750);
-
-  //   label.transition(t)
-  //       .delay((d, i) => i * 20)
-  //       .attrTween("transform", d => {
-  //         const i = d3.interpolateNumber(d.y, y(d.id));
-  //         return t => `translate(${margin.left},${d.y = i(t)})`;
-  //       });
-
-  //   path.transition(t)
-  //       .duration(750 + graph.nodes.length * 20)
-  //       .attrTween("d", d => () => arc(d));
-
-  //   overlay.transition(t)
-  //       .delay((d, i) => i * 20)
-  //       .attr("y", d => y(d.id) - step / 2);
-  // }
-
-  // $0.addEventListener("input", update);
-  // invalidation.then(() => $0.removeEventListener("input", update));
-
+ 
   return svg.node();
 }
 );
@@ -242,6 +218,7 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
     tag,
     sourceLinks: [],
     targetLinks: [],
+    connectedNodes: [],
     group,
     pos, 
     bold,
@@ -262,8 +239,9 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
     const {source, target, bold} = link;
     source.sourceLinks.push(link);
     target.targetLinks.push(link);
+    source.connectedNodes.push(target);
+    target.connectedNodes.push(source);
     if (source.bold || target.bold){
-      link.bold = true;
       if (source.bold){
         target.sbold = true;
       } else {
@@ -280,9 +258,9 @@ d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCateg
   main.variable(observer("data")).define("data", ["FileAttachment"], function(FileAttachment){return(
 FileAttachment("miserables.json").json()
 )});
-//   main.variable(observer("data")).define("data", ["ldata"], function(ldata){return(
-// data
-// )});
+   main.variable(observer("clusterView")).define("clusterView", [], function(ldata){return(
+   false
+ )});
 
   main.variable(observer("d3")).define("d3", ["require"], function(require){return(
 require("d3@5")

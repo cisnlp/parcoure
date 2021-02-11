@@ -14,8 +14,8 @@ curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index
 files=`ls $corpus_location`
 for file in $files
 do 
-    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index/_bulk?pretty&refresh" --data-binary "@$corpus_location$file";
-    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index_noedge/_bulk?pretty&refresh" --data-binary "@$corpus_location$file";
+    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index/_bulk?pretty" --data-binary "@$corpus_location$file";
+    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index_noedge/_bulk?pretty" --data-binary "@$corpus_location$file";
 done
 
 #see number of indexed verses(documents)

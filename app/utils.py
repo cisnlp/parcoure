@@ -3,6 +3,36 @@ import multiprocessing
 import codecs
 import sys
 
+
+def get_logger(name, filename, level=logging.DEBUG):
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    fh = logging.FileHandler(filename)
+    ch = logging.StreamHandler()
+
+    fh.setLevel(level)
+    ch.setLevel(level)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
+    return logger
+
+
+pbc_path = "/nfs/datc/pbc/"
+CIS = False
+LOG = get_logger("analytics", "logs/analytics.log")
+
+es_index_url = "http://127.0.0.1:9200/bible_index"
+es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"
+
+
+
 def synchronized_method(method):
     
     outer_lock = multiprocessing.Lock()
@@ -64,35 +94,23 @@ def read_dict_file_data(f_path):
 
     return (res, min, max)
 
-def get_logger(name, filename, level=logging.DEBUG):
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    fh = logging.FileHandler(filename)
-    ch = logging.StreamHandler()
-
-    fh.setLevel(level)
-    ch.setLevel(level)
-
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-
-    logger.addHandler(ch)
-    logger.addHandler(fh)
-
-    return logger
-
-
 def setup_dict_entry(_dict, entry, val):
     if entry not in _dict:
         _dict[entry] = val
 
-CIS = False
-LOG = get_logger("analytics", "logs/analytics.log")
 
-
-es_index_url = "http://127.0.0.1:9200/bible_index"
-es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"
+def read_files(editions):
+	res = {}
+	for f in editions:
+		res[f] = {}
+		with codecs.open(pbc_path + f + ".txt", "r", "utf-8") as fi:
+			for l in fi:
+				if l[0] == "#":
+					continue
+				l = l.strip().split("\t")
+				if len(l) != 2:
+					continue
+				res[f][l[0]] = l[1]
+	return res
 
 

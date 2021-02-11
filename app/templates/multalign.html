@@ -45,10 +45,14 @@
 
                     <!-- {{ form.hidden_tag() }} -->
                     <div class="form-group">
-                        <!-- <div class="col-10"> -->
+                            
                         {{ form.languages.label() }}
-                        {{ form.languages(class="selectpicker form-control ")}}
-                        <!-- </div> -->
+                        {{ form.languages(class="js-example-basic-multiple form-control ", multiple="multiple", style="width: 100%")}}
+                        <script type="text/javascript">
+                            $(".js-example-basic-multiple").select2({
+                                theme: "bootstrap4"
+                              });
+                        </script>
                     </div>
 
                     {% if errorB %}
@@ -67,11 +71,30 @@
                     <br>
                     {% endif %}
 
-                    <div class="col-6 d-flex justify-content-center">
-                        <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                    <div class="row">
+                        <div class="col-2">
+                            <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                        </div>
+                        <div class="col-10" >
+                            <div class="float-right row" style="background-color: #ced4da;" >
+                                
+                                    <div class="col">
+                                    <input type="text" name='save_search' class="form-control  " placeholder="name" style=""> 
+                                    </div>
+                                    <div class="col">
+                                    <input class="btn btn-primary btn-rounded btn-xs  float-right" type="button" value="  save search   "><br>
+                                    <input class="btn btn-primary btn-rounded btn-xs float-right " type="button" value="retrieve search">
+                                    </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
+
                 </form>
+
+                
             </div>    
+            <br><br>
 
                  
         <!-- </div> -->
@@ -79,6 +102,9 @@
     <div style="display: block; margin-left: auto; margin-right: auto; text-align: center;" >
         {% if docs_alignment %}
             {% for i in range(0, doc_count) %}
+                <div class="container" style="text-align: center; margin-bottom: -16px;">
+                    <input  id="toggle-event-{{i}}" type="checkbox" data-toggle="toggle" data-on="cluster view" data-off="simple view" data-size="mini" data-offstyle="success"  data-width="95" >
+                </div>
                 <div id="chart{{i}}" style="margin-right: 100;"></div> 
                 <br/><br/>
             {% endfor %} 
@@ -91,7 +117,7 @@
         {%for i in range(0, doc_count)%}
         
             <script type="module">
-
+                let cluster{{i}} = false;
                 var alignment = {{ docs_alignment[i] | tojson | safe }};
             
                 import define from "./static/index.js";
@@ -99,19 +125,32 @@
                 
                 const runtime = new Runtime();
                 // const main = runtime.module(define, Inspector.into(document.body));
-                const main = runtime.module(define, name => {
+                const main{{i}} = runtime.module(define, name => {
                 if (name === "chart") {
                     return new Inspector(document.querySelector("#chart{{i}}"));
+                } else if (name === "order") {
+                    return new Inspector(document.querySelector("#order{{i}}"));
                 }
                 });
 
                 // console.log(alignment);
                 try {
-                    main.redefine("data", alignment);
+                    main{{i}}.redefine("data", alignment);
                 } catch (error) {
                     console.log(error);
                 }
                 
+                $(function() {
+                    $('#toggle-event-{{i}}').change(function() {
+                        if (cluster{{i}}) {
+                            cluster{{i}} = false;
+                        } else {
+                            cluster{{i}} = true;
+                        }
+                        main{{i}}.redefine("clusterView", cluster{{i}});
+                      console.log("toggled to  " + cluster{{i}});
+                    })
+                })
                 
             </script>
         {%endfor%}
