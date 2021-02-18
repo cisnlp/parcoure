@@ -61,3 +61,15 @@ class AlignForm(FlaskForm):
     recaptcha = RecaptchaField()
     submit = SubmitField('Align')
 
+class multalignInductionForm(FlaskForm):
+    class Meta:
+        csrf = False
+    target = SelectField('target language',  validators=[DataRequired()], choices=align_reader.file_lang_name_mapping.items())
+    verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
+    verses = FieldList(
+        FormField(VerseForm),
+        min_entries=0,
+        max_entries=50
+    )
+    #recaptcha = RecaptchaField()
+    submit = SubmitField('Align')

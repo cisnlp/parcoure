@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <!-- <div id="bootstrapize" > -->
+            
+            <!-- <script>
+                $('select').selectpicker();
+            </script> -->
+
+            <div class="row">
+                <div class="col-8 font-weight-light" style="">
+                Search through the Bible in different languages by typing in the below box.<br/> 
+                You can specify your language using `l:&ltlanguage&gt` at the beginning like: l:deu jesus<br/>
+                You can specify a verse number using `v:&ltverse number&gt` at the beginning like: v:40002017<br/>
+                You can also specify both language and verse number like: l:eng-basic v:40002017
+                <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
+                Steer your desired tokenization using whitespaces.
+                Language coverage is identical to multilingual BERT.
+                Alignments are computed on subword level with multilingual BERT
+                for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                </div>
+            </div>
+            <br><br>
+
+            <div  id="selected_verses">
+                
+            </div>
+            <br>
+            <div class="row">
+                <!-- <script src={{ url_for('static', filename='main.js') }}></script> -->
+
+                <form action="" method="post" novalidate class="col">
+                    <div id="selected_verses_input"></div>
+                    <div class="form-group">
+                        {{ form.verse(class="form-control basicAutoComplete") }}
+                    </div>
+                    {% if errorA %}
+                        <div class="col-6 justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorA}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    <!-- {{ form.hidden_tag() }} -->
+                    <div class="form-group">
+                            
+                        {{ form.target.label() }}
+                        {{ form.target(class=" form-control ")}}
+                        
+                    </div>
+
+                    {% if errorB %}
+                        <div class="col-6  justify-content-center">
+                            <p class="font-weight-bold text-danger myerror">
+                                {{errorB}}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <br/>
+
+                    {% if form.recaptcha%}
+                    <div class="form-group">
+                        {{form.recaptcha(class="g-recaptcha")}}
+                    </div>
+                    <br>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-2">
+                            <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                        </div>
+                        <div class="col-10" >
+                            <div class="float-right row" style="background-color: #ced4da;" >
+                                
+                                    <div class="col">
+                                    <input type="text" name='save_search' class="form-control  " placeholder="name" style=""> 
+                                    </div>
+                                    <div class="col">
+                                    <input class="btn btn-primary btn-rounded btn-xs  float-right" type="button" value="  save search   "><br>
+                                    <input class="btn btn-primary btn-rounded btn-xs float-right " type="button" value="retrieve search">
+                                    </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                
+            </div>    
+            <br><br>
+
+                 
+        <!-- </div> -->
+    </div>
+    <div style="display: block; margin-left: auto; margin-right: auto; text-align: center;" >
+        {% if docs_alignment %}
+            {% for i in range(0, doc_count) %}
+                <div class="container" style="text-align: center; margin-bottom: -16px;">
+                    <input  id="toggle-event-{{i}}" type="checkbox" data-toggle="toggle" data-on="cluster view" data-off="simple view" data-size="mini" data-offstyle="success"  data-width="95" >
+                </div>
+                <div id="chart{{i}}" style="margin-right: 100;"></div> 
+                <br/><br/>
+            {% endfor %} 
+        {% endif %}
+        <div id="my-svg-content-responsive"  >
+        </div>   
+    </div>
+
+    {% if docs_alignment %}
+        {%for i in range(0, doc_count)%}
+        
+            <script type="module">
+                let cluster{{i}} = false;
+                var alignment = {{ docs_alignment[i] | tojson | safe }};
+            
+                import define from "./static/index.js";
+                import {Runtime, Library, Inspector} from "./static/runtime.js";
+                
+                const runtime = new Runtime();
+                // const main = runtime.module(define, Inspector.into(document.body));
+                const main{{i}} = runtime.module(define, name => {
+                if (name === "chart") {
+                    return new Inspector(document.querySelector("#chart{{i}}"));
+                } else if (name === "order") {
+                    return new Inspector(document.querySelector("#order{{i}}"));
+                }
+                });
+
+                // console.log(alignment);
+                try {
+                    main{{i}}.redefine("data", alignment);
+                } catch (error) {
+                    console.log(error);
+                }
+                
+                $(function() {
+                    $('#toggle-event-{{i}}').change(function() {
+                        if (cluster{{i}}) {
+                            cluster{{i}} = false;
+                        } else {
+                            cluster{{i}} = true;
+                        }
+                        main{{i}}.redefine("clusterView", cluster{{i}});
+                      console.log("toggled to  " + cluster{{i}});
+                    })
+                })
+                
+            </script>
+        {%endfor%}
+    {% endif %} 
+    
+
+      
+<script>
+
+    function remove(me) {
+        document.getElementById("selecteddiv" + me).remove();
+        document.getElementById("hiddeninputverse"+me).remove();
+    }
+
+    $('.basicAutoComplete').autoComplete({
+        autoSelect: true,
+        events: {
+             typed: function (newValue, origJQElement) {
+                inputString = newValue;
+                return newValue;
+            },
+            searchPre: function (newValue, origJQElement) {
+                console.log("search pre " + newValue);
+                inputString = newValue;
+                return newValue;
+            }
+        },
+        formatResult: function(item) {
+            console.log("hi");
+            if (item.AlreadyVisited) {
+                add_selected_doc_item(item.value, item.text);
+                //$(this).focus();
+                //$(this).autoComplete('show');
+                return {text:inputString, value:item.value};
+            } else {
+                item.AlreadyVisited = true;
+                //$(this).focus();
+                $(".basicAutoComplete").focus();
+            }
+            //$(this).autoComplete('set', { text: inputString, value: inputString });
+            //item.text = inputString;
+            return item;
+        }
+    });
+
+    let inputString = "";
+    let selectedCount = 0;
+
+    function add_selected_doc_item(value, text) {
+        let input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", "verses-"+selectedCount+"-verse_id");
+        input.setAttribute("value", value);
+        input.setAttribute("id", "hiddeninputverse"+selectedCount)
+
+        let outerDiv = document.createElement("div");
+        outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
+        outerDiv.setAttribute("class", "row");
+        let inputLabel = document.createElement("div");
+        inputLabel.setAttribute("class", "col");
+        inputLabel.innerHTML = "<p>" + text +" </p>";
+        let removeBtn = document.createElement("button");
+        removeBtn.setAttribute("type", "button");
+        removeBtn.setAttribute("class", "close");
+        removeBtn.setAttribute("aria-label", "Close");
+        removeBtn.setAttribute("id", "selectedrm"+selectedCount);
+        removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
+        let removeSpn = document.createElement("span");
+        removeSpn.setAttribute("aria-hidden", "true");
+        removeSpn.innerHTML="&times;";
+        removeBtn.appendChild(removeSpn);
+        outerDiv.appendChild(inputLabel);
+        outerDiv.appendChild(removeBtn);
+        
+        //append to form element that you want .
+        document.getElementById("selected_verses_input").appendChild(input);
+        document.getElementById("selected_verses").appendChild(outerDiv);
+
+        selectedCount ++;
+    };
+    
+    $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
+        console.log("select");
+        $(this).autoComplete('show');
+            
+    });
+    
+    {% for x in prev_verses %}
+        console.log($.parseHTML( '{{prev_verses[x]}}'));
+        add_selected_doc_item('{{x}}', $.parseHTML( '{{prev_verses[x]}}')[0].data)
+    {% endfor%}
+
+</script>
+
+<br><br><br><br><br><br>
+{% endblock %}

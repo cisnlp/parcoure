@@ -263,33 +263,51 @@ def statitics():
             res = controler.extract_data_from_file(stat_type, lang1, lang2, edition1, edition2, bin_count, min, max)
     else:
         print("sag")
-    #     query = form.query.data
-    #     target_langs = form.target_languages.data
-    #     query_terms = query.strip().split(' ')
-    #     source_language = form.source_language.data
-
-    #     for query_term in query_terms:
-    #         translations = lexicon.get_translations(query_term, source_language, target_langs)
-    #         res[query_term] = convert_to_view_jason(translations, source_language, query_term)
-            
-    # else:
-    #     errorA = None
-    #     errorB = None
-    #     errorC = None
-    #     for error in form.errors:
-    #         if error == "source_language":
-    #             errorA = form.errors['source_language'][0]
-    #         if error == "query":
-    #             errorC = form.errors['query'][0]
-    #         if error == "target_languages":
-    #             errorB = form.errors['target_languages'][0]
-    #     utils.LOG.info("Input error: {}".format(form.errors))
-    #     utils.LOG.info("1 Running lexicon finished.")
-    #     return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
-    # utils.LOG.info("2 Running lexicon finished.")
-
+  
     return render_template('stats.html', title='SimAlign-Demo-stats', form=form, stats=res, errorA=errorA)
 
+@app.route('/aligninduction', methods=['GET', 'POST'])
+def align_induction():
+    form = multalignInductionForm()
+    alignment = None
+    prev_verses = {}
+    if form.validate_on_submit():
+
+        doc_alignments = []
+        errorA = None
+        utils.LOG.info("Received: {} ||| {} ".format(form.target.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)))))
+        documents = [x.verse_id.data.strip() for x in form.verses]
+        documents = list(filter(lambda x: len(x.split('@')) > 1, documents)) 
+        input_tokens = form.verse.data.strip().split()
+        
+        if len(documents) == 0:
+            errorA = 'Please select at least one bible verse.'
+        else:
+            for document in documents: 
+                if document not in prev_verses: # the user may select a verse twice
+                    verse_id, source_language = (document.split('@')[0], document.split('@')[1])
+
+                    alignments = alignment_controler.get_alignments_for_verse(verse_id, source_language, [form.target.data], input_tokens)
+                    induced_alignments = alignment_controler.induce_alingment(verse_id, source_language, form.target.data, input_tokens)
+                    doc_alignments.append(alignments)
+                    doc_alignments.append(induced_alignments)
+                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_lang_name_mapping[source_language] + "</span>: " 
+                    prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
+
+        return render_template('align_induction.html', title='SimAlign', form=form, docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, errorA=errorA, errorB=None)
+        
+    else:
+        errorA = None
+        errorB = None
+        for error in form.errors:
+            if error == "verse":
+                errorA = form.errors['verse'][0]
+            if error == "target":
+                errorB = form.errors['target'][0]
+        utils.LOG.info("Input error: {}".format(form.errors))
+        utils.LOG.info("Running index finished.")
+        return render_template('align_induction.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+    
 
 @app.after_request
 def add_header(r):

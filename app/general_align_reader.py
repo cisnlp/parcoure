@@ -21,15 +21,16 @@ class GeneralAlignReader(AlignReader):
 		self.index_path = "/mounts/work/ayyoob/alignment/output/"
 		self.prefix_file = "/mounts/work/mjalili/projects/pbc_simalign/configs/prefixes.txt"
 		self.lang_order_file_path = config_path + "/langauges_order_file.txt"
+		
 		self.all_langs = []
 		self.lang_files = {}
 		self.lang_orders = self.read_langs_order_file()
+		self.lang_name_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "language_name_file_mapping.txt").items()))
+		self.file_lang_name_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_language_name_mapping.txt").items()))
 
 		self.read_prefix_file()
 		self.content_cache = Cache(self.read_alignment_file)
 		self.indexes_cache = Cache(self.read_index_file)
-		self.lang_name_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "language_name_file_mapping.txt").items()))
-		self.file_lang_name_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_language_name_mapping.txt").items()))
 		self.index_size = 121447 #TODO put me in config
 		
 	def read_langs_order_file(self):
