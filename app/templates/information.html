@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+        {% for obj in info %}
+            <b>{{obj['title']}}</b><br>
+            {{obj['message']}} </br>
+            <a href="{{obj['link']}}" > more information about {{obj['title']}} </a>
+            
+            
+            {%if 'table' in obj%}
+                <br><br>
+                <table class="table table-bordered">
+                    <tr scope="row">
+                    {% for i in range(obj['len'])%}
+                        {% if i % 5 == 4 %}
+                            </tr><tr scope="row">
+                        {%endif%}
+                        <td>{{obj['table'][i]}}</td>
+                    {%endfor%}
+                    </tr>
+                </table>
+            {%endif%}
+            <br><br><br>
+            <hr>
+
+        {%endfor%}
+<br><br><br><br><br><br>
+{% endblock %}

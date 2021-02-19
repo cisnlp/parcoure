@@ -21,6 +21,7 @@ def get_links(langs, verse_id, lang_token_offset):
     return links
 
 def get_nodes(langs, source_lang, important_tokens, verse_id):
+    not_found_langs = []
     nodes = []
     lang_token_offset = {}
     max_pos = 0
@@ -30,7 +31,9 @@ def get_nodes(langs, source_lang, important_tokens, verse_id):
         lang_token_offset[lang] = token_nom
         tokens = doc_retriever.retrieve_document(verse_id + "@" + lang).split()
         target_langs = get_rest_of_langs(langs, lang)
-        
+        if len(tokens) == 0:
+            not_found_langs.append(align_reader.file_lang_name_mapping[lang])
+            
         nodes.extend([{
             "id" : token_nom + i ,
             "tag": w,
@@ -43,12 +46,30 @@ def get_nodes(langs, source_lang, important_tokens, verse_id):
         token_nom += len(tokens)
         max_pos  = max_pos if max_pos > len(tokens) else len(tokens)
 
-    return nodes, lang_token_offset, max_pos
+    return nodes, lang_token_offset, max_pos, not_found_langs
 
 def get_rest_of_langs(langs, to_remove_lang):
     res = langs[:]
     res.remove(to_remove_lang)  
     return res
+
+def get_langs_label(all_langs, not_found_langs):
+    langs_label = ""
+    for lang in all_langs:
+        if align_reader.file_lang_name_mapping[lang] not in not_found_langs:
+            langs_label += align_reader.file_lang_name_mapping[lang] + ", "
+    langs_label = langs_label[:-2]
+
+    print("sag sag", langs_label)
+
+    return langs_label
+
+def get_messages(langs, verse_id):
+    messages = []
+    for lang in langs:
+        messages.append(f"could not find verse {verse_id} for {lang}")
+    
+    return messages
 
 def get_alignments_for_verse(verse_id, source_language, all_langs, important_tokens):
     alignments = {"nodes":[], "links":[], "groups":0, "poses":0}
@@ -57,9 +78,12 @@ def get_alignments_for_verse(verse_id, source_language, all_langs, important_tok
         all_langs.append(source_language)
     alignments["groups"] = len(all_langs)
     
-    alignments["nodes"], lang_token_offset, alignments["poses"] = get_nodes(all_langs, source_language, important_tokens, verse_id)
+    alignments["nodes"], lang_token_offset, alignments["poses"], not_found_langs = get_nodes(all_langs, source_language, important_tokens, verse_id)
     
     alignments["links"] = get_links(all_langs, verse_id, lang_token_offset)
 
-    # print(json.dumps(alignments))
-    return alignments
+    messages = get_messages(not_found_langs, verse_id)
+    langs_label = get_langs_label(all_langs, not_found_langs)
+    alignments['label'] = f"Alignments for verse: {verse_id}. Languages in order: {langs_label}"
+    
+    return alignments, messages

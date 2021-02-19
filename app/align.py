@@ -29,7 +29,8 @@ def convert_alignment(initial_output):
         processed_output[method] = result
     return processed_output
 
-
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @app.route('/multalign', methods=['GET', 'POST'])
 def multalign():
     form = MultialignForm()
@@ -38,6 +39,7 @@ def multalign():
     if form.validate_on_submit():
 
         doc_alignments = []
+        all_messages = []
         errorA = None
         utils.LOG.info("Received: {} ||| {} ".format(form.languages.data, ("_".join([x.verse_id.data for x in form.verses]) + str(len(form.verses)))))
         documents = [x.verse_id.data.strip() for x in form.verses]
@@ -52,12 +54,14 @@ def multalign():
                 if document not in prev_verses: # the user may select a verse twice
                     verse_id, source_language = (document.split('@')[0], document.split('@')[1])
 
-                    alignments = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
+                    alignments, messages = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
                     doc_alignments.append(alignments)
+                    all_messages.extend(messages)
                     prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_lang_name_mapping[source_language] + "</span>: " 
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
-        return render_template('multalign.html', title='SimAlign', form=form, docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, errorA=errorA, errorB=None)
+        return render_template('multalign.html', title='SimAlign', form=form,
+         docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, messages=all_messages, errorA=errorA, errorB=None)
         
     else:
         errorA = None
@@ -73,41 +77,41 @@ def multalign():
     utils.LOG.info("Running index finished.")
     return render_template('multalign.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
-def index():
-    utils.LOG.info("Running index ...") 
-    form = AlignForm()
-    alignment = None
-    if form.validate_on_submit():
-        utils.LOG.info("Received: {} ||| {}".format(form.english.data, form.foreign.data))
-        if utils.CIS:
-            res = plm.aligners[form.model.data].get_word_aligns(
-                [form.english.data.split(" "), form.foreign.data.split(" ")])
-            res = convert_alignment(res)
-        else:
-            res = {"inter": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
-                    "itermax": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
-                    "mwmf": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
-        alignment = {"e": form.english.data.split(" "),
-                    "f": form.foreign.data.split(" "),
-                    "alignment": res}
-        utils.LOG.info("Sent: {}".format(alignment))
-        utils.LOG.info("Running index finished.")
-        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
-    else:
-        errorA = None
-        errorB = None
-        for error in form.errors:
-            if error == "english":
-                errorA = True
-            if error == "foreign":
-                errorB = True
-        utils.LOG.info("Input error: {}".format(form.errors))
-        utils.LOG.info("Running index finished.")
-        return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
-    utils.LOG.info("Running index finished.")
-    return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
+# @app.route('/', methods=['GET', 'POST'])
+# @app.route('/index', methods=['GET', 'POST'])
+# def index():
+#     utils.LOG.info("Running index ...") 
+#     form = AlignForm()
+#     alignment = None
+#     if form.validate_on_submit():
+#         utils.LOG.info("Received: {} ||| {}".format(form.english.data, form.foreign.data))
+#         if utils.CIS:
+#             res = plm.aligners[form.model.data].get_word_aligns(
+#                 [form.english.data.split(" "), form.foreign.data.split(" ")])
+#             res = convert_alignment(res)
+#         else:
+#             res = {"inter": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
+#                     "itermax": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
+#                     "mwmf": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
+#         alignment = {"e": form.english.data.split(" "),
+#                     "f": form.foreign.data.split(" "),
+#                     "alignment": res}
+#         utils.LOG.info("Sent: {}".format(alignment))
+#         utils.LOG.info("Running index finished.")
+#         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
+#     else:
+#         errorA = None
+#         errorB = None
+#         for error in form.errors:
+#             if error == "english":
+#                 errorA = True
+#             if error == "foreign":
+#                 errorB = True
+#         utils.LOG.info("Input error: {}".format(form.errors))
+#         utils.LOG.info("Running index finished.")
+#         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+#     utils.LOG.info("Running index finished.")
+#     return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -263,33 +267,38 @@ def statitics():
             res = controler.extract_data_from_file(stat_type, lang1, lang2, edition1, edition2, bin_count, min, max)
     else:
         print("sag")
-    #     query = form.query.data
-    #     target_langs = form.target_languages.data
-    #     query_terms = query.strip().split(' ')
-    #     source_language = form.source_language.data
-
-    #     for query_term in query_terms:
-    #         translations = lexicon.get_translations(query_term, source_language, target_langs)
-    #         res[query_term] = convert_to_view_jason(translations, source_language, query_term)
-            
-    # else:
-    #     errorA = None
-    #     errorB = None
-    #     errorC = None
-    #     for error in form.errors:
-    #         if error == "source_language":
-    #             errorA = form.errors['source_language'][0]
-    #         if error == "query":
-    #             errorC = form.errors['query'][0]
-    #         if error == "target_languages":
-    #             errorB = form.errors['target_languages'][0]
-    #     utils.LOG.info("Input error: {}".format(form.errors))
-    #     utils.LOG.info("1 Running lexicon finished.")
-    #     return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
-    # utils.LOG.info("2 Running lexicon finished.")
 
     return render_template('stats.html', title='SimAlign-Demo-stats', form=form, stats=res, errorA=errorA)
 
+@app.route('/information', methods=['GET', 'POST'])
+def information():
+    info = []
+    
+    info_obj ={}
+    info_obj['title'] = 'Language Codes'
+    info_obj['message'] = 'We are using iso639-3. To see a list of language names and their corresponding codes see the link below.'
+    info_obj['link'] = 'https://iso639-3.sil.org/code_tables/639/data'
+    info.append(info_obj)
+
+    info_obj ={}
+    info_obj['title'] = 'Simalign'
+    info_obj['message'] = 'If you slect a edition pair both from the following list, they will be aligned by Simalign'
+    info_obj['link'] = 'https://simalign.cis.lmu.de/'
+    info_obj['table'] = [align_reader.file_lang_name_mapping[x] for x in align_reader.bert_langs]
+    info.append(info_obj)
+
+    info_obj ={}
+    info_obj['title'] = 'Eflomal'
+    info_obj['message'] = 'If at least one of you selected editions comes from the following list, the alignment would be from eflomal'
+    info_obj['link'] = 'https://github.com/robertostling/eflomal'
+    info_obj['table'] = [y for (x,y) in align_reader.file_lang_name_mapping.items() if x not in align_reader.bert_langs]
+    info.append(info_obj)
+
+    for info_obj in info:
+        if 'table' in info_obj:
+            info_obj['len'] = len(info_obj['table'])
+    
+    return render_template('information.html', title='Information', info=info)
 
 @app.after_request
 def add_header(r):

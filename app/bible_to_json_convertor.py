@@ -66,5 +66,3 @@ if __name__ == "__main__":
         print("please provide correct arguments")
         print(parser.description)
         print(parser.epilog)
-
-

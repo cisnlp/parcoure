@@ -29,7 +29,7 @@
             <div class="row">
                 <!-- <script src={{ url_for('static', filename='main.js') }}></script> -->
 
-                <form action="" method="post" novalidate class="col">
+                <form action="" method="post" novalidate class="col" id='multalignform'>
                     <div id="selected_verses_input"></div>
                     <div class="form-group">
                         {{ form.verse(class="form-control basicAutoComplete") }}
@@ -73,18 +73,99 @@
 
                     <div class="row">
                         <div class="col-2">
-                            <p>{{ form.submit(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                            <p>{{ form.submitField(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
                         </div>
                         <div class="col-10" >
                             <div class="float-right row" style="background-color: #ced4da;" >
                                 
                                     <div class="col">
-                                    <input type="text" name='save_search' class="form-control  " placeholder="name" style=""> 
+                                    <input autocomplete="nope" type="text" id='search_name' class="form-control saveAutoComplete" placeholder="name" value> 
                                     </div>
                                     <div class="col">
-                                    <input class="btn btn-primary btn-rounded btn-xs  float-right" type="button" value="  save search   "><br>
-                                    <input class="btn btn-primary btn-rounded btn-xs float-right " type="button" value="retrieve search">
+                                    <input class="btn btn-primary btn-rounded btn-xs  float-right" type="button" value="  save search   " id="save_search"><br>
+                                    <input class="btn btn-primary btn-rounded btn-xs float-right " type="button" value="retrieve search" id="retrieve_search">
                                     </div>
+
+                                    
+                                    <script>
+                                        
+                                        $('.saveAutoComplete').autoComplete({
+                                            minLength:0,
+                                            events: {
+                                                search: function (qry, callback) {
+                                                    results = [];
+                                                    for (item in localStorage) {
+                                                        if (localStorage.hasOwnProperty(item)){
+                                                            if ( item.match(qry)) {
+                                                                results.push(item);
+                                                            }
+                                                        }
+                                                    }
+                                                    callback(results);
+                                                    
+                                                }
+                                            }
+                                        });
+
+                                        $('.saveAutoComplete').click(function() {
+                                            console.log('hi');
+                                            $('.saveAutoComplete').autoComplete('show');
+                                        });
+                                        
+                                        $("#save_search").click(function() {
+                                            
+                                            if (typeof(Storage) !== "undefined") {
+                                                let toSave = {};
+                                                toSave['query'] = inputString;
+                                                toSave['targetLangs'] = $.map($('.js-example-basic-multiple').select2('data'), function(a) {return a.id;});
+                                                
+                                                toSave['verses'] = []
+                                                $('input[id^="hiddeninputverse"]').filter(
+                                                    function () {
+                                                        toSave['verses'].push(this.value);
+                                                    }
+                                                )
+                                                
+                                                let save_name= $("#search_name").val();
+
+                                                if (save_name == "") {
+                                                    alert("please provide a name to save your search");
+                                                } else {
+                                                    localStorage.setItem(save_name, JSON.stringify(toSave));
+                                                    showToast("your search is saved with name `" + save_name + "` on your browser's localstorage");
+                                                }
+                                                
+                                              } else {
+                                                alert("you need a modern browser for this functionality");
+                                              }
+                                        });
+
+                                        $("#retrieve_search").click(function() {
+                                            if (typeof(Storage) !== "undefined") {
+                                                let save_name= $("#search_name").val();
+                                                
+                                                if (save_name == "") {
+                                                    alert("please provide a name to retrieve your search");
+                                                } else {
+                                                        to_retrieve_str = localStorage.getItem(save_name);
+                                                        console.log(to_retrieve_str);
+                                                        if (to_retrieve_str === null) {
+                                                            alert("no search with name `" + save_name + "` found");
+                                                        } else {
+                                                            to_retrieve = JSON.parse(to_retrieve_str);
+                                                            $.each(to_retrieve['verses'], function(i, v) {add_selected_doc_item(v, "")});
+                                                            $('.js-example-basic-multiple').val(to_retrieve['targetLangs']).trigger("change");
+                                                            $('#verse').val(to_retrieve['query']);
+                                                            $('#multalignform').submit();
+                                                        }
+                                                        
+                                                }
+
+                                              } else {
+                                                alert("you need a modern browser for this functionality");
+                                              }
+                                        });
+                                    </script>
                             </div>
                         </div>
                         </div>
@@ -106,7 +187,10 @@
                     <input  id="toggle-event-{{i}}" type="checkbox" data-toggle="toggle" data-on="cluster view" data-off="simple view" data-size="mini" data-offstyle="success"  data-width="95" >
                 </div>
                 <div id="chart{{i}}" style="margin-right: 100;"></div> 
-                <br/><br/>
+                <div class="container" style="text-align: center; ">
+                    <u>{{docs_alignment[i]['label']}}</u>
+                </div>
+                <br/><br/><br>
             {% endfor %} 
         {% endif %}
         <div id="my-svg-content-responsive"  >
@@ -182,16 +266,11 @@
             console.log("hi");
             if (item.AlreadyVisited) {
                 add_selected_doc_item(item.value, item.text);
-                //$(this).focus();
-                //$(this).autoComplete('show');
                 return {text:inputString, value:item.value};
             } else {
                 item.AlreadyVisited = true;
-                //$(this).focus();
                 $(".basicAutoComplete").focus();
             }
-            //$(this).autoComplete('set', { text: inputString, value: inputString });
-            //item.text = inputString;
             return item;
         }
     });
@@ -232,38 +311,25 @@
         selectedCount ++;
     };
     
-  //  $('.basicAutoComplete').on('change', function() {
-    //                console.log('eventsAutoComplete change' + $(this).val());
-      //              inputString = $(this).val();
-					// eventsCodeContainer.text(eventsCodeContainer.text() + 'fired change. value: ' + $(this).val() + '\n');
-		//		});
-    //$('.basicAutoComplete').on('autocomplete.freevalue', function(evt, item) {
-    //    console.log('eventsAutoComplete autocomplete.freevalue');
-    //});
    $('.basicAutoComplete').on('autocomplete.select', function(evt, item) {
        console.log("select");
        $(this).autoComplete('show');
         
-        //( ".dropdown-menu" ).addClass("show");
    });
-    //    console.log('eventsAutoComplete autocomplete.select: '+ " " + item.value );
-    //    console.log("select input string : " + inputString )
-    //    if (item.value != inputString) {
-    //        $(this).autoComplete('set', { text: inputString, value: inputString });       
-    //        $(this).focus();
-    //        $(this).autoComplete('show');
-            
-    //        add_selected_doc_item(item.value, item.text);
-            
-            
-    //    }
-    //});
     
     {% for x in prev_verses %}
         console.log($.parseHTML( '{{prev_verses[x]}}'));
         add_selected_doc_item('{{x}}', $.parseHTML( '{{prev_verses[x]}}')[0].data)
     {% endfor%}
 
+</script>
+
+<script>
+    let localcounter = 0;
+    {%for message in messages%}
+        setTimeout(() => { showToast("{{message}}"); }, localcounter*1500);
+        localcounter ++;
+    {%endfor%}
 </script>
 
 <br><br><br><br><br><br>

@@ -21,7 +21,7 @@ class MultialignForm(FlaskForm):
         max_entries=50
     )
     #recaptcha = RecaptchaField()
-    submit = SubmitField('Align')
+    submitField = SubmitField('Align')
 
 class LexiconForm(FlaskForm):
     class Meta:
@@ -30,7 +30,7 @@ class LexiconForm(FlaskForm):
     target_languages = SelectMultipleField('Target languages: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=[(x,x) for x in align_reader.all_langs])
     query = StringField('source word:', validators=[Required()], render_kw={"placeholder":"Enter a word to translate"})
     #recaptcha = RecaptchaField()
-    submit = SubmitField('Submit')
+    submitField = SubmitField('Submit')
 
 class statsForm(FlaskForm):
     valid_edition_1 = list(align_reader.file_lang_name_mapping.items())[:]
@@ -48,7 +48,7 @@ class statsForm(FlaskForm):
     maximum = FloatField('Max', validators=[Optional()])
     bin_count = IntegerField('Bin count', validators=[Optional()], render_kw={"placeholder":20})
     recaptcha = RecaptchaField()
-    submit = SubmitField('Submit')
+    submitField = SubmitField('Submit')
 
 
 class AlignForm(FlaskForm):
@@ -59,5 +59,5 @@ class AlignForm(FlaskForm):
     # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
     #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
     recaptcha = RecaptchaField()
-    submit = SubmitField('Align')
+    submitField = SubmitField('Align')
 
