@@ -6,6 +6,7 @@ from multiprocessing import Pool
 import math
 import os
 from copy import deepcopy
+from random import shuffle
 
 import pickle
 
@@ -53,16 +54,16 @@ class Lexicon(object):
             return {}
 
         res = deepcopy(lexicon[word])
+
         
 
         for trg_word in res:
-            res[trg_word]["trg_editions"] = []
+            trg_editions = align_reader.lang_files[trg_lang][:]
+            if len(trg_editions) > 4:
+                shuffle(trg_editions)
+                trg_editions = trg_editions[:4]
+            res[trg_word]["trg_editions"] = trg_editions
 
-            for verse in res[trg_word]["verses"]:
-                edition = verse.split('@')[1]
-                if edition not in res[trg_word]["trg_editions"]:
-                    res[trg_word]["trg_editions"].append(edition)
-        
         return res
 
         
@@ -215,6 +216,7 @@ class Lexicon(object):
                     all_verses_alignments[source_edition][target_edition] = alignments[i]
                     i += 1
             LOG.info(7)
+
             for source_edition in align_reader.lang_files[source_lang]:
                 if source_edition in docs:
                     for doc in docs[source_edition]: 
@@ -233,7 +235,7 @@ class Lexicon(object):
                                             if res[target_lang][token]['count'] < 50:
                                                 res[target_lang][token]['verses'].append(doc["_id"])
                                                 if target_edition not in res[target_lang][token]['trg_editions']:
-                                                    res[target_lang][token]['trg_editions'].append(target_edition)
+                                                    res[target_lang][token]['trg_editions'].append(target_edition) 
                                         else:
                                             res[target_lang][token] = {'count':1, 'verses':[doc["_id"]], 'trg_editions':[target_edition]} 
 
