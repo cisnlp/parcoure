@@ -23,10 +23,11 @@ def get_logger(name, filename, level=logging.DEBUG):
 
     return logger
 
-
+config_path = "/mounts/work/ayyoob/alignment/config/"
 pbc_path = "/nfs/datc/pbc/"
 CIS = False
 LOG = get_logger("analytics", "logs/analytics.log")
+lang_file_mapping_path = config_path + "lang_files.txt"
 
 es_index_url = "http://127.0.0.1:9200/bible_index"
 es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"
@@ -113,4 +114,21 @@ def read_files(editions):
 				res[f][l[0]] = l[1]
 	return res
 
+def read_lang_file_mapping():
+    lang_files = {}
 
+    with open(lang_file_mapping_path, "r") as prf_file:
+        for prf_l in prf_file:
+            prf_l = prf_l.strip().split()
+            file_name = prf_l[0]
+            lang_name = prf_l[1] 
+            
+            if lang_name not in lang_files:
+                lang_files[lang_name] = [file_name]
+            else:
+                lang_files[lang_name].append(file_name)
+
+    all_langs = list(lang_files.keys())
+    all_langs.sort()
+
+    return lang_files, all_langs

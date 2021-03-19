@@ -1,7 +1,7 @@
-prefix_file = "/mounts/work/mjalili/projects/pbc_simalign/configs/prefixes.txt"
-output_file = "/mounts/work/ayyoob/alignment/config/"
+config_path = "/mounts/work/ayyoob/alignment/config/"
+lang_file_mapping_path = config_path + "lang_files.txt"
 
-with open(prefix_file, "r") as prf_file, open(output_file + "file_language_name_mapping.txt", "w") as flm_f, open(output_file + "language_name_file_mapping.txt", "w") as lfm_f:
+with open(lang_file_mapping_path, "r") as prf_file, open(config_path + "file_edition_mapping.txt", "w") as flm_f, open(config_path + "edition_file_mapping.txt", "w") as lfm_f:
     for prf_l in prf_file:
         prf_l = prf_l.strip().split()
         file_name = prf_l[0].strip()

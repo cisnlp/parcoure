@@ -45,16 +45,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.b:
-        for edition in align_reader.bert_langs:
+        for edition in align_reader.bert_files:
             create_json_file_for_edition(edition, elastic_search_index_files_path)
     elif args.n:
         for lang in align_reader.all_langs:
             for edition in align_reader.lang_files[lang]:
-                if edition not in align_reader.bert_langs:
+                if edition not in align_reader.bert_files:
                     create_json_file_for_edition(edition, elastic_search_index_files_path_non_bert)
     elif args.e != "":
         edition = args.e
-        if edition in align_reader.bert_langs:
+        if edition in align_reader.bert_files:
             create_json_file_for_edition(edition, elastic_search_index_files_path)
         else:
             create_json_file_for_edition(edition, elastic_search_index_files_path_non_bert)

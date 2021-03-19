@@ -1,7 +1,7 @@
 from app.align_reader import AlignReader
 import codecs
 import os
-from app.utils import LOG, Cache
+from app.utils import LOG, Cache, config_path as utils_config_path, read_lang_file_mapping
 from multiprocessing import Manager
 import pickle
 import collections
@@ -13,25 +13,28 @@ alignments_lock = m.Lock()
 class GeneralAlignReader(AlignReader):
 
 	def __init__(self, config_path=""): 
-		AlignReader.__init__(self, config_path)
-		if config_path == "":
-			config_path = "/mounts/work/ayyoob/alignment/config/"
+		try:
+			AlignReader.__init__(self, config_path)
+			if config_path == "":
+				config_path = utils_config_path 
 
-		self.alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
-		self.index_path = "/mounts/work/ayyoob/alignment/output/"
-		self.prefix_file = "/mounts/work/mjalili/projects/pbc_simalign/configs/prefixes.txt"
-		self.lang_order_file_path = config_path + "/langauges_order_file.txt"
-		self.all_langs = []
-		self.lang_files = {}
-		self.lang_orders = self.read_langs_order_file()
+			self.alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
+			self.index_path = "/mounts/work/ayyoob/alignment/output/"
+			self.lang_order_file_path = config_path + "/langauges_order_file.txt"
+			self.lang_orders = self.read_langs_order_file()
 
-		self.read_prefix_file()
-		self.content_cache = Cache(self.read_alignment_file)
-		self.indexes_cache = Cache(self.read_index_file)
-		self.lang_name_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "language_name_file_mapping.txt").items()))
-		self.file_lang_name_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_language_name_mapping.txt").items()))
-		self.index_size = 121447 #TODO put me in config
-		
+			self.lang_files, self.all_langs = read_lang_file_mapping()
+			self.content_cache = Cache(self.read_alignment_file)
+			self.indexes_cache = Cache(self.read_index_file)
+			self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "edition_file_mapping.txt").items()))
+			self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
+			self.index_size = 121447 #TODO put me in config
+		except: 
+			self.file_lang_name_mapping = {"a": "b"}
+			self.all_langs = ["eng", "deu"]
+			self.bert_langs = ["eng", "deu"]
+			self.file_lang_name_mapping = {"eng": "eng", "deu": "deu"}
+
 	def read_langs_order_file(self):
 		res = []
 		with open(self.lang_order_file_path, 'r') as inf:
@@ -58,22 +61,6 @@ class GeneralAlignReader(AlignReader):
 				res[pair[0].strip()] = pair[1].strip()
 				print(pair)
 		return res
-
-	def read_prefix_file(self):
-		
-		with open(self.prefix_file, "r") as prf_file:
-			for prf_l in prf_file:
-				prf_l = prf_l.strip().split()
-				file_name = prf_l[0]
-				lang_name = file_name[:3] #TODO fixme and all first 3 char considerations!
-				
-				if lang_name not in self.lang_files:
-					self.lang_files[lang_name] = [file_name]
-				else:
-					self.lang_files[lang_name].append(file_name)
-
-		self.all_langs = list(self.lang_files.keys())
-		self.all_langs.sort()
 
 	def get_source_target_order(self, lang_1, lang_2):
 		if lang_1 + "," + lang_2 in self.lang_orders:
@@ -214,7 +201,7 @@ class GeneralAlignReader(AlignReader):
 		if edition_1[:3] == edition_2[:3]:
 			return aligns
 
-		if edition_1 in self.bert_langs and edition_2 in self.bert_langs:
+		if edition_1 in self.bert_files and edition_2 in self.bert_files:
 			LOG.info("going to super aglingment for: {}, {}".format(edition_1, edition_2 ))
 			return super().get_verse_alignment(verse_nums, self.lang_prf_map[edition_1], self.lang_prf_map[edition_2])
 
@@ -257,7 +244,7 @@ class GeneralAlignReader(AlignReader):
 				res.append((edition_1, edition_2, aligns))
 				continue
 
-			if edition_1 in self.bert_langs and edition_2 in self.bert_langs:
+			if edition_1 in self.bert_files and edition_2 in self.bert_files:
 				LOG.info("going to super aglingment for: {}, {}".format(edition_1, edition_2 ))
 				res.append((edition_1, edition_2, super().get_verse_alignment(verse_nums, self.lang_prf_map[edition_1], self.lang_prf_map[edition_2])))
 				continue

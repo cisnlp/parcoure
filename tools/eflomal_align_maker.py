@@ -8,7 +8,7 @@ import concurrent.futures
 import logging
 import time
 import argparse
-from app.utils import read_files
+from app.utils import read_files, read_lang_file_mapping
 
 
 
@@ -16,7 +16,6 @@ pbc_path = "/nfs/datc/pbc/"
 # aligner_path = "python /mounts/Users/student/masoud/Dokumente/code/pbc_utils/extract_alignments.py"
 aligner_path = "python /mounts/Users/student/masoud/pbc_utils/extract_alignments.py"
 output_path = "/mounts/work/ayyoob/alignment/output/"
-prefix_file = "/mounts/work/mjalili/projects/pbc_simalign/configs/prefixes.txt"
 
 
 def log_state(src_lang, trg_lang, state):
@@ -55,7 +54,7 @@ def align_languages(src_lang_name, trg_lang_name, src_files, trg_files):
 	log_state(src_lang_name, trg_lang_name, "end")
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description="extract the alignments for languages mentioned in prefixes.txt file.", 
+	parser = argparse.ArgumentParser(description="extract the alignments for languages mentioned in lang_files.txt file.", 
 	epilog="example: python eflomal_align_maker.py -s 0 -e 200")
 	parser.add_argument("-s", default="")
 	parser.add_argument("-e", default="")
@@ -70,19 +69,7 @@ if __name__ == "__main__":
 
 	aligner = "eflomal"
 
-	#-------------------------- loading translations prefixes --------------------------
-	lang_files = {}
-	with open(prefix_file, "r") as prf_file:
-		for prf_l in prf_file:
-			prf_l = prf_l.strip().split()
-			file_name = prf_l[0]
-			lang_name = file_name[:3]
-			
-			if lang_name not in lang_files:
-				lang_files[lang_name] = [file_name]
-			else:
-				lang_files[lang_name].append(file_name)
-
+	lang_files, _ = read_lang_file_mapping()
 	all_langs = list(lang_files.keys())
 
 	logging.info("language count: %d", len(all_langs))

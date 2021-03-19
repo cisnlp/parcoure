@@ -8,13 +8,12 @@ import concurrent.futures
 import logging
 import time
 import argparse
-from app.utils import read_files
+from app.utils import read_files, read_lang_file_mapping
 
 
 
 pbc_path = "/nfs/datc/pbc/"
 alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
-prefix_file = "/mounts/work/mjalili/projects/pbc_simalign/configs/prefixes.txt"
 
 language_token_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_token_stats.txt"
 edition_token_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_token_stats.txt"
@@ -184,7 +183,7 @@ def compute_alignment_statics(lang_name1, lang_name2, files1, files2, store_lang
 
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description="compute alignment statistics for languages mentioned in prefixes.txt file.", 
+	parser = argparse.ArgumentParser(description="compute alignment statistics for languages mentioned in lang_files.txt file.", 
 	epilog="example: python eflomal_align_maker.py -s 0 -e 200 \n python eflomal_align_maker.py -l eng")
 	parser.add_argument("-s", default="")
 	parser.add_argument("-e", default="")
@@ -201,19 +200,8 @@ if __name__ == "__main__":
 	format = "%(asctime)s: %(message)s"
 	logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
 
-	#-------------------------- loading translations prefixes --------------------------
-	lang_files = {}
-	with open(prefix_file, "r") as prf_file:
-		for prf_l in prf_file:
-			prf_l = prf_l.strip().split()
-			file_name = prf_l[0]
-			lang_name = file_name[:3]
-			
-			if lang_name not in lang_files:
-				lang_files[lang_name] = [file_name]
-			else:
-				lang_files[lang_name].append(file_name)
-
+	
+	lang_files, _ = read_lang_file_mapping()
 	all_langs = list(lang_files.keys())
 
 	logging.info("language count: %d", len(all_langs))

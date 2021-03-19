@@ -7,14 +7,21 @@
                 $('select').selectpicker();
             </script> -->
 
-            <div class="row">
-                <div class="col-8 font-weight-light" style="">
-                Select a source language and enter a few words to translate.<br/>
-                Select your desired target languages and hit the Submit button.<br>
-                You will see an alignment based translation of the words in target languages.
-                
-                </div>
+            <div class="card">
+              <div class="card-header bg-light">
+                Instructions
+              </div>
+              <div class="card-body">
+<!--                 <h5 class="card-title">Special title treatment</h5>
+ -->                <p class="card-text">
+                Select a source language and enter words to translate.
+                Then select your desired target languages.
+                The translations are based on aggregated word alignments. <br/>
+                By clicking on a translation you will be directed to the word alignment view. Verses that contain the word in both languages will be shown. This allows you to investigate the usage of the word in context.
+                </p>
+              </div>
             </div>
+
             <br><br>
 
             <div  id="file_path">
@@ -76,9 +83,10 @@
                         </div>
                         <br>
                     {% endif %}
-
-                    <div class="col-6 d-flex justify-content-center">
-                        <p>{{ form.submitField(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                    <div class="row">
+                        <div class="col">
+                            <p>{{ form.submitField(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                        </div>
                     </div>
                 </form>
             </div>    

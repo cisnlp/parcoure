@@ -45,6 +45,15 @@ svg .rect {
   stroke-width: 5px;
 }
 
+.logo {
+  font-weight: 350;
+  text-align: center;
+}
+
+.navbar {
+  text-align: center;
+}
+
 /*#container {
   margin: 0 auto;
 }*/

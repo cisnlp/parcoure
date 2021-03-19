@@ -10,7 +10,6 @@ from random import shuffle
 
 import pickle
 
-
 align_reader = GeneralAlignReader()
 doc_retriever = DocumentRetriever()
 
@@ -81,62 +80,6 @@ class Lexicon(object):
                     final_docs[doc['_source']['language']] = []
                 final_docs[doc['_source']['language']].append(doc)
         return final_docs, verses
-
-    # def get_translations(self, term, source_lang, target_langs):
-    #     res = {}
-
-    #     LOG.info(1)
-    #     docs = doc_retriever.search_documents(term + " " + source_lang.strip()+"-x-bible",
-    #         all_docs=True, prefixed_search=True)
-    #     LOG.info(2)
-        
-    #     docs, verses = self.keep_only_containing_verses(docs, term, source_lang)
-    #     LOG.info("sourcee lang verses".format(source_lang, len(verses)))
-            
-    #     for target_lang in target_langs:
-    #         if source_lang == target_lang:
-    #             continue
-    #         res[target_lang] = {} 
-    #         doc_ids = []
-    #         LOG.info(3)
-    #         for target_edition in align_reader.lang_files[target_lang]:
-    #             doc_ids.extend([verse + "@" + target_edition for verse in verses])
-    #         target_docs = doc_retriever.retrieve_multi_docs(doc_ids)
-    #         LOG.info(4)
-    #         all_verses_alignments = {}
-    #         for source_edition in align_reader.lang_files[source_lang]:
-    #             LOG.info(5)
-    #             all_verses_alignments[source_edition] = {}
-    #             for target_edition in align_reader.lang_files[target_lang]:
-    #                 all_verses_alignments[source_edition][target_edition] = align_reader.get_verse_alignment(verses, source_edition, target_edition)
-    #                 # print("alignments", verses_alignments)
-    #             LOG.info(6)
-
-    #         for source_edition in align_reader.lang_files[source_lang]:
-    #             if source_edition in docs:
-    #                 for doc in docs[source_edition]: 
-    #                     verse = doc["_source"]["verse_id"]
-    #                     for target_edition, verses_alignments in all_verses_alignments[source_edition].items():
-    #                         if verse in verses_alignments.keys():  
-    #                             target_positins = [s for f,s in verses_alignments[verse] if f in doc['termIndexes']]
-                            
-    #                             if len(target_positins) > 0  :
-    #                                 taget_tokens = target_docs[verse+"@"+target_edition].split() 
-                                    
-    #                                 for target_positin in target_positins:
-    #                                     token = taget_tokens[target_positin]
-    #                                     if token in res[target_lang]:
-    #                                         res[target_lang][token]['count'] += 1
-    #                                         if res[target_lang][token]['count'] < 50:
-    #                                             res[target_lang][token]['verses'].append(doc["_id"])
-    #                                             if target_edition not in res[target_lang][token]['trg_editions']:
-    #                                                 res[target_lang][token]['trg_editions'].append(target_edition)
-    #                                     else:
-    #                                         res[target_lang][token] = {'count':1, 'verses':[doc["_id"]], 'trg_editions':[target_edition]} 
-
-    #     return res
-                        
-
 
     def get_translations(self, term, source_lang, target_langs):
         """[summary]
