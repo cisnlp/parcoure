@@ -7,19 +7,26 @@
                 $('select').selectpicker();
             </script> -->
 
-            <div class="row">
-                <div class="col-8 font-weight-light" style="">
-                Search through the Bible in different languages by typing in the below box.<br/> 
-                You can specify your language using `l:&ltlanguage&gt` at the beginning like: l:deu jesus<br/>
-                You can specify a verse number using `v:&ltverse number&gt` at the beginning like: v:40002017<br/>
-                You can also specify both language and verse number like: l:eng-basic v:40002017
-                <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
-                Steer your desired tokenization using whitespaces.
-                Language coverage is identical to multilingual BERT.
-                Alignments are computed on subword level with multilingual BERT
-                for the three methods ArgMax, IterMax and Match. For details see the paper. -->
-                </div>
+            <div class="card">
+              <div class="card-header bg-light">
+                Instructions
+              </div>
+              <div class="card-body">
+<!--                 <h5 class="card-title">Special title treatment</h5>
+ -->                <p class="card-text">
+                            Enter a search query to search Bible verses in different languages by typing in the search box.<br/> 
+                            Filter languages using <code>l:&ltlanguage(ISO693-3 code)&gt</code> (e.g., l:deu jesus) and filter verse numbers using <code>v:&ltverse number&gt</code> (e.g., v:40002017). <br/> 
+                            In the alignment you can switch between a simple and a cluster view, for details see the paper. <br/> 
+                            By clicking on a specific word you will get to the Lexicon view and see translations for this particular word.
+                            <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
+                            Steer your desired tokenization using whitespaces.
+                            Language coverage is identical to multilingual BERT.
+                            Alignments are computed on subword level with multilingual BERT
+                            for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                </p>
+              </div>
             </div>
+
             <br><br>
 
             <div  id="selected_verses">

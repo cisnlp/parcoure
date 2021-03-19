@@ -13,22 +13,28 @@ alignments_lock = m.Lock()
 class GeneralAlignReader(AlignReader):
 
 	def __init__(self, config_path=""): 
-		AlignReader.__init__(self, config_path)
-		if config_path == "":
-			config_path = utils_config_path 
+		try:
+			AlignReader.__init__(self, config_path)
+			if config_path == "":
+				config_path = utils_config_path 
 
-		self.alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
-		self.index_path = "/mounts/work/ayyoob/alignment/output/"
-		self.lang_order_file_path = config_path + "/langauges_order_file.txt"
-		self.lang_orders = self.read_langs_order_file()
+			self.alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
+			self.index_path = "/mounts/work/ayyoob/alignment/output/"
+			self.lang_order_file_path = config_path + "/langauges_order_file.txt"
+			self.lang_orders = self.read_langs_order_file()
 
-		self.lang_files, self.all_langs = read_lang_file_mapping()
-		self.content_cache = Cache(self.read_alignment_file)
-		self.indexes_cache = Cache(self.read_index_file)
-		self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "edition_file_mapping.txt").items()))
-		self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
-		self.index_size = 121447 #TODO put me in config
-		
+			self.lang_files, self.all_langs = read_lang_file_mapping()
+			self.content_cache = Cache(self.read_alignment_file)
+			self.indexes_cache = Cache(self.read_index_file)
+			self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "edition_file_mapping.txt").items()))
+			self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
+			self.index_size = 121447 #TODO put me in config
+		except: 
+			self.file_lang_name_mapping = {"a": "b"}
+			self.all_langs = ["eng", "deu"]
+			self.bert_langs = ["eng", "deu"]
+			self.file_lang_name_mapping = {"eng": "eng", "deu": "deu"}
+
 	def read_langs_order_file(self):
 		res = []
 		with open(self.lang_order_file_path, 'r') as inf:

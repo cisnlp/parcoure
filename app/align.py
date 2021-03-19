@@ -60,7 +60,7 @@ def multalign():
                     prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_edition_mapping[source_language] + "</span>: " 
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
-        return render_template('multalign.html', title='SimAlign', form=form,
+        return render_template('multalign.html', title='ParCourE', form=form,
          docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, messages=all_messages, errorA=errorA, errorB=None)
         
     else:
@@ -73,9 +73,9 @@ def multalign():
                 errorB = form.errors['languages'][0]
         utils.LOG.info("Input error: {}".format(form.errors))
         utils.LOG.info("Running index finished.")
-        return render_template('multalign.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+        return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
     utils.LOG.info("Running index finished.")
-    return render_template('multalign.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
+    return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment, errorA=None, errorB=None)
 
 # @app.route('/', methods=['GET', 'POST'])
 # @app.route('/index', methods=['GET', 'POST'])
@@ -224,10 +224,10 @@ def dictionary():
                 errorB = form.errors['target_languages'][0]
         utils.LOG.info("Input error: {}".format(form.errors))
         utils.LOG.info("1 Running lexicon finished.")
-        return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
+        return render_template('lexicon.html', title='ParCourE', form=form, dictionary=res, errorA=errorA, errorB=errorB, errorC=errorC)
     utils.LOG.info("2 Running lexicon finished.")
 
-    return render_template('lexicon.html', title='SimAlign', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
+    return render_template('lexicon.html', title='ParCourE', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
 
 def checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2):
     if stat_type in two_langs_stat_vals:
@@ -267,11 +267,17 @@ def statitics():
     else:
         print("sag")
 
-    return render_template('stats.html', title='SimAlign-Demo-stats', form=form, stats=res, errorA=errorA)
+    return render_template('stats.html', title='ParCourE-stats', form=form, stats=res, errorA=errorA)
 
 @app.route('/information', methods=['GET', 'POST'])
 def information():
     info = []
+
+    #info_obj ={}
+    #info_obj['title'] = 'Impressum'
+    #info_obj['message'] = 'This tool was created at <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html">CIS - LMU Munich</a>.'
+    #info_obj['link'] = 'https://www.cis.uni-muenchen.de/funktionen/impressum/index.html'
+    #info.append(info_obj)
     
     info_obj ={}
     info_obj['title'] = 'Language Codes'
