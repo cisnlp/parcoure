@@ -14,7 +14,7 @@ class VerseForm(Form):
 class MultialignForm(FlaskForm):
     class Meta:
         csrf = False
-    languages = SelectMultipleField('Target editions: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_lang_name_mapping.items())
+    languages = SelectMultipleField('Target editions: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=list(align_reader.file_lang_name_mapping.items()))
     verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search verses...", "data-url":"search", "autocomplete":"off"})
     verses = FieldList(
         FormField(VerseForm),
