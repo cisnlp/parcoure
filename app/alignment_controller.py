@@ -32,7 +32,7 @@ def get_nodes(langs, source_lang, important_tokens, verse_id):
         tokens = doc_retriever.retrieve_document(verse_id + "@" + lang).split()
         target_langs = get_rest_of_langs(langs, lang)
         if len(tokens) == 0:
-            not_found_langs.append(align_reader.file_lang_name_mapping[lang])
+            not_found_langs.append(align_reader.file_edition_mapping[lang])
             
         nodes.extend([{
             "id" : token_nom + i ,
@@ -56,8 +56,8 @@ def get_rest_of_langs(langs, to_remove_lang):
 def get_langs_label(all_langs, not_found_langs):
     langs_label = ""
     for lang in all_langs:
-        if align_reader.file_lang_name_mapping[lang] not in not_found_langs:
-            langs_label += align_reader.file_lang_name_mapping[lang] + ", "
+        if align_reader.file_edition_mapping[lang] not in not_found_langs:
+            langs_label += align_reader.file_edition_mapping[lang] + ", "
     langs_label = langs_label[:-2]
 
     print("sag sag", langs_label)

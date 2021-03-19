@@ -8,34 +8,14 @@ class AlignReader(object):
 		if config_path == "":
 			config_path = "/mounts/work/mjalili/projects/pbc_simalign/configs/"
 
-		#-------------------------- ayyoob, file lang name mapping -------------
-		self.file_lang_name_mapping = {}
-		with open(config_path + "file_language_name_mapping.txt", "r") as mapping_list:
-			for l in mapping_list:
-				if l.startswith('#'):
-					continue
-				pair = l.strip().split('\t')
-				self.file_lang_name_mapping[pair[0].strip()] = pair[1].strip()
-
-				
-		#-------------------------- ayyoob, lanugage name file mapping -------------
-		self.lang_name_file_mapping = {}
-		with open(config_path + "language_name_file_mapping.txt", "r") as mapping_list:
-		# with open("/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/app/" + "language_name_file_mapping.txt", "r") as mapping_list:
-			for l in mapping_list:
-				if l.startswith('#'):
-					continue
-				pair = l.strip().split('\t')
-				# print(pair)
-				self.lang_name_file_mapping[pair[0].strip().lower()] = pair[1].strip()
-
+		
 		#-------------------------- collect translation names ------------------------------
-		self.bert_langs = []
+		self.bert_files = []
 		with open(config_path + "bert_100.txt", "r") as lang_list:
 			for l in lang_list:
 				if l.startswith("#"):
 					continue
-				self.bert_langs.append(l.strip())
+				self.bert_files.append(l.strip())
 
 		#-------------------------- loading translations prefixes --------------------------
 		self.lang_prf_map = {}
@@ -79,12 +59,12 @@ class AlignReader(object):
 	def sort_lang_pair(self, l_pair):
 		s, t = l_pair
 		if s in self.prf_lang_map:
-			if self.bert_langs.index(self.prf_lang_map[s]) < self.bert_langs.index(self.prf_lang_map[t]):
+			if self.bert_files.index(self.prf_lang_map[s]) < self.bert_files.index(self.prf_lang_map[t]):
 				return l_pair, False
 			else:
 				return (t, s), True
 		else:
-			if self.bert_langs.index(s) < self.bert_langs.index(t):
+			if self.bert_files.index(s) < self.bert_files.index(t):
 				return (self.lang_prf_map[s], self.lang_prf_map[t]), False
 			else:
 				return (self.lang_prf_map[t], self.lang_prf_map[s]), True

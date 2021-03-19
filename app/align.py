@@ -57,7 +57,7 @@ def multalign():
                     alignments, messages = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
                     doc_alignments.append(alignments)
                     all_messages.extend(messages)
-                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_lang_name_mapping[source_language] + "</span>: " 
+                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_edition_mapping[source_language] + "</span>: " 
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
         return render_template('multalign.html', title='SimAlign', form=form,
@@ -128,9 +128,9 @@ def search():
 
             tokens = q.split(' ')
             if len(tokens[0]) > 2:
-                for edition in align_reader.lang_name_file_mapping:
+                for edition in align_reader.edition_file_mapping:
                     if edition.startswith(tokens[0]):
-                        languages = align_reader.lang_name_file_mapping[edition]
+                        languages = align_reader.edition_file_mapping[edition]
                         break
             tokens.pop(0)
             q = "  ".join(tokens)
@@ -166,7 +166,7 @@ def search():
         beer = {}
         beer["value"] = hit["_id"]
         i += 1
-        beer["text"] = "<span style=\"color: blue;\">" + align_reader.file_lang_name_mapping[hit["_source"]["language"]] + "</span>: " + hit["_source"]["content"]
+        beer["text"] = "<span style=\"color: blue;\">" + align_reader.file_edition_mapping[hit["_source"]["language"]] + "</span>: " + hit["_source"]["content"]
         beers.append(beer)
     
     response = app.response_class(
@@ -182,7 +182,6 @@ def convert_to_view_jason(translations, source_lang, source_word):
     for trg_lang, words in translations.items():
         res[trg_lang] = {}
         res[trg_lang]["source_lang"] = source_lang
-        # res[lang]["l_name"] = align_reader.file_lang_name_mapping[lang]
         res[trg_lang]["l_name"] = trg_lang
         res[trg_lang]["children"] = []
 
@@ -235,13 +234,13 @@ def checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2):
         if lang1 not in align_reader.all_langs or lang2 not in align_reader.all_langs:
             return 'you should select two languages for this stat'
     elif stat_type in two_edition_stat_vals:
-        if edition1 not in align_reader.file_lang_name_mapping.keys() or edition2 not in align_reader.file_lang_name_mapping.keys():
+        if edition1 not in align_reader.file_edition_mapping.keys() or edition2 not in align_reader.file_edition_mapping.keys():
             return 'you should select two editions for this stat'
     elif stat_type in one_lang_stat_vals:
         if lang1 not in align_reader.all_langs:
             return 'you should select one languages for this stat'
     elif stat_type in one_edition_stat_vals:
-        if edition1 not in align_reader.file_lang_name_mapping.keys():
+        if edition1 not in align_reader.file_edition_mapping.keys():
             return 'you should select one editions for this stat'
 
 @app.route('/stats', methods=['GET', 'POST'])
@@ -284,14 +283,14 @@ def information():
     info_obj['title'] = 'Simalign'
     info_obj['message'] = 'If you slect a edition pair both from the following list, they will be aligned by Simalign'
     info_obj['link'] = 'https://simalign.cis.lmu.de/'
-    info_obj['table'] = [align_reader.file_lang_name_mapping[x] for x in align_reader.bert_langs]
+    info_obj['table'] = [align_reader.file_edition_mapping[x] for x in align_reader.bert_files]
     info.append(info_obj)
 
     info_obj ={}
     info_obj['title'] = 'Eflomal'
     info_obj['message'] = 'If at least one of you selected editions comes from the following list, the alignment would be from eflomal'
     info_obj['link'] = 'https://github.com/robertostling/eflomal'
-    info_obj['table'] = [y for (x,y) in align_reader.file_lang_name_mapping.items() if x not in align_reader.bert_langs]
+    info_obj['table'] = [y for (x,y) in align_reader.file_edition_mapping.items() if x not in align_reader.bert_files]
     info.append(info_obj)
 
     for info_obj in info:

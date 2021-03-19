@@ -13,7 +13,7 @@ class VerseForm(Form):
 class MultialignForm(FlaskForm):
     class Meta:
         csrf = False
-    languages = SelectMultipleField('Target editions: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_lang_name_mapping.items())
+    languages = SelectMultipleField('Target editions: ', validators=[Required()], render_kw={'data-live-search': 'true'}, choices=align_reader.file_edition_mapping.items())
     verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
     verses = FieldList(
         FormField(VerseForm),
@@ -33,7 +33,7 @@ class LexiconForm(FlaskForm):
     submitField = SubmitField('Submit')
 
 class statsForm(FlaskForm):
-    valid_edition_1 = list(align_reader.file_lang_name_mapping.items())[:]
+    valid_edition_1 = list(align_reader.file_edition_mapping.items())[:]
     for edition in valid_edition_1[:]:
         if not edition[0].startswith('eng') or edition[0].startswith('prs'):
             valid_edition_1.remove(edition)
@@ -42,7 +42,7 @@ class statsForm(FlaskForm):
     lang1 = SelectField('language 1', validators=[Optional()], choices = [('eng', 'eng'), ('prs', 'prs')])
     lang2 = SelectField('language 2', validators=[Optional()], choices = [(x,x) for x in align_reader.all_langs])
     edition_1 = SelectField('edition 1', validators=[Optional()], choices = valid_edition_1)
-    edition_2 = SelectField('edition 1', validators=[Optional()], choices = align_reader.file_lang_name_mapping.items())
+    edition_2 = SelectField('edition 1', validators=[Optional()], choices = align_reader.file_edition_mapping.items())
     
     minimum = FloatField('Min', validators=[Optional()])
     maximum = FloatField('Max', validators=[Optional()])
