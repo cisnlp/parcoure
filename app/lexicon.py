@@ -10,7 +10,6 @@ from random import shuffle
 
 import pickle
 
-
 align_reader = GeneralAlignReader()
 doc_retriever = DocumentRetriever()
 
