@@ -168,7 +168,7 @@ class Lexicon(object):
                             if verse in verses_alignments.keys():  
                                 target_positins = [s for f,s in verses_alignments[verse] if f in doc['termIndexes']]
                             
-                                if len(target_positins) > 0  : 
+                                if len(target_positins) > 0 and verse+"@"+target_edition in target_docs : #FIXME inconsistency in elasticsearch and alignment files 
                                     taget_tokens = target_docs[verse+"@"+target_edition].split()
                                     
                                     for target_positin in target_positins:
