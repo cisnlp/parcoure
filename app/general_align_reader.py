@@ -34,6 +34,7 @@ class GeneralAlignReader(AlignReader):
 			self.all_langs = ["eng", "deu"]
 			self.bert_langs = ["eng", "deu"]
 			self.file_lang_name_mapping = {"eng": "eng", "deu": "deu"}
+			self.file_edition_mapping = {"a": "b"}
 
 	def read_langs_order_file(self):
 		res = []
