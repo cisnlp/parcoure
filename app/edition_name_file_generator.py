@@ -1,4 +1,11 @@
-config_path = "/mounts/work/ayyoob/alignment/config/"
+#this should be configure file
+
+# to be created:
+# - lang order file
+import app.utils
+
+
+config_path = app.utils.config_dir
 lang_file_mapping_path = config_path + "lang_files.txt"
 
 with open(lang_file_mapping_path, "r") as prf_file, open(config_path + "file_edition_mapping.txt", "w") as flm_f, open(config_path + "edition_file_mapping.txt", "w") as lfm_f:

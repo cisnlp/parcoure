@@ -12,7 +12,6 @@ from app.utils import read_files, read_lang_file_mapping
 
 
 
-pbc_path = "/nfs/datc/pbc/"
 alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
 
 language_token_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_token_stats.txt"

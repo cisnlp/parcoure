@@ -2,6 +2,9 @@ import logging
 import multiprocessing
 import codecs
 import sys
+import configparser
+import os, subprocess
+
 
 
 def get_logger(name, filename, level=logging.DEBUG):
@@ -23,16 +26,40 @@ def get_logger(name, filename, level=logging.DEBUG):
 
     return logger
 
-config_path = "/mounts/work/ayyoob/alignment/config/"
-pbc_path = "/nfs/datc/pbc/"
+config_dir = "/mounts/work/ayyoob/alignment/config/"
+corpora_dir = "/nfs/datc/pbc/"
 CIS = False
 LOG = get_logger("analytics", "logs/analytics.log")
-lang_file_mapping_path = config_path + "lang_files.txt"
+lang_file_mapping_path = config_dir + "lang_files.txt"
 
-es_index_url = "http://127.0.0.1:9200/bible_index"
-es_index_url_noedge = "http://127.0.0.1:9200/bible_index_noedge"
+es_index_url = "/bible_index"
+es_index_url_noedge = "/bible_index_noedge"
+config_parser = ''
 
+def setup(f):
+    global config_parser
+    global config_dir
+    global corpora_dir
+    global lang_file_mapping_path
+    global es_index_url
+    global es_index_url_noedge
 
+    if not os.path.exists(f):
+        print(f"Cannot find config file at {f}")
+        exit()
+        
+    config_parser = configparser.ConfigParser()
+    config_parser.read(f)
+
+    config_dir = config_parser['section']['config_dir']
+    corpora_dir = config_parser['section']['corpora_dir']
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+
+    lang_file_mapping_path = config_dir + "lang_files.txt"
+
+    es_index_url = config_parser['section']['elasticsearch_address'] + es_index_url
+    es_index_url_noedge = config_parser['section']['elasticsearch_address'] + es_index_url_noedge
 
 def synchronized_method(method):
     
@@ -101,18 +128,21 @@ def setup_dict_entry(_dict, entry, val):
 
 
 def read_files(editions):
-	res = {}
-	for f in editions:
-		res[f] = {}
-		with codecs.open(pbc_path + f + ".txt", "r", "utf-8") as fi:
-			for l in fi:
-				if l[0] == "#":
-					continue
-				l = l.strip().split("\t")
-				if len(l) != 2:
-					continue
-				res[f][l[0]] = l[1]
-	return res
+    res = {}
+    for f in editions:
+        res[f] = {}
+        if os.path.exists(corpora_dir + '/' + f + ".txt"):
+            with codecs.open(corpora_dir + '/' + f + ".txt", "r", "utf-8") as fi:
+                for l in fi:
+                    if l[0] == "#":
+                        continue
+                    l = l.strip().split("\t")
+                    if len(l) != 2:
+                        continue
+                    res[f][l[0]] = l[1]
+        else:
+            LOG.warning(f"file {corpora_dir + f}.txt not found")
+    return res 
 
 def read_lang_file_mapping():
     lang_files = {}
@@ -132,3 +162,8 @@ def read_lang_file_mapping():
     all_langs.sort()
 
     return lang_files, all_langs
+
+
+def run_command(cmd):
+    """Run command, return output as string."""
+    subprocess.Popen(cmd, shell=True).communicate()[0]

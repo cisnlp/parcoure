@@ -12,7 +12,6 @@ from app.utils import read_files, read_lang_file_mapping
 
 
 
-pbc_path = "/nfs/datc/pbc/"
 # aligner_path = "python /mounts/Users/student/masoud/Dokumente/code/pbc_utils/extract_alignments.py"
 aligner_path = "python /mounts/Users/student/masoud/pbc_utils/extract_alignments.py"
 output_path = "/mounts/work/ayyoob/alignment/output/"

@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, SelectField, SelectMultipleField, 
 from wtforms.validators import DataRequired, Length, Required, Optional
 from app.general_align_reader import GeneralAlignReader 
 from app import stats
+from app import utils
 
 
 align_reader = GeneralAlignReader()
@@ -48,7 +49,9 @@ class statsForm(FlaskForm):
     minimum = FloatField('Min', validators=[Optional()])
     maximum = FloatField('Max', validators=[Optional()])
     bin_count = IntegerField('Bin count', validators=[Optional()], render_kw={"placeholder":20})
-    recaptcha = RecaptchaField()
+
+    # if len(utils.config_parser['section']['CAPTCHA_SITE_KEY'] > 0 and utils.config_parser['section']['CAPTCHA_SECRET_KEY'] > 0):
+    #     recaptcha = RecaptchaField()
     submitField = SubmitField('Get Stats')
 
 
@@ -59,6 +62,7 @@ class AlignForm(FlaskForm):
     model = RadioField('Model', choices=[('bert', 'mBERT'), ('xlmr', 'XLM-R')], default="bert")
     # method = RadioField('Method', choices=[('inter', 'ArgMax'), ('itermax',
     #                                                              'IterMax'), ('mwmf', 'Match')], default="itermax")
-    recaptcha = RecaptchaField()
+    # if len(utils.config_parser['section']['CAPTCHA_SITE_KEY'] > 0 and utils.config_parser['section']['CAPTCHA_SECRET_KEY'] > 0):
+    #     recaptcha = RecaptchaField()
     submitField = SubmitField('Align')
 

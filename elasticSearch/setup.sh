@@ -4,42 +4,46 @@
 # run bible_to_json_convertor.py to convert your bible files to indexable json files
 # point corpus_location field in this file to the location of your json files
 
+if [ "$#" -ne 1 ]; then
+    echo "Please provide the elasticsearch json files location as input"
+    exit -1
+fi
 
-corpus_location="/mounts/work/ayyoob/alignment/elastic/"
+corpus_location="$1"
 
-curl -XDELETE http://localhost:9200/bible_index; echo;
-curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index -d @mapping.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
-curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index_noedge -d @mapping_noedge.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+printf "delete index if exists"
+curl -XDELETE http://localhost:9200/parcoure_index; echo;
+curl -XDELETE http://localhost:9200/parcoure_index_noedge; echo;
 
+printf "\n\n\ncreate index"
+curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index -d @mapping.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index_noedge -d @mapping_noedge.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+
+printf "\n\n\nfeed the corpora to elasticsearch"
 files=`ls $corpus_location`
 for file in $files
 do 
-    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index/_bulk?pretty" --data-binary "@$corpus_location$file";
-    curl -H "Content-Type: application/json" -XPOST "localhost:9200/bible_index_noedge/_bulk?pretty" --data-binary "@$corpus_location$file";
+    curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index/_bulk?pretty" --data-binary "@$corpus_location$file"; echo;
+    curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index_noedge/_bulk?pretty" --data-binary "@$corpus_location$file"; echo;
 done
 
+
+printf "\n\n\ncheck the result"
 #see number of indexed verses(documents)
-curl  -XGET "localhost:9200/bible_index/_stats/docs"
-curl  -XGET "localhost:9200/bible_index_noedge/_stats/docs"
+curl  -XGET "localhost:9200/parcoure_index/_stats/docs"; echo; echo;
+curl  -XGET "localhost:9200/parcoure_index_noedge/_stats/docs"
 
 # create another index, in this one use exact match for langauges (instead of n-gram)
-# curl -H "Content-Type: application/json" -XPUT http://localhost:9200/bible_index -d @mapping_langauge.json; echo;
+# curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index -d @mapping_langauge.json; echo;
 # curl -XPOST localhost:9200/_reindex -H 'Content-Type: application/json' -d '
 # {
 #   "source": {
-#     "index": "bible_index"
+#     "index": "parcoure_index"
 #   },
 #   "dest": {
-#     "index": "bible_index_v1"
+#     "index": "parcoure_index_v1"
 #   }
 # }'
 
 # run the app for development
 # cd app
-conda activate alignment
-export FLASK_ENV=development
-export CAPTCHA_SITE_KEY='createonline'
-export CAPTCHA_SECRET_KEY='createonline'
-export FLASK_SECRET_KEY="ddddddddddddddddd"
-export FLASK_APP=align.py
-FLASK_ENV=development flask run

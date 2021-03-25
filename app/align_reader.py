@@ -1,9 +1,9 @@
 import codecs
-
+import app.utils
 
 class AlignReader(object):
 	def __init__(self, config_path=""):
-		self.pbc_path = "/nfs/datc/pbc/"
+		self.corpora_dir = app.utils.corpora_dir
 		self.align_path = "/mounts/work/mjalili/projects/pbc_simalign/output/"
 		if config_path == "":
 			config_path = "/mounts/work/mjalili/projects/pbc_simalign/configs/"
@@ -42,7 +42,7 @@ class AlignReader(object):
 	#ayyoob
 	def get_text_for_lang(self, lang):
 		sentences = {}
-		with codecs.open(self.pbc_path + lang + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + lang + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				print(l)
 				if l[0] == "#":
@@ -75,7 +75,7 @@ class AlignReader(object):
 			return None
 
 		q_sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue
@@ -92,7 +92,7 @@ class AlignReader(object):
 			return None
 
 		sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue

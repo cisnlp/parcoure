@@ -33,6 +33,7 @@ def convert_alignment(initial_output):
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/multalign', methods=['GET', 'POST'])
 def multalign():
+    print("man", utils.config_dir)
     form = MultialignForm()
     alignment = None
     prev_verses = {}

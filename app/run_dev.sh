@@ -1,0 +1,16 @@
+# export CAPTCHA_SECRET_KEY='6LeBoS0aAAAAAMHMED2quWHIkdNlTZ-QaNO08NhR'
+export FLASK_APP=align.py
+export FLASK_SECRET_KEY="ddddddddddddddddd"
+# export CAPTCHA_SITE_KEY='6LeBoS0aAAAAAC74yBXu0_YPmMRSUZvG0-VF9_t6'
+export FLASK_RUN_PORT=8000
+
+# if [ "$#" -ne 1 ]; then
+#     echo "Please provide the config file location as input"
+#     exit -1
+# fi
+
+export CONFIG_PATH="/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/config_pbc.ini"
+
+
+FLASK_ENV=development python -u -m flask run --host=0.0.0.0   #>logs/analytics.log 2>&1
+

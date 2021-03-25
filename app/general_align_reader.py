@@ -1,7 +1,8 @@
 from app.align_reader import AlignReader
 import codecs
 import os
-from app.utils import LOG, Cache, config_path as utils_config_path, read_lang_file_mapping
+from app.utils import LOG
+from app import utils
 from multiprocessing import Manager
 import pickle
 import collections
@@ -13,27 +14,32 @@ alignments_lock = m.Lock()
 class GeneralAlignReader(AlignReader):
 
 	def __init__(self, config_path=""): 
-		try:
-			AlignReader.__init__(self, config_path)
-			if config_path == "":
-				config_path = utils_config_path 
+		
+		AlignReader.__init__(self, config_path)
+		if config_path == "":
+			config_path = utils.config_dir 
 
-			self.alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
-			self.index_path = "/mounts/work/ayyoob/alignment/output/"
-			self.lang_order_file_path = config_path + "/langauges_order_file.txt"
-			self.lang_orders = self.read_langs_order_file()
+		self.alignment_path = utils.config_parser['section']['alignments_dir']
+		self.index_path = utils.config_parser['section']['aligns_index_dir']
+		self.lang_order_file_path = config_path + "/languages_order_file.txt"
+		self.lang_orders = self.read_langs_order_file()
 
-			self.lang_files, self.all_langs = read_lang_file_mapping()
-			self.content_cache = Cache(self.read_alignment_file)
-			self.indexes_cache = Cache(self.read_index_file)
-			self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "edition_file_mapping.txt").items()))
-			self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
-			self.index_size = 121447 #TODO put me in config
-		except: 
-			self.file_lang_name_mapping = {"a": "b"}
-			self.all_langs = ["eng", "deu"]
-			self.bert_langs = ["eng", "deu"]
-			self.file_lang_name_mapping = {"eng": "eng", "deu": "deu"}
+		self.lang_files, self.all_langs = utils.read_lang_file_mapping()
+		self.file_lang_mapping = self.create_file_lang_mapping()
+		self.content_cache = utils.Cache(self.read_alignment_file)
+		self.indexes_cache = utils.Cache(self.read_index_file)
+		self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "edition_file_mapping.txt").items()))
+		self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
+		self.index_size = 121447 #TODO put me in config
+		
+
+	def create_file_lang_mapping(self):
+		res = {}
+		for lang in self.lang_files:
+			for file in self.lang_files[lang]:
+				res[file] = lang
+		
+		return res
 
 	def read_langs_order_file(self):
 		res = []
@@ -59,7 +65,7 @@ class GeneralAlignReader(AlignReader):
 				pair = l.strip().split('\t')
 				
 				res[pair[0].strip()] = pair[1].strip()
-				print(pair)
+				# print(pair)
 		return res
 
 	def get_source_target_order(self, lang_1, lang_2):
@@ -68,6 +74,9 @@ class GeneralAlignReader(AlignReader):
 		else:
 			return lang_2,lang_1
 
+	def get_lang_from_edition(self, edition):
+		file = self.edition_file_mapping[edition]
+		return self.file_lang_mapping[file]
 
 	def get_ordered_langs(self, edition_1, edition_2):
 		lang_1 = edition_1[:3] # TODO fixme
