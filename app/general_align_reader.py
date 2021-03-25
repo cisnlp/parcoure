@@ -14,7 +14,6 @@ alignments_lock = m.Lock()
 class GeneralAlignReader(AlignReader):
 
 	def __init__(self, config_path=""): 
-		
 		AlignReader.__init__(self, config_path)
 		if config_path == "":
 			config_path = utils.config_dir 
@@ -32,7 +31,6 @@ class GeneralAlignReader(AlignReader):
 		self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_edition_mapping.txt").items()))
 		self.index_size = 121447 #TODO put me in config
 		
-
 	def create_file_lang_mapping(self):
 		res = {}
 		for lang in self.lang_files:

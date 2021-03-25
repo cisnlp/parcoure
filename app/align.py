@@ -287,7 +287,7 @@ def information():
     info.append(info_obj)
 
     info_obj ={}
-    info_obj['title'] = 'Simalign'
+    info_obj['title'] = 'SimAlign'
     info_obj['message'] = 'If you slect a edition pair both from the following list, they will be aligned by Simalign'
     info_obj['link'] = 'https://simalign.cis.lmu.de/'
     info_obj['table'] = [align_reader.file_edition_mapping[x] for x in align_reader.bert_files]
