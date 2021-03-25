@@ -40,6 +40,7 @@ def create_dirs():
     aligns_index_dir = ParCourE_data_dir + "/data/align_index/"
     lexicon_dir = ParCourE_data_dir + "/data/lexicon/"
     elastic_dir = ParCourE_data_dir + "/data/elastic/"
+    stats_dir = ParCourE_data_dir + "/data/stats/"
 
     if not os.path.exists(ParCourE_data_dir):
         os.makedirs(ParCourE_data_dir)
@@ -57,6 +58,17 @@ def create_dirs():
         os.mkdir(elastic_dir)
     if not os.path.exists(aligns_index_dir):
         os.mkdir(aligns_index_dir)
+    if not os.path.exists(stats_dir):
+        os.mkdir(stats_dir)
+    if not os.path.exists(stats_dir + "/lang_pair_stats"):
+        os.mkdir(stats_dir + "/lang_pair_stats")
+    if not os.path.exists(stats_dir + "/edition_pair_stats"):
+        os.mkdir(stats_dir + "/edition_pair_stats")
+    if not os.path.exists(stats_dir + "/lang_stats"):
+        os.mkdir(stats_dir + "/lang_stats")
+    if not os.path.exists(stats_dir + "/edition_stats"):
+        os.mkdir(stats_dir + "/edition_stats")
+    
 
     parser['section']['config_dir'] = config_dir
     parser['section']['corpora_dir'] = corpora_dir
@@ -64,6 +76,7 @@ def create_dirs():
     parser['section']['aligns_index_dir'] = aligns_index_dir
     parser['section']['lexicon_dir'] = lexicon_dir
     parser['section']['elastic_dir'] = elastic_dir
+    parser['section']['stats_dir'] = stats_dir
 
 
 def get_sentence_id(s_file, t_file, rel_string):
@@ -204,6 +217,10 @@ def save_PC_config_files():
     with open(config_dir + "/prefixes.txt", 'w') as of:
         for item in prefixes:
             of.write(f"{item} {prefixes[item]}\n")
+    
+    with open(config_dir + "/numversesplit.txt", 'w') as of:
+        for item in prefixes:
+            of.write(f"{prefixes[item]} {item}\n")
 
 def add_to_PC_config_files(s_lang, s_edition, t_lang, t_edition):
     global lang_files
@@ -211,6 +228,7 @@ def add_to_PC_config_files(s_lang, s_edition, t_lang, t_edition):
     global file_edition_mapping
     global bert_100
     global prefixes
+    global numversesplit
 
     lang_files[s_edition] = s_lang
     lang_files[t_edition] = t_lang
@@ -254,6 +272,7 @@ langs_order = []
 file_edition_mapping = {}
 bert_100 = []
 prefixes = {}
+numversesplit = {}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create ParCourE format corpora from CES format.", 

@@ -1,4 +1,4 @@
-import os
+import os, sys
 import os.path
 import regex
 import codecs
@@ -8,35 +8,11 @@ import concurrent.futures
 import logging
 import time
 import argparse
-from app.utils import read_files, read_lang_file_mapping
+from app import utils, general_align_reader
 
 
 
-alignment_path = "/mounts/work/ayyoob/alignment/output/eflomal_aligns/"
 
-language_token_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_token_stats.txt"
-edition_token_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_token_stats.txt"
-lang_verse_stat_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_verse_stats.txt"
-edition_verse_stat_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_verse_stats.txt"
-lang_pair_token_count_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_pair_token_count_stats.txt"
-lang_pair_token_totcount_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_pair_token_totcount_stats.txt"
-edition_pair_token_count_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_pair_token_count_stats.txt"
-edition_pair_token_totcount_stats_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_pair_token_totcount_stats.txt"
-lang_pair_verse_stat_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_pair_verse_stats.txt"
-edition_pair_verse_stat_file = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_pair_verse_stats.txt"
-
-lang_pair_stats_dir = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_pair_stats"
-edition_pair_stats_dir = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_pair_stats"
-lang_stats_dir = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/lang_stats"
-edition_stats_dir = "/mounts/work/ayyoob/alignment_stats/efomal_aligns/edition_stats"
-
-all_langs = []
-def get_source_target_order(lang1, lang2):
-	for lang in all_langs:
-		if lang == lang1:
-			return  (lang1, lang2)
-		if lang == lang2:
-			return (lang2, lang1)
 
 def setup_dict_entry(_dict, entry, val):
 	if entry not in _dict:
@@ -72,7 +48,7 @@ def log_state(src_lang, trg_lang, state):
 	logging.info(F"alignment process of {src_lang},{trg_lang} {state}")
 
 def get_in_order(lang_name1, lang_name2, files1, files2, store_lang1_stat, store_lang2_stat):
-	s_lang, t_lang = get_source_target_order(lang_name1, lang_name2)
+	s_lang, t_lang = align_reader.get_ordered_langs(lang_name1, lang_name2)
 	if s_lang == lang_name1:
 		return (lang_name1, lang_name2, files1, files2, store_lang1_stat, store_lang2_stat)
 	elif t_lang == lang_name1:
@@ -86,8 +62,8 @@ def compute_alignment_statics(lang_name1, lang_name2, files1, files2, store_lang
 	if os.path.exists("{}/{}_{}_tokens_stat.txt".format(lang_pair_stats_dir,src_lang_name, trg_lang_name)):
 		log_state(src_lang_name, trg_lang_name, "early abort")
 		return
-	src_sentences = read_files(src_files)
-	trg_sentences = read_files(trg_files)
+	src_sentences = utils.read_files(src_files)
+	trg_sentences = utils.read_files(trg_files)
 
 	src_lang_tokens = {}
 	target_lang_tokens = {}
@@ -184,28 +160,47 @@ def compute_alignment_statics(lang_name1, lang_name2, files1, files2, store_lang
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="compute alignment statistics for languages mentioned in lang_files.txt file.", 
 	epilog="example: python eflomal_align_maker.py -s 0 -e 200 \n python eflomal_align_maker.py -l eng")
-	parser.add_argument("-s", default="")
-	parser.add_argument("-e", default="")
-	parser.add_argument("-l", default="")
+	parser.add_argument("-s", default=0, help="Start counter for number of files to process")
+	parser.add_argument("-e", default=sys.maxsize, help="End counter for number of files to process")
+	parser.add_argument("-l", default="", help="List of langs to compute stats for. If not provided, all langs are considered")
+	parser.add_argument("-w", default=1, help="Number of cpu workers to use for stat calculation")
 
 
 	
 	args = parser.parse_args()
-	if args.s == "" or args.e == "" :
-		if args.l == "":
-			print("No input is given.")
-			exit()
+	utils.setup(os.environ['CONFIG_PATH'])
 	
 	format = "%(asctime)s: %(message)s"
 	logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
 
-	
-	lang_files, _ = read_lang_file_mapping()
-	all_langs = list(lang_files.keys())
+	align_reader = general_align_reader.GeneralAlignReader()
+	lang_files = align_reader.lang_files
+	all_langs = align_reader.all_langs
 
 	logging.info("language count: %d", len(all_langs))
 	logging.info("files count: %d", sum([len(x) for x in lang_files.values()]))
 
+
+	#######################    setting paths    #############################
+	alignment_path = utils.alignments_dir
+
+	language_token_stats_file = f"{utils.stats_directory}/lang_token_stats.txt"
+	edition_token_stats_file = f"{utils.stats_directory}/edition_token_stats.txt"
+	lang_verse_stat_file = f"{utils.stats_directory}/lang_verse_stats.txt"
+	edition_verse_stat_file = f"{utils.stats_directory}/edition_verse_stats.txt"
+	lang_pair_token_count_stats_file = f"{utils.stats_directory}/lang_pair_token_count_stats.txt"
+	lang_pair_token_totcount_stats_file = f"{utils.stats_directory}/lang_pair_token_totcount_stats.txt"
+	edition_pair_token_count_stats_file = f"{utils.stats_directory}/edition_pair_token_count_stats.txt"
+	edition_pair_token_totcount_stats_file = f"{utils.stats_directory}/edition_pair_token_totcount_stats.txt"
+	lang_pair_verse_stat_file = f"{utils.stats_directory}/lang_pair_verse_stats.txt"
+	edition_pair_verse_stat_file = f"{utils.stats_directory}/edition_pair_verse_stats.txt"
+
+	lang_pair_stats_dir = f"{utils.stats_directory}/lang_pair_stats"
+	edition_pair_stats_dir = f"{utils.stats_directory}/edition_pair_stats"
+	lang_stats_dir = f"{utils.stats_directory}/lang_stats"
+	edition_stats_dir = f"{utils.stats_directory}/edition_stats"
+
+	#################### start actual stat calc ##############################
 	a_slang = []
 	a_tlang = []
 	a_sfiles = []
@@ -247,7 +242,7 @@ if __name__ == "__main__":
 					s_lang_store.append(False)
 
 
-		with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+		with concurrent.futures.ThreadPoolExecutor(max_workers=int(args.w)) as executor:
 			for r in executor.map(compute_alignment_statics, a_slang, a_tlang, a_sfiles, a_tfiles, s_lang_store, t_lang_store):
 				try:
 					print(r)

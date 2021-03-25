@@ -9,7 +9,7 @@ export FLASK_RUN_PORT=8000
 #     exit -1
 # fi
 
-export CONFIG_PATH="/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/config_pbc.ini"
+export CONFIG_PATH="../config_pbc.ini"
 
 
 FLASK_ENV=development python -u -m flask run --host=0.0.0.0   #>logs/analytics.log 2>&1

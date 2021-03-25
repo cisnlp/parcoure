@@ -26,15 +26,17 @@ def get_logger(name, filename, level=logging.DEBUG):
 
     return logger
 
-config_dir = "/mounts/work/ayyoob/alignment/config/"
-corpora_dir = "/nfs/datc/pbc/"
+config_dir = ""
+corpora_dir = ""
 CIS = False
+lang_file_mapping_path = ""
+es_index_url = ""
+es_index_url_noedge = ""
+stats_directory = ""
+config_parser = ""
+alignments_dir = ""
+simalign_corpus_dir = ""
 LOG = get_logger("analytics", "logs/analytics.log")
-lang_file_mapping_path = config_dir + "lang_files.txt"
-
-es_index_url = "/bible_index"
-es_index_url_noedge = "/bible_index_noedge"
-config_parser = ''
 
 def setup(f):
     global config_parser
@@ -43,6 +45,9 @@ def setup(f):
     global lang_file_mapping_path
     global es_index_url
     global es_index_url_noedge
+    global stats_directory
+    global alignments_dir
+    global simalign_corpus_dir
 
     if not os.path.exists(f):
         print(f"Cannot find config file at {f}")
@@ -58,8 +63,11 @@ def setup(f):
 
     lang_file_mapping_path = config_dir + "lang_files.txt"
 
-    es_index_url = config_parser['section']['elasticsearch_address'] + es_index_url
-    es_index_url_noedge = config_parser['section']['elasticsearch_address'] + es_index_url_noedge
+    es_index_url = config_parser['section']['elasticsearch_address'] + "/" + config_parser['section']['index_name']
+    es_index_url_noedge = config_parser['section']['elasticsearch_address'] + "/" + config_parser['section']['noedge_index_name']
+    stats_directory = config_parser['section']['stats_dir']
+    alignments_dir = config_parser['section']['alignments_dir']
+    simalign_corpus_dir = config_parser['section']['simalign_corpus_dir']
 
 def synchronized_method(method):
     
@@ -147,16 +155,19 @@ def read_files(editions):
 def read_lang_file_mapping():
     lang_files = {}
 
-    with open(lang_file_mapping_path, "r") as prf_file:
-        for prf_l in prf_file:
-            prf_l = prf_l.strip().split()
-            file_name = prf_l[0]
-            lang_name = prf_l[1] 
-            
-            if lang_name not in lang_files:
-                lang_files[lang_name] = [file_name]
-            else:
-                lang_files[lang_name].append(file_name)
+    try:
+        with open(lang_file_mapping_path, "r") as prf_file:
+            for prf_l in prf_file:
+                prf_l = prf_l.strip().split()
+                file_name = prf_l[0]
+                lang_name = prf_l[1] 
+                
+                if lang_name not in lang_files:
+                    lang_files[lang_name] = [file_name]
+                else:
+                    lang_files[lang_name].append(file_name)
+    except FileNotFoundError as e:
+        LOG.warning("Language files mapping file not found")
 
     all_langs = list(lang_files.keys())
     all_langs.sort()

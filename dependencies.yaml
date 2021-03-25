@@ -1,5 +1,6 @@
-name: ParCourE
+name: parcoure
 channels:
+  - anaconda
   - conda-forge
   - defaults
 dependencies:
@@ -7,9 +8,10 @@ dependencies:
   - aniso8601=8.0.0=py_0
   - astroid=2.4.2=py38_0
   - brotli-python=1.0.9=py38h348cfbe_2
-  - ca-certificates=2020.12.5=ha878542_0
-  - certifi=2020.12.5=py38h578d9bd_1
+  - ca-certificates=2020.10.14=0
+  - certifi=2020.6.20=py38_0
   - click=7.1.2=py_0
+  - cython=0.29.21=py38he6710b0_0
   - flask=1.1.2=py_0
   - flask-compress=1.7.0=pyh9f0ad1d_0
   - flask-cors=3.0.9=py_0
@@ -33,7 +35,7 @@ dependencies:
   - markupsafe=1.1.1=py38h7b6447c_0
   - mccabe=0.6.1=py38_1
   - ncurses=6.2=he6710b0_1
-  - openssl=1.1.1i=h27cfd23_0
+  - openssl=1.1.1h=h7b6447c_0
   - pandas=1.1.4=py38h0ef3d22_0
   - pip=20.2.3=py38_0
   - pylint=2.6.0=py38_0
@@ -67,6 +69,7 @@ dependencies:
     - colorama==0.4.4
     - colorful==0.5.4
     - decorator==4.4.2
+    - eflomal==0.1
     - filelock==3.0.12
     - future==0.18.2
     - google==3.0.0
