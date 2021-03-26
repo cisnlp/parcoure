@@ -110,6 +110,7 @@ class GeneralAlignReader(AlignReader):
 		return -1
 
 	def read_alignment_file(self, file_path):
+		LOG.info("reading alignment file ({})".format(file_path))
 		res = []
 		with open(file_path, 'r') as f:
 			for line in f:
@@ -215,25 +216,19 @@ class GeneralAlignReader(AlignReader):
 
 		LOG.info("getting eflomal aglingment for: {} , {}".format(edition_1, edition_2) ) 
 		s_lang, t_lang, s_edition, t_edition = self.get_ordered_editions(edition_1, edition_2)
+		s_lang_file = self.edition_file_mapping[s_edition]
+		t_lang_file = self.edition_file_mapping[t_edition]
 		revert = False
 		if s_edition == edition_2:
 			revert = True
 		
 		LOG.info("copying")
-		if alignments_loc == None:
-			alignments = self.content_cache.get(self.get_align_file_path(s_lang, t_lang))
-		else:
-			with open("./af", "rb") as af:
-				alignments = pickle.load(af)
-		if index_loc == None:
-			index = self.indexes_cache.get(self.get_index_file_path(s_lang, t_lang))
-		else:
-			with open("./if", "rb") as iif:
-				index = pickle.load(iif)
-
-		if s_edition in index:
-			if t_edition in index[s_edition]:
-				index = index[s_edition][t_edition]
+		alignments = self.content_cache.get(self.get_align_file_path(s_lang, t_lang))
+		index = self.indexes_cache.get(self.get_index_file_path(s_lang, t_lang))
+		
+		if s_lang_file in index:
+			if t_lang_file in index[s_lang_file]:
+				index = index[s_lang_file][t_lang_file]
 
 		LOG.info("getting verses" )  
 		for verse in verse_nums:
@@ -259,6 +254,8 @@ class GeneralAlignReader(AlignReader):
 
 			LOG.info("getting eflomal aglingment for: {} , {}".format(edition_1, edition_2) ) 
 			s_lang, t_lang, s_edition, t_edition = self.get_ordered_editions(edition_1, edition_2)
+			s_lang_file = self.edition_file_mapping[s_edition]
+			t_lang_file = self.edition_file_mapping[t_edition]
 
 			revert = False
 			if s_edition == edition_2:
@@ -270,9 +267,9 @@ class GeneralAlignReader(AlignReader):
 				ps_lang, pt_lang = s_lang, t_lang
 
 			index = None
-			if s_edition in index_t:
-				if t_edition in index_t[s_edition]:
-					index = index_t[s_edition][t_edition]
+			if s_lang_file in index_t:
+				if t_lang_file in index_t[s_lang_file]:
+					index = index_t[s_lang_file][t_lang_file]
 			
 			if index is not None:
 

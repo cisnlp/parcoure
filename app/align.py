@@ -53,12 +53,12 @@ def multalign():
 
             for document in documents: 
                 if document not in prev_verses: # the user may select a verse twice
-                    verse_id, source_language = (document.split('@')[0], document.split('@')[1])
+                    verse_id, source_file = (document.split('@')[0], document.split('@')[1])
 
-                    alignments, messages = alignment_controler.get_alignments_for_verse(verse_id, source_language, form.languages.data[:], input_tokens)
+                    alignments, messages = alignment_controler.get_alignments_for_verse(verse_id, source_file, form.languages.data[:], input_tokens)
                     doc_alignments.append(alignments)
                     all_messages.extend(messages)
-                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_edition_mapping[source_language] + "</span>: " 
+                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_edition_mapping[source_file] + "</span>: " 
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
         return render_template('multalign.html', title='ParCourE', form=form,
@@ -121,7 +121,7 @@ def search():
     query_string = parser.parse_args()
     q = query_string['q'].strip()
 
-    languages = ""
+    language_files = ""
     verse_id = -1
     while q[:2] == "l:" or q[:2] == "L:" or q[:2] == "v:" or q[:2] == "V:":
         if q[:2] == "l:" or q[:2] == "L:":
@@ -131,7 +131,7 @@ def search():
             if len(tokens[0]) > 2:
                 for edition in align_reader.edition_file_mapping:
                     if edition.startswith(tokens[0]):
-                        languages = align_reader.edition_file_mapping[edition]
+                        language_files = align_reader.edition_file_mapping[edition]
                         break
             tokens.pop(0)
             q = "  ".join(tokens)
@@ -155,11 +155,11 @@ def search():
         mimetype='application/json'
     )
 
-    utils.LOG.info("searching for: query: {}, langs: {}, verse: {}".format(q,languages, verse_id))
+    utils.LOG.info("searching for: query: {}, langs: {}, verse: {}".format(q,language_files, verse_id))
     if len(q.split()) <= 1: #or len(q) < 10:
-        data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=True)
+        data = doc_retriever.search_documents(q + " " + language_files, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=True)
     else:
-        data = doc_retriever.search_documents(q + " " + languages, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=False)
+        data = doc_retriever.search_documents(q + " " + language_files, verse=None if verse_id==-1 else verse_id, doc_count=50, prefixed_search=False)
     utils.LOG.info(data)
     beers = []
     i = 1
@@ -230,18 +230,18 @@ def dictionary():
 
     return render_template('lexicon.html', title='ParCourE', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
 
-def checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2):
+def checkForErrorInInput(stat_type, lang1, lang2, lang_file1, lang_file2):
     if stat_type in two_langs_stat_vals:
         if lang1 not in align_reader.all_langs or lang2 not in align_reader.all_langs:
             return 'you should select two languages for this stat'
     elif stat_type in two_edition_stat_vals:
-        if edition1 not in align_reader.file_edition_mapping.keys() or edition2 not in align_reader.file_edition_mapping.keys():
+        if lang_file1 not in align_reader.file_edition_mapping.keys() or lang_file2 not in align_reader.file_edition_mapping.keys():
             return 'you should select two editions for this stat'
     elif stat_type in one_lang_stat_vals:
         if lang1 not in align_reader.all_langs:
             return 'you should select one languages for this stat'
     elif stat_type in one_edition_stat_vals:
-        if edition1 not in align_reader.file_edition_mapping.keys():
+        if lang_file1 not in align_reader.file_edition_mapping.keys():
             return 'you should select one editions for this stat'
 
 @app.route('/stats', methods=['GET', 'POST'])
@@ -256,15 +256,15 @@ def statitics():
         stat_type = form.stat_type.data 
         lang1 = form.lang1.data
         lang2 = form.lang2.data
-        edition1 = form.edition_1.data
-        edition2 = form.edition_2.data
+        lang_file_1 = form.edition_1.data
+        lang_file2 = form.edition_2.data
         min = form.minimum.data
         max = form.maximum.data
         bin_count = 20 if form.bin_count.data == None or form.bin_count.data < 1 else form.bin_count.data
         
-        errorA = checkForErrorInInput(stat_type, lang1, lang2, edition1, edition2)
+        errorA = checkForErrorInInput(stat_type, lang1, lang2, lang_file_1, lang_file2)
         if errorA == None:
-            res = controler.extract_data_from_file(stat_type, lang1, lang2, edition1, edition2, bin_count, min, max)
+            res = controler.extract_data_from_file(stat_type, lang1, lang2, lang_file_1, lang_file2, bin_count, min, max)
     else:
         print("sag")
 

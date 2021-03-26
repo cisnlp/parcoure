@@ -1,6 +1,6 @@
 import json
 from app.document_retrieval import DocumentRetriever
-
+from app import utils
 from app.general_align_reader import GeneralAlignReader 
 
 align_reader = GeneralAlignReader()
@@ -14,7 +14,7 @@ def get_links(editions, verse_id, edition_token_offset):
         for edition2 in editions[li1+1:]:
 
             aligns = align_reader.get_verse_alignment([verse_id], edition1, edition2)
-            print(verse_id, edition1, edition2, aligns)
+            utils.LOG.info(f" alignments for {verse_id}, {edition1}, {edition2} are: {aligns}")
             if verse_id in aligns: # TODO sometimes we don't have a verse in another lang.
                 links.extend([{"source": edition_token_offset[edition1] + f, "target":edition_token_offset[edition2] + s, "value":1} for f,s in aligns[verse_id]])
     
@@ -29,10 +29,10 @@ def get_nodes(editions, source_edition, important_tokens, verse_id):
 
     for li, edit in enumerate(editions):
         edition_token_offset[edit] = token_nom
-        tokens = doc_retriever.retrieve_document(verse_id + "@" + edit).split()
+        tokens = doc_retriever.retrieve_document(verse_id + "@" + align_reader.edition_file_mapping[edit]).split()
         target_langs = get_rest_langs(editions, edit)
         if len(tokens) == 0:
-            not_found_editions.append(align_reader.file_edition_mapping[edit])
+            not_found_editions.append(edit)
             
         nodes.extend([{
             "id" : token_nom + i ,
@@ -62,21 +62,30 @@ def get_rest_langs(edits, to_remove_edit):
 def get_edits_label(all_edits, not_found_edits):
     edits_label = ""
     for edit in all_edits:
-        if align_reader.file_edition_mapping[edit] not in not_found_edits:
-            edits_label += align_reader.file_edition_mapping[edit] + ", "
+        if edit not in not_found_edits:
+            edits_label += edit + ", "
     edits_label = edits_label[:-2]
 
 
     return edits_label
 
-def get_messages(langs, verse_id):
+def get_messages(edits, verse_id):
     messages = []
-    for lang in langs:
+    for lang in edits:
         messages.append(f"could not find verse {verse_id} for {lang}")
     
     return messages
 
-def get_alignments_for_verse(verse_id, source_edition, all_editions, important_tokens):
+def get_editions(source_file, all_files):
+    edit = align_reader.file_edition_mapping[source_file]
+    edits = []
+    for f in all_files:
+        edits.append(align_reader.file_edition_mapping[f])
+    
+    return edit, edits
+
+def get_alignments_for_verse(verse_id, source_file, all_files, important_tokens):
+    source_edition, all_editions = get_editions(source_file, all_files)
     alignments = {"nodes":[], "links":[], "groups":0, "poses":0}
 
     if source_edition not in  all_editions:

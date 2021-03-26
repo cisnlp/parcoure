@@ -36,6 +36,7 @@ stats_directory = ""
 config_parser = ""
 alignments_dir = ""
 simalign_corpus_dir = ""
+lexicon_dir = ""
 LOG = get_logger("analytics", "logs/analytics.log")
 
 def setup(f):
@@ -48,6 +49,7 @@ def setup(f):
     global stats_directory
     global alignments_dir
     global simalign_corpus_dir
+    global lexicon_dir
 
     if not os.path.exists(f):
         print(f"Cannot find config file at {f}")
@@ -68,6 +70,7 @@ def setup(f):
     stats_directory = config_parser['section']['stats_dir']
     alignments_dir = config_parser['section']['alignments_dir']
     simalign_corpus_dir = config_parser['section']['simalign_corpus_dir']
+    lesicon_dir = config_parser['section']['lexicon_dir']
 
 def synchronized_method(method):
     
