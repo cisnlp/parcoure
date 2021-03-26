@@ -156,7 +156,7 @@ export default function define(runtime, observer) {
         })
         .append(jQuery('<input>', {
             'name': 'source_language',
-            'value': d.source_language.substring(0, 3)
+            'value': d.source_language
         }))
         .append(jQuery('<input>', {
             'name': 'query',
@@ -166,7 +166,7 @@ export default function define(runtime, observer) {
         for(let i = 0; i< d.target_languages.length; i++){
             newForm.append(jQuery('<input>', {
                 'name': "target_languages",
-                'value': d.target_languages[i].substring(0,3)
+                'value': d.target_languages[i]
             }))
         }
         

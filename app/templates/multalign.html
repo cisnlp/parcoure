@@ -7,6 +7,19 @@
                 $('select').selectpicker();
             </script> -->
 
+            <br>
+            <div class="card border-dark">
+<!--               <div class="card-header bg-primary">
+                About
+              </div> -->
+              <div class="card-body bg-light">
+<!--                 <h5 class="card-title">Special title treatment</h5>
+ -->                <p class="card-text">
+                            ParCourE is a Parallel Corpus Explorer. It allows to browse a word-aligned multi-parallel corpus in two different views, <em>MultAlign</em> and <em>Lexicon</em>. We use the Parallel Bible Corpus a multiparallel corpus with thousands of verses covering 1334 different languages. For more information see <em>Information</em> or the paper.
+                </p>
+              </div>
+            </div>
+            <br>
             <div class="card">
               <div class="card-header bg-light">
                 Instructions
@@ -14,15 +27,23 @@
               <div class="card-body">
 <!--                 <h5 class="card-title">Special title treatment</h5>
  -->                <p class="card-text">
-                            Enter a search query to search Bible verses in different languages by typing in the search box.<br/> 
-                            Filter languages using <code>l:&ltlanguage(ISO693-3 code)&gt</code> (e.g., l:deu jesus) and filter verse numbers using <code>v:&ltverse number&gt</code> (e.g., v:40002017). <br/> 
-                            In the alignment you can switch between a simple and a cluster view, for details see the paper. <br/> 
-                            By clicking on a specific word you will get to the Lexicon view and see translations for this particular word.
-                            <!-- Enter two sentences (paraphrases or translations) in up to two languages to obtain word alignments.
-                            Steer your desired tokenization using whitespaces.
-                            Language coverage is identical to multilingual BERT.
-                            Alignments are computed on subword level with multilingual BERT
-                            for the three methods ArgMax, IterMax and Match. For details see the paper. -->
+                            <ol>
+                                <li>
+                                    Enter a search query to search Bible verses in different languages by typing in the search box.
+                                    Filter languages and editions using <nobr><code>l:&ltlanguage(ISO693-3 code)&gt-&ltedition&gt</code></nobr> (e.g., <em>l:eng-basic Jesus</em>) and filter verse numbers using <nobr><code>v:&ltverse number&gt</code></nobr> (e.g., <em>v:40002017</em>).
+                                </li> 
+                                <li>
+                             Enter one or more target editions and click <em>Get Alignments</em> to view the word aligned sentences. 
+                         </li>
+                         <li>
+                            In the alignment you can switch between a simple and a cluster view, for details see the paper.
+                            When hovering over words alignment edges and corresponding words will be highlighted. By clicking on a specific word you will be transferred to the Lexicon view and see translations for this particular word.
+                        </li>   
+                        <li>
+                            You can store specific queries by entering a unique name and click <em>save search</em>. The query will be stored in the Browser's default storage. Later you can retrieve the query by entering the name and clicking <em>retrieve search</em>.
+                        </li>
+                            <ol>
+
                 </p>
               </div>
             </div>

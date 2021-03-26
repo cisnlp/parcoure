@@ -1,48 +1,50 @@
 import codecs
-
+from app import utils
 
 class AlignReader(object):
-	def __init__(self, config_path=""):
-		self.pbc_path = "/nfs/datc/pbc/"
-		self.align_path = "/mounts/work/mjalili/projects/pbc_simalign/output/"
-		if config_path == "":
-			config_path = "/mounts/work/mjalili/projects/pbc_simalign/configs/"
+	def __init__(self):
+		self.corpora_dir = utils.corpora_dir
+		self.align_path = utils.simalign_corpus_dir
+		self.config_path = utils.config_dir
 
-		
-		#-------------------------- collect translation names ------------------------------
 		self.bert_files = []
-		with open(config_path + "bert_100.txt", "r") as lang_list:
-			for l in lang_list:
-				if l.startswith("#"):
-					continue
-				self.bert_files.append(l.strip())
-
-		#-------------------------- loading translations prefixes --------------------------
 		self.lang_prf_map = {}
 		self.prf_lang_map = {}
-		with open(config_path + "prefixes.txt", "r") as prf_file:
-			for prf_l in prf_file:
-				prf_l = prf_l.strip().split()
-				self.lang_prf_map[prf_l[0]] = prf_l[1]
-				self.prf_lang_map[prf_l[1]] = prf_l[0]
-
-		#-------------------------- collect verses -----------------------------------------
 		self.ids = {}
 		self.ids["trn"] = []
 		self.ids["tst"] = []
 		self.ids["dev"] = []
 		self.ids["all"] = []
 
-		with open(config_path + "numversesplit.txt", "r") as ids_file:
-			for l in ids_file:
-				l = l.strip().split()
-				self.ids[l[0]].append(l[1])
-				self.ids["all"].append(l[1])
+		try:
+			#-------------------------- collect translation names ------------------------------
+			with open(self.config_path + "bert_100.txt", "r") as lang_list:
+				for l in lang_list:
+					if l.startswith("#"):
+						continue
+					self.bert_files.append(l.strip())
+
+			#-------------------------- loading translations prefixes --------------------------
+			with open(self.config_path + "prefixes.txt", "r") as prf_file:
+				for prf_l in prf_file:
+					prf_l = prf_l.strip().split()
+					self.lang_prf_map[prf_l[0]] = prf_l[1]
+					self.prf_lang_map[prf_l[1]] = prf_l[0]
+
+			#-------------------------- collect verses -----------------------------------------
+			with open(self.config_path + "numversesplit.txt", "r") as ids_file:
+				for l in ids_file:
+					l = l.strip().split()
+					self.ids[l[0]].append(l[1])
+					self.ids["all"].append(l[1])
+
+		except FileNotFoundError as e:
+			utils.LOG.Warning(f"SimAlign config file not found: {e}")
 
 	#ayyoob
 	def get_text_for_lang(self, lang):
 		sentences = {}
-		with codecs.open(self.pbc_path + lang + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + lang + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				print(l)
 				if l[0] == "#":
@@ -75,7 +77,7 @@ class AlignReader(object):
 			return None
 
 		q_sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue
@@ -92,7 +94,7 @@ class AlignReader(object):
 			return None
 
 		sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue

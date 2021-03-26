@@ -73,7 +73,7 @@ class Lexicon(object):
         for doc in docs['hits']['hits']:
             tokens = doc["_source"]["content"].split()
             doc['termIndexes'] = [i for i,t in enumerate(tokens) if t.lower()==term.lower()]
-            if len(doc['termIndexes']) > 0 and doc['_source']['language'][:3] == source_langauge:
+            if len(doc['termIndexes']) > 0 and align_reader.get_lang_from_edition(doc['_source']['language']) == source_langauge:
                 if doc["_source"]["verse_id"] not in verses:
                     verses.append(doc["_source"]["verse_id"])
                 if doc['_source']['language'] not in final_docs:

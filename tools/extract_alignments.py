@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 import codecs
-import argparse
+import argparse, configparser
 import os.path
 import os
 # from . import add_numbers
-import add_numbers
+from tools import add_numbers
 
 
-def create_alignment(src_path="", trg_path="", paral_path="", out_path="", model="fast"):
-	eflomal_path = "/mounts/Users/student/masoud/tools/eflomal-master/"
-	fastalign_path = "/mounts/Users/student/masoud/tools/fast_align/build/fast_align"
-	atools_path = "/mounts/Users/student/masoud/tools/fast_align/build/atools"
-
+def create_alignment(src_path="", trg_path="", paral_path="", out_path="", model="fast_align"):
 	# create parallel text
 	if paral_path == "":
 		paral_path = out_path + ".txt"
@@ -33,11 +29,11 @@ def create_alignment(src_path="", trg_path="", paral_path="", out_path="", model
 		fa_file.close()
 
 	# FastAlign
-	if model == "fast":
+	if model == "fast_align":
 		os.system("{} -i {} -v -d -o > {}.fwd".format(fastalign_path, paral_path, out_path))
 		os.system("{} -i {} -v -d -o -r > {}.rev".format(fastalign_path, paral_path, out_path))
 	# Eflomal
-	elif model == "eflomal":
+	elif model == "other": # we consider it eflomal
 		os.system(eflomal_path + "align.py -i {0} --model 3 -f {1}.fwd -r {1}.rev".format(paral_path, out_path))
 
 	os.system("{0} -i {1}.fwd -j {1}.rev -c grow-diag-final-and > {1}_unnum.gdfa".format(atools_path, out_path))
@@ -66,16 +62,27 @@ if __name__ == "__main__":
 	example: ./extract_alignments.py -p data/eng_deu.txt -m fast -o alignments/eng_deu
 	'''
 
-	parser = argparse.ArgumentParser(description="Extract alignments with different models and store in files.", epilog="example: python extract_alignments.py -s file1 -t file2 -o output_file")
-	parser.add_argument("-s", default="")
-	parser.add_argument("-t", default="")
+	parser = argparse.ArgumentParser(description="Extract alignments with different models and store in files.", 
+	epilog="example: python extract_alignments.py -s file1 -t file2 -o output_file")
+
+	parser.add_argument("-s", default="", help="source path")
+	parser.add_argument("-t", default="", help="target path")
 	parser.add_argument("-p", help="parallel text in fastalign format (if available)", default="")
 	parser.add_argument("-o", help="the output_file path and name without extension")
-	parser.add_argument("-m", choices=['fast', 'eflomal'], default="fast")
+	parser.add_argument("-m", choices=['fast_align', 'other'], default="fast_align")
 
 	args = parser.parse_args()
 	if args.s == "" and args.t == "" and args.p == "":
 		print("No input is given.")
 		exit()
+
+	config_file = os.environ['CONFIG_PATH']
+	parser = configparser.ConfigParser()
+	parser.read(config_file)
+
+	eflomal_path = parser['section']['extra_aligner_path'] + "/"
+	fastalign_path = parser['section']['fast_align_path'] + "/fast_align"
+	atools_path = parser['section']['fast_align_path'] + "/atools"
+
 	create_alignment(args.s, args.t, args.p, args.o, args.m)
 

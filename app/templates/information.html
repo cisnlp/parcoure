@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+        <br>
         <b>About</b><br>
         This tool was created at Centrum für Informations- und Sprachverarbeitung at Ludwig-Maximilians-Universität München.<br>
         If you encounter any issue, have feedback or a feature request, please do <a href="https://schuetze.cis.lmu.de/team/" target="_blank">contact us.</a><br>
@@ -9,10 +10,16 @@
         <br><br><br>
         <hr>
 
+        <b>Code</b><br>
+        The code for this demo is available <a href="https://github.com/cisnlp/parcoure" target="_blank">online.</a> If you want 
+        to set up a Parallel Corpus Explorer for your parallel corpus, follow the instructions in the readme of the repository.<br>
+        <br><br><br>
+        <hr>
+
         {% for obj in info %}
             <b>{{obj['title']}}</b><br>
             {{obj['message']}} </br>
-            <a href="{{obj['link']}}" > more information about {{obj['title']}} </a>
+            <a href="{{obj['link']}}" target="_blank" > more information about {{obj['title']}} </a>
             
             
             {%if 'table' in obj%}

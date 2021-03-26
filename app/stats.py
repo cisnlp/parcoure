@@ -49,7 +49,6 @@ no_lang_stat_vals.extend(corpus_perverse_stat_vals)
 no_lang_stat_vals.extend(vocab_stat_vals)
 no_lang_stat_vals.extend(vocab_per_verse_stat_vals)
 
-eflomal_stats_directory = '/mounts/work/ayyoob/alignment_stats/efomal_aligns/'
 
 files_cache = Cache(read_dict_file_data)
 
