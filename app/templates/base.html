@@ -14,11 +14,10 @@
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
-    <link href={{ url_for('static', filename='main.min.css') }} rel="stylesheet" media="screen">
+    <link href={{ url_for('static', filename='main.css') }} rel="stylesheet" media="screen">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <meta name="description" content="High quality word and token alignments without requiring any parallel data. 
-    Align two sentences (translations or paraphrases) across 100+ languages using multilingual BERT. No training required.">
-    <title>SimAlign</title>
+    <meta name="description" content="Parallel Corpus Explorer for massively parallel corpora.">
+    <title>ParCourE</title>
     </head>
     <style>
         /* svg {
@@ -52,7 +51,8 @@
             background-color: #fff;
             border-color: #ccc;
         }
-          
+        
+        
     </style>
     <body>
 
@@ -82,33 +82,62 @@
     <div class="container">
         <div class="row">
             <div class="col-sm">
-                <h1 class="display-1">SimAlign</h1>
+                <h1 class="display-1 logo">ParCourE</h1>
             </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <a href="/index">{% if request.path == "/index" or request.path == "/" %} <b>SimAlign</b> {% else %} SimAlign {% endif %}</a> |
-                    <a href="/multalign">{% if request.path == "/multalign"  %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> |
-                    <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a> |
-                    <a href="/stats">{% if request.path == "/stats"  %} <b>Stats</b> {% else %} Stats {% endif %}</a> |
-                    <a href="/aligninduction">{% if request.path == "/aligninduction"  %} <b>alignInduction</b> {% else %} alignInduction {% endif %}</a> 
-                    <hr/>
+
+            <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center" >
+                <div id='toast'  style="background-color: #cdd;" aria-live="polite" aria-atomic="true"  class="toast" data-autohide="true" data-delay="1500" >
+                    <div class="toast-body">
+                    
+                    </div>
+                </div>
             </div>
+            <script>
+                function showToast(text) {
+                    $('.toast-body').html(text);
+                    $('.toast').toast('show');
+                }
+            </script>
         </div>
+<!--         <div class="row">
+            <div class="col"> -->
+                <ul class="nav justify-content-center">
+                <!-- <a href="/index">{% if request.path == "/index" or request.path == "/" %} <b>SimAlign</b> {% else %} SimAlign {% endif %}</a> | -->
+                <li class="btn btn-light navbar-btn">                 
+                    <a href="/multalign">{% if request.path == "/multalign" or request.path == "/index" or request.path == "/" %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> 
+                </li>
+                <li type="button" class="btn btn-light navbar-btn">                 
+                <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a>
+                </li>
+                <li type="button" class="btn btn-light navbar-btn">                 
+                <a href="/stats">{% if request.path == "/stats"  %} <b>Stats</b> {% else %} Stats {% endif %}</a>
+                </li>
+                <li type="button" class="btn btn-light navbar-btn">                 
+                <a href="/information">{% if request.path == "/information"  %} <b>Information</b> {% else %} Information {% endif %}</a>
+                </li>
+                <li>
+                <a href="/aligninduction">{% if request.path == "/aligninduction"  %} <b>alignInduction</b> {% else %} alignInduction {% endif %}</a> 
+                </li>
+            </ul>
+                <!-- <hr/> -->
+<!--             </div>
+        </div> -->
         
 
         {% block content %}{% endblock %}
     
+    <!-- 
     <footer class="fixed-bottom" style="z-index: -1;">
         <div class="container">
             <hr>
                         <a href="https://arxiv.org/pdf/2004.08728.pdf" target="_blank">Paper</a> |
                         <a href="https://github.com/cisnlp/simalign" target="_blank">Code</a> |
-                        <!-- <div>Demo code (tbd) </div> -->
+                        <div>Demo code (tbd) </div>
                         <a href="https://www.cis.uni-muenchen.de/" target="_blank">CIS - LMU Munich</a> |
-                        <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">impressum</a>
+                        <a href="https://www.cis.uni-muenchen.de/funktionen/impressum/index.html" target="_blank">Impressum</a>
             <hr>
         </div>
     </footer>
+    -->
     </body>
 </html>

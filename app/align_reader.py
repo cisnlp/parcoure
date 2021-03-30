@@ -1,68 +1,50 @@
 import codecs
-
+from app import utils
 
 class AlignReader(object):
-	def __init__(self, config_path=""):
-		self.pbc_path = "/nfs/datc/pbc/"
-		self.align_path = "/mounts/work/mjalili/projects/pbc_simalign/output/"
-		if config_path == "":
-			config_path = "/mounts/work/mjalili/projects/pbc_simalign/configs/"
+	def __init__(self):
+		self.corpora_dir = utils.corpora_dir
+		self.align_path = utils.simalign_corpus_dir
+		self.config_path = utils.config_dir
 
-		#-------------------------- ayyoob, file lang name mapping -------------
-		self.file_lang_name_mapping = {}
-		with open(config_path + "file_language_name_mapping.txt", "r") as mapping_list:
-			for l in mapping_list:
-				if l.startswith('#'):
-					continue
-				pair = l.strip().split('\t')
-				self.file_lang_name_mapping[pair[0].strip()] = pair[1].strip()
-
-				
-		#-------------------------- ayyoob, lanugage name file mapping -------------
-		self.lang_name_file_mapping = {}
-		with open(config_path + "language_name_file_mapping.txt", "r") as mapping_list:
-		# with open("/mounts/Users/student/ayyoob/Dokumente/code/pbc-ui-demo/app/" + "language_name_file_mapping.txt", "r") as mapping_list:
-			for l in mapping_list:
-				if l.startswith('#'):
-					continue
-				pair = l.strip().split('\t')
-				# print(pair)
-				self.lang_name_file_mapping[pair[0].strip().lower()] = pair[1].strip()
-
-		#-------------------------- collect translation names ------------------------------
-		self.bert_langs = []
-		with open(config_path + "bert_100.txt", "r") as lang_list:
-			for l in lang_list:
-				if l.startswith("#"):
-					continue
-				self.bert_langs.append(l.strip())
-
-		#-------------------------- loading translations prefixes --------------------------
+		self.bert_files = []
 		self.lang_prf_map = {}
 		self.prf_lang_map = {}
-		with open(config_path + "prefixes.txt", "r") as prf_file:
-			for prf_l in prf_file:
-				prf_l = prf_l.strip().split()
-				self.lang_prf_map[prf_l[0]] = prf_l[1]
-				self.prf_lang_map[prf_l[1]] = prf_l[0]
-
-		#-------------------------- collect verses -----------------------------------------
 		self.ids = {}
 		self.ids["trn"] = []
 		self.ids["tst"] = []
 		self.ids["dev"] = []
 		self.ids["all"] = []
 
-		with open(config_path + "numversesplit.txt", "r") as ids_file:
-			for l in ids_file:
-				l = l.strip().split()
-				self.ids[l[0]].append(l[1])
-				self.ids["all"].append(l[1])
+		try:
+			#-------------------------- collect translation names ------------------------------
+			with open(self.config_path + "bert_100.txt", "r") as lang_list:
+				for l in lang_list:
+					if l.startswith("#"):
+						continue
+					self.bert_files.append(l.strip())
+
+			#-------------------------- loading translations prefixes --------------------------
+			with open(self.config_path + "prefixes.txt", "r") as prf_file:
+				for prf_l in prf_file:
+					prf_l = prf_l.strip().split()
+					self.lang_prf_map[prf_l[0]] = prf_l[1]
+					self.prf_lang_map[prf_l[1]] = prf_l[0]
+
+			#-------------------------- collect verses -----------------------------------------
+			with open(self.config_path + "numversesplit.txt", "r") as ids_file:
+				for l in ids_file:
+					l = l.strip().split()
+					self.ids[l[0]].append(l[1])
+					self.ids["all"].append(l[1])
+
+		except FileNotFoundError as e:
+			utils.LOG.Warning(f"SimAlign config file not found: {e}")
 
 	#ayyoob
 	def get_text_for_lang(self, lang):
 		sentences = {}
-		with codecs.open(self.pbc_path + lang + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + lang + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				print(l)
 				if l[0] == "#":
@@ -79,12 +61,12 @@ class AlignReader(object):
 	def sort_lang_pair(self, l_pair):
 		s, t = l_pair
 		if s in self.prf_lang_map:
-			if self.bert_langs.index(self.prf_lang_map[s]) < self.bert_langs.index(self.prf_lang_map[t]):
+			if self.bert_files.index(self.prf_lang_map[s]) < self.bert_files.index(self.prf_lang_map[t]):
 				return l_pair, False
 			else:
 				return (t, s), True
 		else:
-			if self.bert_langs.index(s) < self.bert_langs.index(t):
+			if self.bert_files.index(s) < self.bert_files.index(t):
 				return (self.lang_prf_map[s], self.lang_prf_map[t]), False
 			else:
 				return (self.lang_prf_map[t], self.lang_prf_map[s]), True
@@ -95,7 +77,7 @@ class AlignReader(object):
 			return None
 
 		q_sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[q_lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue
@@ -112,7 +94,7 @@ class AlignReader(object):
 			return None
 
 		sentences = {}
-		with codecs.open(self.pbc_path + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
+		with codecs.open(self.corpora_dir + self.prf_lang_map[lang] + ".txt", "r", "utf-8") as src_file:
 			for l in src_file:
 				if l[0] == "#":
 					continue

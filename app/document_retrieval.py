@@ -11,7 +11,7 @@ class DocumentRetriever(object):
         self.elastic_doc_url = utils.es_index_url + '/_doc/'
         self.elastic_docs_url = utils.es_index_url + '/_mget/'
 
-    def search_documents(self, q, verse=None, all_docs=False, doc_count=10, prefixed_search=True):
+    def search_documents(self, q, verse=None, all_docs=False, doc_count=10, prefixed_search=True, language=None):
         """
         since elasticsearch doesn't support more that 10000 hits per run we currently 
         stick to at most 10000 retrieved docs,
@@ -36,6 +36,8 @@ class DocumentRetriever(object):
 
             if verse != None:
                 query["query"]["bool"]["filter"]  = {"match": { "verse_id" : verse }}
+            if language != None:
+                query["query"]["bool"]["filter"]  = {"match": { "language" : language }}
         else:
             query = {
                 "query": {

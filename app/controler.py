@@ -1,6 +1,7 @@
 import codecs
 import sys
-import app.stats as stats
+from app import stats, utils
+
 
 
 def create_bins(min, max, count):
@@ -48,29 +49,29 @@ def divide_dict_by_bal(numerator, denominator):
 
     return (res, min, max)
 
-def handle_verse_division(stat_type, lang1, lang2, edition1, edition2, file_data):
+def handle_verse_division(stat_type, lang1, lang2, lang_file1, lang_file2, file_data):
     if stats.is_mutualverse(stat_type):
         if stats.is_edition(stat_type):
-            verse_data, verse_min, verse_max = stats.files_cache.get(stats.eflomal_stats_directory + 'edition_pair_verse_stats.txt')
+            verse_data, verse_min, verse_max = stats.files_cache.get(utils.stats_directory + 'edition_pair_verse_stats.txt')
         else:
-            verse_data, verse_min, verse_max = stats.files_cache.get(stats.eflomal_stats_directory + 'lang_pair_verse_stats.txt')
+            verse_data, verse_min, verse_max = stats.files_cache.get(utils.stats_directory + 'lang_pair_verse_stats.txt')
     else:
         if stats.is_edition(stat_type):
-            verse_data, verse_min, verse_max = stats.files_cache.get(stats.eflomal_stats_directory + 'edition_verse_stats.txt')
+            verse_data, verse_min, verse_max = stats.files_cache.get(utils.stats_directory + 'edition_verse_stats.txt')
         else:
-            verse_data, verse_min, verse_max = stats.files_cache.get(stats.eflomal_stats_directory + 'lang_verse_stats.txt')
+            verse_data, verse_min, verse_max = stats.files_cache.get(utils.stats_directory + 'lang_verse_stats.txt')
 
     if stat_type in stats.no_lang_stat_vals:
         file_data, data_min, data_max = divide_dict_by_dict(file_data, verse_data)
     elif stat_type in stats.one_edition_stat_vals:
-        file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[edition1])
+        file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[lang_file1])
     elif stat_type in stats.one_lang_stat_vals:
         file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[lang1])
     elif stat_type in stats.two_edition_stat_vals:
-        if edition1 + "_" + edition2 in verse_data:
-            file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[edition1 + "_" + edition2])
+        if lang_file1 + "_" + lang_file2 in verse_data:
+            file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[lang_file1 + "_" + lang_file2])
         else:
-            file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[edition2 + "_" + edition1])
+            file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[lang_file2 + "_" + lang_file1])
     elif stat_type in stats.two_langs_stat_vals:
         if lang1 + "_" + lang2 in verse_data:
             file_data, data_min, data_max = divide_dict_by_bal(file_data, verse_data[lang1 + "_" + lang2])
@@ -79,25 +80,25 @@ def handle_verse_division(stat_type, lang1, lang2, edition1, edition2, file_data
     
     return file_data, data_min, data_max
 
-def extract_data_from_file(stat_type, lang1, lang2, edition1, edition2, bin_size, min, max):
+def extract_data_from_file(stat_type, lang1, lang2, lang_file1, lang_file2, bin_size, min, max):
     if stat_type in stats.no_lang_stat_vals:
         if stats.is_perverse(stat_type):
-            f_path = stats.eflomal_stats_directory + stats.get_perverse_original_file(stat_type) + ".txt"
+            f_path = utils.stats_directory + stats.get_perverse_original_file(stat_type) + ".txt"
         else:
-            f_path = stats.eflomal_stats_directory + stat_type + ".txt"
+            f_path = utils.stats_directory + stat_type + ".txt"
     elif stat_type in stats.one_edition_stat_vals:
-        f_path = stats.eflomal_stats_directory + 'edition_stats/' + edition1 + "_tokens_stat.txt"
+        f_path = utils.stats_directory + 'edition_stats/' + lang_file1 + "_tokens_stat.txt"
     elif stat_type in stats.one_lang_stat_vals:
-        f_path = stats.eflomal_stats_directory + 'lang_stats/' + lang1 + "_tokens_stat.txt"
+        f_path = utils.stats_directory + 'lang_stats/' + lang1 + "_tokens_stat.txt"
     elif stat_type in stats.two_edition_stat_vals:
-        f_path = stats.eflomal_stats_directory + 'edition_pair_stats/' + edition1 + "_" + edition2 + "_tokens_stat.txt"
+        f_path = utils.stats_directory + 'edition_pair_stats/' + lang_file1 + "_" + lang_file2 + "_tokens_stat.txt"
     elif stat_type in stats.two_langs_stat_vals:
-        f_path = stats.eflomal_stats_directory + 'lang_pair_stats/' + lang1 + "_" + lang2 + "_tokens_stat.txt"
+        f_path = utils.stats_directory + 'lang_pair_stats/' + lang1 + "_" + lang2 + "_tokens_stat.txt"
 
     file_data, data_min, data_max = stats.files_cache.get(f_path)
 
     if stats.is_perverse(stat_type):
-        file_data, data_min, data_max = handle_verse_division(stat_type, lang1, lang2, edition1, edition2, file_data)
+        file_data, data_min, data_max = handle_verse_division(stat_type, lang1, lang2, lang_file1, lang_file2, file_data)
 
     
     res = {"items":{}, "counts":[]}
