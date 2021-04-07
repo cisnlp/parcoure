@@ -69,7 +69,7 @@ class AlignForm(FlaskForm):
 class multalignInductionForm(FlaskForm):
     class Meta:
         csrf = False
-    target = SelectField('target language',  validators=[DataRequired()], choices=align_reader.file_lang_name_mapping.items())
+    target = SelectField('target language',  validators=[DataRequired()], choices=list(align_reader.file_edition_mapping.items()))
     verse = StringField('Bible keywords:', default="", render_kw={"placeholder":"type to search...", "data-url":"search", "autocomplete":"off"})
     verses = FieldList(
         FormField(VerseForm),

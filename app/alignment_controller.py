@@ -11,11 +11,11 @@ doc_retriever = DocumentRetriever()
 def add_links_with_offset(links, edition_token_offset, edition1, edition2, aligns):
     links.extend([{"source": edition_token_offset[edition1] + f, "target":edition_token_offset[edition2] + s, "value":1} for f,s in aligns])
 
-def get_induced_links(source_lang, target_lang, verse_id, lang_token_offset):
+def get_induced_links(source_edition, target_edition, verse_id, edition_token_offset):
     links = []
 
-    aligns = get_induced_alignments(source_lang, target_lang, verse_id, align_reader)
-    add_links_with_offset(links, lang_token_offset, source_lang, target_lang, aligns)
+    aligns = get_induced_alignments(source_edition, target_edition, verse_id, align_reader)
+    add_links_with_offset(links, edition_token_offset, source_edition, target_edition, aligns)
 
     return links
 
@@ -113,12 +113,15 @@ def get_alignments_for_verse(verse_id, source_file, all_files, important_tokens)
     
     return alignments, messages
 
-def induce_alingment(verse_id, source_lang, target_lang, important_tokens):
+def induce_alingment(verse_id, source_file, target_file, important_tokens):
+    source_edition, target_edition = get_editions(source_file, [target_file])
     alignments = {"nodes":[], "links":[], "groups":2, "poses":0}
 
-    alignments["nodes"], lang_token_offset, alignments["poses"] = get_nodes([target_lang], source_lang, important_tokens, verse_id)
+    alignments["nodes"], edition_token_offset, alignments["poses"], _ = get_nodes([target_edition[0], source_edition], source_edition, important_tokens, verse_id)
 
-    alignments["links"] = get_induced_links(source_lang, target_lang, verse_id, lang_token_offset)
+    print("len target editions", len(target_edition))
+    print(source_edition, target_edition)
+    alignments["links"] = get_induced_links(source_edition, target_edition[0], verse_id, edition_token_offset)
 
     return alignments
     

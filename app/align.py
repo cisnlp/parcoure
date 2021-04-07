@@ -289,13 +289,13 @@ def align_induction():
         else:
             for document in documents: 
                 if document not in prev_verses: # the user may select a verse twice
-                    verse_id, source_language = (document.split('@')[0], document.split('@')[1])
+                    verse_id, source_file = (document.split('@')[0], document.split('@')[1])
 
-                    alignments = alignment_controler.get_alignments_for_verse(verse_id, source_language, [form.target.data], input_tokens)
-                    induced_alignments = alignment_controler.induce_alingment(verse_id, source_language, form.target.data, input_tokens)
+                    alignments, _ = alignment_controler.get_alignments_for_verse(verse_id, source_file, [form.target.data], input_tokens)
+                    induced_alignments = alignment_controler.induce_alingment(verse_id, source_file, form.target.data, input_tokens)
                     doc_alignments.append(alignments)
                     doc_alignments.append(induced_alignments)
-                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_lang_name_mapping[source_language] + "</span>: " 
+                    prev_verses[document] = "<span style=\"color: blue;\">" +  align_reader.file_edition_mapping[source_file] + "</span>: " 
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
         return render_template('align_induction.html', title='SimAlign', form=form, docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, errorA=errorA, errorB=None)

@@ -20,13 +20,11 @@ class GeneralAlignReader(AlignReader):
 		self.index_path = utils.config_parser['section']['aligns_index_dir']
 		self.lang_order_file_path = self.config_path + "/languages_order_file.txt"
 		self.lang_orders = self.read_langs_order_file()
-		self.lang_name_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "language_name_file_mapping.txt").items()))
-		self.file_lang_name_mapping = collections.OrderedDict(sorted(self.read_dict_file(config_path + "file_language_name_mapping.txt").items()))
 		
 		self.lang_files, self.all_langs = utils.read_lang_file_mapping()
 		self.file_lang_mapping = self.create_file_lang_mapping()
-		self.content_cache = utils.Cache(self.read_alignment_file)
-		self.indexes_cache = utils.Cache(self.read_index_file)
+		self.content_cache = utils.Cache(self.read_alignment_file, 50000)
+		self.indexes_cache = utils.Cache(self.read_index_file, 50000)
 		self.edition_file_mapping = collections.OrderedDict(sorted(self.read_dict_file(self.config_path + "edition_file_mapping.txt").items()))
 		self.file_edition_mapping = collections.OrderedDict(sorted(self.read_dict_file(self.config_path + "file_edition_mapping.txt").items()))
 		self.index_size = 121447 #TODO put me in config

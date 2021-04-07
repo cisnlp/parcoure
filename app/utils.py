@@ -7,6 +7,8 @@ import os, subprocess
 
 
 
+
+
 def get_logger(name, filename, level=logging.DEBUG):
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -89,26 +91,25 @@ def synchronized_method(method):
 
 class Cache():
 
-	def __init__(self, retriever, cache_size=1000):
-		self.cache_keys = []
-		self.cache = {}
-		self.retriever = retriever
-		self.cache_size = cache_size
-		
-	# @synchronized_method  
-	def get(self, key):
-		if key in self.cache_keys:
-			self.cache_keys.remove(key)
-			self.cache_keys.append(key)
-		else:
-			self.cache[key] = self.retriever(key)
-			self.cache_keys.append(key)
+    def __init__(self, retriever, cache_size=1000):
+        self.cache_keys = []
+        self.cache = {}
+        self.retriever = retriever
+        self.cache_size = cache_size
+        
+    @synchronized_method  
+    def get(self, key):
+        if key in self.cache_keys:
+            self.cache_keys.remove(key)
+            self.cache_keys.append(key)
+        else:
+            self.cache[key] = self.retriever(key)
+            self.cache_keys.append(key)
 
-			if len(self.cache_keys) > self.cache_size:
-				to_remove_key = self.cache_keys.pop(0)
-				del self.cache[to_remove_key]
-
-		return self.cache[key] 
+            if len(self.cache_keys) > self.cache_size:
+                to_remove_key = self.cache_keys.pop(0)
+                del self.cache[to_remove_key]
+        return self.cache[key] 
 
 
 def read_dict_file_data(f_path):
