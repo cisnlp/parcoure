@@ -28,7 +28,7 @@ if __name__ == "__main__":
     aligner = "fast_align"
     if 'extra_aligner_path' in parser['section'] and parser['section']['extra_aligner_path'] != "":
         aligner = "other"
-
+    print(f"\n using {aligner} as aligner")
     utils.run_command(f"python -u -m tools.parallel_align_maker -a {aligner} -i {parser['section']['aligns_index_dir']} -o {parser['section']['alignments_dir']} -w {parser['section']['worker_count']}")
 
 
