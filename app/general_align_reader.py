@@ -85,18 +85,28 @@ class GeneralAlignReader(AlignReader):
 
 		s_lang, t_lang = self.get_ordered_langs(lang_1, lang_2)
 
+		if s_lang == t_lang:
+			if self.lang_files[s_lang].index(self.edition_file_mapping[edition_1]) < self.lang_files[t_lang].index(self.edition_file_mapping[edition_2]):
+				return s_lang, t_lang, edition_1, edition_2
+			else:
+				return s_lang, t_lang, edition_2, edition_1
+
 		if s_lang == lang_1:
 			return s_lang, t_lang, edition_1, edition_2
 		else:
 			return s_lang, t_lang, edition_2, edition_1
 
 	def get_align_file_path(self, src_lang, trg_lang):
+		if src_lang == trg_lang:
+			return "{}/{}_word.inter".format(self.alignment_path, src_lang) 
 		return "{}/{}_{}_word.inter".format(self.alignment_path, src_lang, trg_lang) 
 
 	def get_align_binary_file_path(self, edition_1, edition_2):
 		return "%s.binary" % self.get_align_file_path(edition_1, edition_2)
 
 	def get_index_file_path(self, src_lang, trg_lang):
+		if src_lang == trg_lang:
+			return "%s/index_%s.txt" % (self.index_path, src_lang) 
 		return "%s/index_%s_%s.txt" % (self.index_path, src_lang, trg_lang) 
 	
 	def get_index_binary_file_path(self, lang1, lang2):
@@ -156,11 +166,11 @@ class GeneralAlignReader(AlignReader):
 		res = {}
 		with open(file_path, 'r') as f: 
 			for i, line in enumerate(f):
-				verse, s_edition, t_edition = tuple(line.strip().split('\t'))
-				self.setup_dict_entry(res, s_edition, {})
+				verse, s_file, t_file = tuple(line.strip().split('\t'))
+				self.setup_dict_entry(res, s_file, {})
 
-				self.setup_dict_entry(res[s_edition], t_edition, {})
-				res[s_edition][t_edition][verse] = i
+				self.setup_dict_entry(res[s_file], t_file, {})
+				res[s_file][t_file][verse] = i
 	
 		return res
 
@@ -207,7 +217,7 @@ class GeneralAlignReader(AlignReader):
 	def get_verse_alignment(self, verse_nums, edition_1, edition_2, alignments_loc=None, index_loc=None):
 		aligns = {}
 
-		if self.get_lang_from_edition(edition_1) == self.get_lang_from_edition(edition_2):
+		if edition_1 == edition_2:
 			return aligns
 
 		if edition_1 in self.bert_files and edition_2 in self.bert_files:
