@@ -1,107 +1,37 @@
-SimAlign - Demo
-------
-Simple flask app to show word alignments. Uses flask as webserver, gunicorn server for production, d3.js for visualization. 
+<img src="static/favicon.png" alt="logo" width="30"/> ParCourE
+
+This repository contains code for ParCourE, the Parallel Corpus Explorer. It is a WebApp to browse a word aligned multiparallel corpus.
+You can view one instance of ParCourE that runs a word aligned version of the Parallel Bible Corpus by Mayer and Cysouw (2014) [here](http://parcoure.cis.lmu.de/).
 
 
-Usage
-------
-Install requirements (not sure whether they are complete). Install simalign (https://github.com/cisnlp/simalign). 
+## Setup
+In this guide we will showcase how to set ParCourE up for a parallel corpus. We will download a parallel corpora in [XCES](https://en.wikipedia.org/wiki/XCES#:~:text=XCES%20is%20an%20XML%20based,corpora%2C%20parallel%20corpora%20and%20other.) format, more specifically a small version of bible corpus from [Opus](https://opus.nlpl.eu/) and set up ParCourE for it. 
 
-If `CIS=False` in `app/utils.py`, it is easier to test locally (as no BERT models are loaded into memory and also then simalign is not required). 
-If you are testing it on CIS servers (like delta). Then you can set `CIS=True`.
+### 1. Environment
 
-Create local secreats (do not put true secrets into the github repo before deploying) like this: 
-```bash
-export FLASK_SECRET_KEY="neverguessing"
-export CAPTCHA_SITE_KEY='createonline'
-export CAPTCHA_SECRET_KEY='createonline'
-```
-You need to create the captcha keys online or you set it to something meaningless (then captcha does not work which is probably not so important at the moment). 
-
-Then set 
-`export FLASK_APP=align.py`
-and run 
-`flask run`. 
-
-Hopefully it should work then. 
-
-
-
-Deployment Process
-------
-to be done
-
-
-
-TODOs
-------
-* add embedding similarities and other information
-* add google analytics (GRPD issues...)
-* add requirements.txt
-* remove unused css
-* add caching
-* defer loading of javascript
-* design logo and improve favicon
-* add release script
-* update simalign library and reduce environment
-
-
-
-DONE
-------
-* add captcha
-* prepare deployment
-* get rid of xperchar and do it smarter
-* highlight edges when hovering
-* add favicons
-* add metadata and information
-* input validation in form
-
-
-
-
-DEPLOYMENT
-------
-* Dual Stack :: -> ok
-* do not set secret keys in repository! -> ok now
-* Port 80  -> 8080 for now
-* Access log -> ok
-* Flask in Produktion -> Gunicorn, ok
-* set proper cachedir for transformer models
-* Parameterize  -> ok
-* clean setup in terms of requirements.txt etc.
-* Resource Requirements
--------------------------------------------------------------------------------------------
-In this guide We will download a parallel corpora in CES format and set up ParCourE over it. 
-we will download a small version of bible corpus from opus(www.opus.com) and setup ParCourE over it.
-
-setup python environment
------
-
-- install python dependencies:
-Using Anaconda you can create an environment having the required dependencies using following commands:
-
+- Using Anaconda you can create an environment having the required dependencies using following commands:
 `conda env create --file dependencies.yaml`
 
 - Switch to the newly created environment:
 `conda activate parcoure`
 
-if you don't use Anaconda you will have to install the dependencies listed in dependencies.yaml file in your environment of choice.
+If you don't use Anaconda you will have to install the dependencies listed in `dependencies.yaml` file in your environment of choice.
 
-Download corpus
------
+### 2. Download Corpus
 
-Download the following files from here and extract them. You can of course download the corpora of your choice in languages of your choice.
+<!-- TODO which files? -->
+Download the following files from here and extract them. Alternatively, you can of course download the corpora of your choice in languages of your choice.
 
-Setup Elasticsearch
------
-Install Elasticsearch from https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html and run it, then add
-its address to the config file (see below). Elasticsearch uses port number 9200 by default, if you change it you have to also modify it
+### 3. Elasticsearch
+
+<!-- TODO is setting Elasticsearch up so straight forward? -->
+Install Elasticsearch from [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) and start the server. Then add
+its address to the config file (see below). Elasticsearch uses port number 9200 by default. If you change it you have to also modify it
 in config file. Also make sure that Elasticsearch is accessible from ParCourE's machine.
 
-Check if elastic search is accessable (use your id address instead of localhost if you have installed elastic on another server): 
+Check if Elasticsearch is accessable (use your id address instead of localhost if you have installed Elasticsearch on another server): 
 
-```
+```bash
 $> curl -XGET http://localhost:9200/_status
 
 {
@@ -124,19 +54,21 @@ $> curl -XGET http://localhost:9200/_status
 
 ```
 
-Install fast_align
------
-Download and install fast_align from [here](https://github.com/clab/fast_align) to your directory of choice.
+### 4. Word Aligner
 
-Install other aligner (optional)
------
-If you want to use eflomal to extract word alignments, download and install it from [here] (https://github.com/robertostling/eflomal). 
-Of course you can use fast_align, installed in previous section. Currently, to use aligners other than fast_align and eflomal, you should extract word alignments manually 
-and put them in alignments_dir. 
+You can use any word alignment tool you prefer. [Here](http://parcoure.cis.lmu.de/) we used [SimAlign](https://github.com/cisnlp/simalign) for as many languages as possible and [eflomal](https://github.com/robertostling/eflomal) for the remainign languages. 
 
-edit the config.ini file
------
-Set the following: 
+Some popular word aligners are: 
+- [fast_align](https://github.com/clab/fast_align)
+- [eflomal](https://github.com/robertostling/eflomal)
+- [SimAlign](https://github.com/cisnlp/simalign) 
+
+Currently, to use aligners other than fast_align and eflomal, you should extract word alignments manually 
+and put them in `alignments_dir`. 
+
+### 5. Configurations
+
+Set the following in the file `config.ini`: 
  - ces_corpus_dir: A directory containing the downloaded corpus files in CES format. The toy example will include the following files, from the extracted files above: 
     de-en.xml
     de-pes.xml
@@ -145,35 +77,65 @@ Set the following:
     English.xml
     Farsi.xml
     German.xml
- - ces_alignment_files: Aomma separated list of files that correspond to sentence alignments. in our case it would be `de-pes.xml,de-en.xml,en-pes.xml`
+ - ces_alignment_files: a comma separated list of files that correspond to sentence alignments. in our case it is `de-pes.xml,de-en.xml,en-pes.xml`
  - parcoure_data_dir: Provide ParCourE with a directory  where it can keep its data and configuration files
- - elasticsearch_address: Ip and port of Elasticsearch.
- - fast_align_path: Something like "/my_installation_path/fast_align/build/". If you set extra_aligner_path ParCourE will use it for word alignment, otherwise it will use fast_align.
- - extra_aligner_path: (optional) Something like "/my_installation_path/eflomal/". If you don't set it, ParCourE will use fast_align to extract word alignments.
+ - elasticsearch_address: IP and port of Elasticsearch.
+ - fast_align_path: Something like "/my_installation_path/fast_align/build/". If you set extra_aligner_path ParCourE will use it for word alignment, otherwise it will use fast_align by default.
+ - extra_aligner_path: (optional) Something like "/my_installation_path/eflomal/". If you don't set it, ParCourE will use fast_align to extract word alignments.  <!-- TODO why does it use fast_align and not eflomal by default? -->
  - worker_count: Increasing this number will allow ParCourE to use more CPU cores to extract word alignments resulting in faster word alignment extraction during setup.
 
 
-prepare ParCourE
-------
-Run the prepare script giving the config file as its parameter. The script will take the following steps:
+### 6. Prepare ParCourE
+Run the `prepare.sh` script giving the config file as its parameter. The script will perform the following:
 - Convert the corpus to the format the ParCourE understands. Since at this stage ParCourE is creating the new corpora files, "file not found warnings" are negligible
-- Index the corpus with elastic search
+- Index the corpus with Elasticsearch
 - Create word level alignments
-- Extract statistics
-- Extract lexicon
+- Precompute statistics
+- Precompute lexicon
 
+```bash
+bash ./prepare.sh
 ```
-chmod +x prepare.sh
-./prepare.sh
-```
 
-- optional: check the elasticSearch/indexing.log file to see if all files have been indexed correctly.
+*optional step*: check the `elasticSearch/indexing.log` file to see if all files have been indexed correctly.
 
-Run ParCourE
------
-- Set FLASK_SECRET_KEY which is a hard to guess secret string in execute.sh file
+### 7. Run ParCourE
+- Set FLASK_SECRET_KEY which is a hard to guess secret string in `execute.sh`
 - run ParCourE
+```bash
+bash ./execute.sh
 ```
-chmod +x execute.sh
-./execute.sh
+
+
+## References
+For more details see the paper: 
 ```
+@article{imani-etal-2021-parcoure,
+    title = "{P}ar{C}our{E}: A Parallel Corpus Explorer for a Massively Multilingual Corpus",
+    author = {Imani, Ayyoob and 
+      Jalili Sabet, Masoud  and
+      Dufter, Philipp  and
+      Cysouw, Michael  and
+      Sch{\"u}tze, Hinrich},
+    year = "2021",
+    note = "to be published"
+}
+```
+
+
+## Feedback
+Feedback and Contributions more than welcome! Just reach out to @ayyoobimani, @masoudjs, @pdufter or create an issue or pull-request.
+
+
+<!--
+---------------
+## FAQ
+-->
+
+
+
+## License
+Copyright (C) 2020, Ayyoob Imani, Masoud Jalili Sabet, Philipp Dufter
+
+A full copy of the license can be found in LICENSE.
+

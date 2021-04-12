@@ -1,12 +1,14 @@
 {
-  "name": "simaligndemo",
+  "name": "parcoure",
   "authors": [
-    "Philipp Dufter <philipp.dufter@gmail.com>"
+    "Ayyoob Imani <ayyoob.imani@gmail.com>",
+    "Philipp Dufter <philipp.dufter@gmail.com>",
+    "Masoud Jalili Sabet <jalili.masoud@gmail.com>"
   ],
   "description": "",
   "main": "demo.py",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/cisnlp/parcoure",
   "ignore": [
     "**/.*",
     "node_modules",
