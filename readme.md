@@ -1,4 +1,5 @@
 <img src="static/favicon.png" alt="logo" width="30"/> ParCourE
+=====
 
 This repository contains code for ParCourE, the Parallel Corpus Explorer. It is a WebApp to browse a word aligned multiparallel corpus.
 You can view one instance of ParCourE that runs a word aligned version of the Parallel Bible Corpus by Mayer and Cysouw (2014) [here](http://parcoure.cis.lmu.de/).
