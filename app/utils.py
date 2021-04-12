@@ -74,6 +74,8 @@ def setup(f):
     simalign_corpus_dir = config_parser['section']['simalign_corpus_dir']
     lesicon_dir = config_parser['section']['lexicon_dir']
 
+	alignInduction.setup(config_parser)
+
 def synchronized_method(method):
     
     outer_lock = multiprocessing.Lock()
@@ -180,5 +182,11 @@ def read_lang_file_mapping():
 
 
 def run_command(cmd):
-    """Run command, return output as string."""
-    subprocess.Popen(cmd, shell=True).communicate()[0]
+	"""Run command, return output as string."""
+	subprocess.Popen(cmd, shell=True).communicate()[0]
+
+class alignInduction():
+	verse_alignments_path = ""
+
+	def setup(con_parser):
+		alignInduction.verse_alignments_path =  con_parser['section']['verse_alignments_path']
