@@ -22,6 +22,12 @@ If you don't use Anaconda you will have to install the dependencies listed in `d
 
 <!-- TODO which files? -->
 Download the following files from here and extract them. Alternatively, you can of course download the corpora of your choice in languages of your choice.
+- [de-en.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de-en.xml.gz)
+- [de-pes.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de-pes.xml.gz)
+- [en-pes.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/en-pes.xml.gz)
+- [en.zip](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/en.zip)
+- [de.zip](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de.zip)
+- [pes.zip](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/pes.zip)
 
 ### 3. Elasticsearch
 
@@ -33,7 +39,7 @@ in config file. Also make sure that Elasticsearch is accessible from ParCourE's 
 Check if Elasticsearch is accessable (use your id address instead of localhost if you have installed Elasticsearch on another server): 
 
 ```bash
-$> curl -XGET http://localhost:9200/_status
+$> curl localhost:9200
 
 {
   "name" : "hostName",
