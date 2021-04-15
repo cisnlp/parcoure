@@ -39,7 +39,7 @@ class AlignReader(object):
 					self.ids["all"].append(l[1])
 
 		except FileNotFoundError as e:
-			utils.LOG.Warning(f"SimAlign config file not found: {e}")
+			utils.LOG.warning(f"SimAlign config file not found: {e}")
 
 	#ayyoob
 	def get_text_for_lang(self, lang):
