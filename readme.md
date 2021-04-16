@@ -112,6 +112,7 @@ bash ./prepare.sh
 ```bash
 bash ./execute.sh
 ```
+- check out the result at http://localhost:5000/
 
 
 ## References

@@ -62,7 +62,8 @@ def multalign():
                     prev_verses[document] += " ".join([x["tag"] for x in alignments["nodes"] if x["group"] == alignments["groups"]]) 
 
         return render_template('multalign.html', title='ParCourE', form=form,
-         docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, messages=all_messages, errorA=errorA, errorB=None)
+         docs_alignment=doc_alignments, doc_count=len(doc_alignments), prev_verses=prev_verses, messages=all_messages,
+          errorA=errorA, errorB=None, corpus=utils.corpus_name)
         
     else:
         errorA = None
@@ -74,9 +75,11 @@ def multalign():
                 errorB = form.errors['languages'][0]
         utils.LOG.info("Input error: {}".format(form.errors))
         utils.LOG.info("Running index finished.")
-        return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
+        return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment,
+         errorA=errorA, errorB=errorB, corpus=utils.corpus_name)
     utils.LOG.info("Running index finished.")
-    return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment, errorA=None, errorB=None)
+    return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment,
+     errorA=None, errorB=None, corpus=utils.corpus_name)
 
 # @app.route('/', methods=['GET', 'POST'])
 # @app.route('/index', methods=['GET', 'POST'])
