@@ -36,12 +36,16 @@ class LexiconForm(FlaskForm):
 
 class statsForm(FlaskForm):
     valid_edition_1 = list(align_reader.file_edition_mapping.items())[:]
+    
     for edition in valid_edition_1[:]:
-        if not edition[0].startswith('eng') or edition[0].startswith('prs'):
+        if (not edition[0].startswith('eng') or edition[0].startswith('prs')) and utils.is_pbc:
             valid_edition_1.remove(edition)
 
     stat_type = SelectField('stat type', validators=[Required()], choices=stats.stat_types)
-    lang1 = SelectField('Language 1', validators=[Optional()], choices = [('eng', 'eng'), ('prs', 'prs')])
+    if utils.is_pbc:
+        lang1 = SelectField('Language 1', validators=[Optional()], choices = [('eng', 'eng'), ('prs', 'prs')])
+    else:
+        lang1 = SelectField('Language 1', validators=[Optional()], choices = [(x,x) for x in align_reader.all_langs])
     lang2 = SelectField('Language 2', validators=[Optional()], choices = [(x,x) for x in align_reader.all_langs])
     edition_1 = SelectField('Edition 1', validators=[Optional()], choices = valid_edition_1)
     edition_2 = SelectField('Edition 2', validators=[Optional()], choices = list(align_reader.file_edition_mapping.items()))

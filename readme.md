@@ -85,7 +85,7 @@ Set the following in the file `config.ini`:
     Farsi.xml
     German.xml
  - ces_alignment_files: a comma separated list of files that correspond to sentence alignments. in our case it is `de-pes.xml,de-en.xml,en-pes.xml`
- - parcoure_data_dir: Provide ParCourE with a directory  where it can keep its data and configuration files
+ - parcoure_data_dir: Provide ParCourE with a ABSOLUTE directory path where it can keep its data and configuration files
  - elasticsearch_address: IP and port of Elasticsearch.
  - fast_align_path: Something like "/my_installation_path/fast_align/build/". If you set extra_aligner_path ParCourE will use it for word alignment, otherwise it will use fast_align by default.
  - extra_aligner_path: (optional) Something like "/my_installation_path/eflomal/". If you don't set it, ParCourE will use fast_align to extract word alignments.  <!-- TODO why does it use fast_align and not eflomal by default? -->

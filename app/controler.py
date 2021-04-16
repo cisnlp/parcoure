@@ -1,6 +1,9 @@
 import codecs
 import sys
 from app import stats, utils
+from app.general_align_reader import GeneralAlignReader
+
+align_reader = GeneralAlignReader()
 
 
 
@@ -91,9 +94,11 @@ def extract_data_from_file(stat_type, lang1, lang2, lang_file1, lang_file2, bin_
     elif stat_type in stats.one_lang_stat_vals:
         f_path = utils.stats_directory + 'lang_stats/' + lang1 + "_tokens_stat.txt"
     elif stat_type in stats.two_edition_stat_vals:
-        f_path = utils.stats_directory + 'edition_pair_stats/' + lang_file1 + "_" + lang_file2 + "_tokens_stat.txt"
+        _, _, s_edit, t_edit = align_reader.get_ordered_editions(align_reader.file_edition_mapping[lang_file1], align_reader.file_edition_mapping[lang_file2])
+        f_path = utils.stats_directory + 'edition_pair_stats/' + align_reader.edition_file_mapping[s_edit] + "_" + align_reader.edition_file_mapping[t_edit] + "_tokens_stat.txt"
     elif stat_type in stats.two_langs_stat_vals:
-        f_path = utils.stats_directory + 'lang_pair_stats/' + lang1 + "_" + lang2 + "_tokens_stat.txt"
+        s_lang, t_lang = align_reader.get_ordered_langs(lang1, lang2)
+        f_path = utils.stats_directory + 'lang_pair_stats/' + s_lang + "_" + t_lang + "_tokens_stat.txt"
 
     file_data, data_min, data_max = stats.files_cache.get(f_path)
 

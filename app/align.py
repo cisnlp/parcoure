@@ -237,9 +237,13 @@ def checkForErrorInInput(stat_type, lang1, lang2, lang_file1, lang_file2):
     if stat_type in two_langs_stat_vals:
         if lang1 not in align_reader.all_langs or lang2 not in align_reader.all_langs:
             return 'you should select two languages for this stat'
+        if lang1 == lang2:
+            return "please select two different languages"
     elif stat_type in two_edition_stat_vals:
         if lang_file1 not in align_reader.file_edition_mapping.keys() or lang_file2 not in align_reader.file_edition_mapping.keys():
             return 'you should select two editions for this stat'
+        if align_reader.file_lang_mapping[lang_file1] == align_reader.file_lang_mapping[lang_file2]:
+            return "please select editions from two different languages"
     elif stat_type in one_lang_stat_vals:
         if lang1 not in align_reader.all_langs:
             return 'you should select one languages for this stat'

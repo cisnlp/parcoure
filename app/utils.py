@@ -38,6 +38,7 @@ alignments_dir = ""
 simalign_corpus_dir = ""
 lexicon_dir = ""
 corpus_name = ""
+is_pbc = False
 LOG = get_logger("analytics", "logs/analytics.log")
 
 def setup(f):
@@ -52,7 +53,10 @@ def setup(f):
 	global simalign_corpus_dir
 	global lexicon_dir
 	global corpus_name
+	global is_pbc
 
+	if "pbc" in f:
+		is_pbc = True
 	if not os.path.exists(f):
 		print(f"Cannot find config file at {f}")
 		exit()
@@ -66,7 +70,7 @@ def setup(f):
 		os.mkdir("logs")
 
 	lang_file_mapping_path = config_dir + "lang_files.txt"
-
+	
 	es_index_url = config_parser['section']['elasticsearch_address'] + "/" + config_parser['section']['index_name']
 	es_index_url_noedge = config_parser['section']['elasticsearch_address'] + "/" + config_parser['section']['noedge_index_name']
 	stats_directory = config_parser['section']['stats_dir']
@@ -74,6 +78,7 @@ def setup(f):
 	simalign_corpus_dir = config_parser['section']['simalign_corpus_dir']
 	lexicon_dir = config_parser['section']['lexicon_dir']
 	corpus_name = config_parser['section']['corpus_name']
+	
 
 def synchronized_method(method):
 	
