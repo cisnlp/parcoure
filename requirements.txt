@@ -1,6 +1,0 @@
-Flask==1.1.2
-Flask-Compress==1.4.0
-Flask-WTF==0.14.3
-gunicorn==20.0.4
-Flask-RESTful==0.3.4
-Flask-Cors==2.1.0
