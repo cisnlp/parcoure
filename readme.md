@@ -21,7 +21,7 @@ If you don't use Anaconda you will have to install the dependencies listed in `d
 ### 2. Download Corpus
 
 <!-- TODO which files? -->
-Download the following files from here and extract them. Alternatively, you can of course download the corpora of your choice in languages of your choice.
+Download the following files from [the opus website](https://opus.nlpl.eu/bible-uedin.php) and extract them. Alternatively, you can of course download the corpora of your choice in languages of your choice.
 - [de-en.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de-en.xml.gz)
 - [de-pes.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de-pes.xml.gz)
 - [en-pes.xml.gz](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/en-pes.xml.gz)
@@ -32,7 +32,7 @@ Download the following files from here and extract them. Alternatively, you can 
 ### 3. Elasticsearch
 
 <!-- TODO is setting Elasticsearch up so straight forward? -->
-Install Elasticsearch from [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) and start the server. Then add
+Install Elasticsearch from [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html) and start the server. Then add
 its address to the config file (see below). Elasticsearch uses port number 9200 by default. If you change it you have to also modify it
 in config file. Also make sure that Elasticsearch is accessible from ParCourE's machine.
 
@@ -112,7 +112,7 @@ bash ./prepare.sh
 ```bash
 bash ./execute.sh
 ```
-- check out the result at http://localhost:5000/
+- check out the result at http://localhost:8000/
 
 
 ## References
