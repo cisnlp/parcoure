@@ -39,7 +39,6 @@ def index():
     form = LoginForm()
     alignment = None
     if form.validate_on_submit():
-        utils.LOG.info("Received: {} ||| {}".format(form.english.data, form.foreign.data))
         if utils.CIS:
             res = plm.aligners[form.model.data].get_word_aligns(
                 [form.english.data.split(" "), form.foreign.data.split(" ")])
@@ -55,8 +54,6 @@ def index():
         alignment = {"e": form.english.data.split(" "),
                      "f": form.foreign.data.split(" "),
                      "alignment": res}
-        utils.LOG.info("Sent: {}".format(alignment))
-        utils.LOG.info("Running index finished.")
         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
     else:
         errorA = None
@@ -66,8 +63,6 @@ def index():
                 errorA = True
             if error == "foreign":
                 errorB = True
-        utils.LOG.info("Input error: {}".format(form.errors))
-        utils.LOG.info("Running index finished.")
         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
     utils.LOG.info("Running index finished.")
     return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
