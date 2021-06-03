@@ -98,11 +98,11 @@ class GeneralAlignReader(AlignReader):
 
 	def get_align_file_path(self, src_lang, trg_lang):
 		if src_lang == trg_lang:
-			return "{}/{}_word.inter".format(self.alignment_path, src_lang) 
-		return "{}/{}_{}_word.inter".format(self.alignment_path, src_lang, trg_lang) 
+			return "{}/{}_word.gdfa".format(self.alignment_path, src_lang) 
+		return "{}/{}_{}_word.gdfa".format(self.alignment_path, src_lang, trg_lang) 
 
 	def get_align_binary_file_path(self, edition_1, edition_2):
-		return "%s.binary" % self.get_align_file_path(edition_1, edition_2)
+		return "%s.binary.gdfa" % self.get_align_file_path(edition_1, edition_2)
 
 	def get_index_file_path(self, src_lang, trg_lang):
 		if src_lang == trg_lang:
