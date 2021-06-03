@@ -98,27 +98,23 @@
                 }
             </script>
         </div>
-<!--         <div class="row">
-            <div class="col"> -->
-                <ul class="nav justify-content-center">
-                <!-- <a href="/index">{% if request.path == "/index" or request.path == "/" %} <b>SimAlign</b> {% else %} SimAlign {% endif %}</a> | -->
-                <li class="btn btn-light navbar-btn">                 
-                    <a href="/multalign">{% if request.path == "/multalign" or request.path == "/index" or request.path == "/" %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> 
-                </li>
-                <li type="button" class="btn btn-light navbar-btn">                 
-                <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a>
-                </li>
-                <li type="button" class="btn btn-light navbar-btn">                 
-                <a href="/stats">{% if request.path == "/stats"  %} <b>Stats</b> {% else %} Stats {% endif %}</a>
-                </li>
-                <li type="button" class="btn btn-light navbar-btn">                 
-                <a href="/information">{% if request.path == "/information"  %} <b>Information</b> {% else %} Information {% endif %}</a>
-                </li>
-            </ul>
-                <!-- <hr/> -->
-<!--             </div>
-        </div> -->
-        
+        <ul class="nav justify-content-center">
+            <li class="btn btn-light navbar-btn">
+                <a href="/explore">{% if request.path == "/explore" %} <b>Explore</b> {% else %} Explore {% endif %}</a>
+            </li>
+            <li class="btn btn-light navbar-btn">
+                <a href="/multalign">{% if request.path == "/multalign" or request.path == "/index" or request.path == "/" %} <b>MultAlign</b> {% else %} MultAlign {% endif %}</a> 
+            </li>
+            <li type="button" class="btn btn-light navbar-btn">                 
+            <a href="/lexicon">{% if request.path == "/lexicon"  %} <b>Lexicon</b> {% else %} Lexicon {% endif %}</a>
+            </li>
+            <li type="button" class="btn btn-light navbar-btn">                 
+            <a href="/stats">{% if request.path == "/stats"  %} <b>Stats</b> {% else %} Stats {% endif %}</a>
+            </li>
+            <li type="button" class="btn btn-light navbar-btn">                 
+            <a href="/information">{% if request.path == "/information"  %} <b>Information</b> {% else %} Information {% endif %}</a>
+            </li>
+        </ul>
 
         {% block content %}{% endblock %}
     

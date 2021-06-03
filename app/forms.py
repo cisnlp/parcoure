@@ -70,3 +70,12 @@ class AlignForm(FlaskForm):
     #     recaptcha = RecaptchaField()
     submitField = SubmitField('Align')
 
+class MultialignInputForm(FlaskForm):
+    class Meta:
+        csrf = False
+    sentences = FieldList(
+        FormField(VerseForm),
+        min_entries=2,
+        max_entries=50
+    )
+    submitField = SubmitField('Get Alignments')

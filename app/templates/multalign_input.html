@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+            <br>
+            <div class="card">
+              <div class="card-header bg-light">
+                Instructions
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                        <ol>
+                            <li>
+                                Enter translations of a sentence in at least two languages.
+                            </li> 
+                            <li>
+                                Use  <button type="button" class="btn btn-primary" ><span><b>+</b></span></button>  to add more translations.
+                            </li>   
+                            <li>
+                                Click <em>Get Alignments</em> to view the word aligned sentences. 
+                            </li>
+                        <ol>
+
+                </p>
+              </div>
+            </div>
+
+            <br><br>
+
+            <div class="row">
+                <form action="" method="post" novalidate class="col" id='multaligninputform'>
+                    <div class="form-group" id="input_sentences">
+                        <label for="firstSentence">First Sentence</label>
+                        <input class="form-control" type="text" id="firstSentence" name="sentences-0-verse_id">
+                        <br>
+                        <label for="secSentence">Second name</label>
+                        <input class="form-control" type="text" id="secSentence" name="sentences-1-verse_id">
+                        <br>
+                    </div>
+                    <!--removeBtn.setAttribute("type", "button");
+        removeBtn.setAttribute("class", "close");
+        removeBtn.setAttribute("aria-label", "Close");
+        removeBtn.setAttribute("id", "selectedrm"+selectedCount);
+        removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
+        let removeSpn = document.createElement("span");
+        removeSpn.setAttribute("aria-hidden", "true");-->
+        <button type="button" class="btn btn-primary float-right " onclick=add_input_item("") ><span><b>&plus;</b></span></button>
+        
+        {% if errorA %}
+        <div class="col-6 justify-content-center">
+            <p class="font-weight-bold text-danger myerror">
+                {{errorA}}
+            </p>
+        </div>
+        {% endif %}
+        <br/>
+        <br/><br/>
+
+                    {% if form.recaptcha%}
+                    <div class="form-group">
+                        {{form.recaptcha(class="g-recaptcha")}}
+                    </div>
+                    <br>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-2">
+                            <p>{{ form.submitField(class_="btn btn-primary btn-rounded font-weight-bold") }}</p>
+                        </div>
+                    </div>
+
+                </form>
+
+                
+            </div>    
+            <br><br>
+
+                 
+        <!-- </div> -->
+    </div>
+    <div style="display: block; margin-left: auto; margin-right: auto; text-align: center;" >
+        {% if docs_alignment %}
+            {% for i in range(0, doc_count) %}
+                <div class="container" style="text-align: center; margin-bottom: -16px;">
+                    <input  id="toggle-event-{{i}}" type="checkbox" data-toggle="toggle" data-on="cluster view" data-off="simple view" data-size="mini" data-offstyle="success"  data-width="110" >
+                </div>
+                <div id="chart{{i}}" style="margin-right: 100;"></div> 
+                <!--<div class="container" style="text-align: center; ">
+                    <u>{{docs_alignment[i]['label']}}</u>
+                </div>-->
+                <br/><br/><br>
+            {% endfor %} 
+        {% endif %}
+        <div id="my-svg-content-responsive"  >
+        </div>   
+    </div>
+
+    {% if docs_alignment %}
+        {%for i in range(0, doc_count)%}
+        
+            <script type="module">
+                let cluster{{i}} = false;
+                var alignment = {{ docs_alignment[i] | tojson | safe }};
+            
+                import define from "./static/index.js";
+                import {Runtime, Library, Inspector} from "./static/runtime.js";
+                
+                const runtime = new Runtime();
+                // const main = runtime.module(define, Inspector.into(document.body));
+                const main{{i}} = runtime.module(define, name => {
+                if (name === "chart") {
+                    return new Inspector(document.querySelector("#chart{{i}}"));
+                } else if (name === "order") {
+                    return new Inspector(document.querySelector("#order{{i}}"));
+                }
+                });
+
+                // console.log(alignment);
+                try {
+                    main{{i}}.redefine("data", alignment);
+                } catch (error) {
+                    console.log(error);
+                }
+                
+                $(function() {
+                    $('#toggle-event-{{i}}').change(function() {
+                        if (cluster{{i}}) {
+                            cluster{{i}} = false;
+                        } else {
+                            cluster{{i}} = true;
+                        }
+                        main{{i}}.redefine("clusterView", cluster{{i}});
+                      console.log("toggled to  " + cluster{{i}});
+                    })
+                })
+                
+            </script>
+        {%endfor%}
+    {% endif %} 
+    
+
+      
+<script>
+
+    function remove(me) {
+        document.getElementById("inputsentence" + me).remove();
+        document.getElementById("inputsentencelabel"+me).remove();
+        //document.getElementById("inputsentencerm"+me).remove();
+        document.getElementById("inputsentencebreak"+me).remove();
+    }
+
+    let selectedCount = 3;
+
+    function add_input_item(value) {
+        let input = document.createElement("input");
+        input.setAttribute("type", "text");
+        input.setAttribute("name", "sentences-"+selectedCount+"-verse_id");
+        input.setAttribute("class", "form-control")
+        input.setAttribute("id", "inputsentence"+selectedCount)
+        input.setAttribute("value", value)
+
+        //let outerDiv = document.createElement("div");
+        //outerDiv.setAttribute("id", "selecteddiv"+selectedCount)
+        //outerDiv.setAttribute("class", "row");
+        let inputLabel = document.createElement("label");
+        //inputLabel.setAttribute("class", "col");
+        inputLabel.setAttribute("id", "inputsentencelabel"+selectedCount);
+        inputLabel.innerHTML = " Sentence " + selectedCount + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;";
+        let removeBtn = document.createElement("button");
+        removeBtn.setAttribute("type", "button");
+        removeBtn.setAttribute("class", "close");
+        removeBtn.setAttribute("aria-label", "Close");
+        removeBtn.setAttribute("id", "inputsentencerm"+selectedCount);
+        removeBtn.setAttribute("onclick", "remove(" + selectedCount +")");
+        let removeSpn = document.createElement("span");
+        removeSpn.setAttribute("aria-hidden", "true");
+        removeSpn.innerHTML="&times;";
+        removeBtn.appendChild(removeSpn);
+        inputLabel.appendChild(removeBtn);
+        let break_tag = document.createElement("br");
+        break_tag.setAttribute("id", "inputsentencebreak"+selectedCount)
+        //outerDiv.appendChild(inputLabel);
+        //outerDiv.appendChild(removeBtn);
+        //outerDiv.appendChild(input)
+        //outerDiv.appendChild(break_tag);
+        
+        //append to form element that you want .
+        document.getElementById("input_sentences").appendChild(inputLabel);
+        document.getElementById("input_sentences").appendChild(input);
+        //document.getElementById("input_sentences").appendChild(removeBtn);
+        document.getElementById("input_sentences").appendChild(break_tag);
+        
+
+        selectedCount ++;
+    };
+    
+    {% for x in sentences %}
+        {% if loop.index0 == 0 %}
+            $('#firstSentence').attr('value', '{{x}}');
+        {% elif loop.index0 == 1 %}
+            $('#secSentence').attr('value', '{{x}}');
+        {% else %}
+            add_input_item('{{x}}');
+        {% endif %}
+        
+    {% endfor%}
+
+</script>
+
+<script>
+    let localcounter = 0;
+    {%for message in messages%}
+        setTimeout(() => { showToast("{{message}}"); }, localcounter*1500);
+        localcounter ++;
+    {%endfor%}
+</script>
+
+<br><br><br><br><br><br>
+{% endblock %}

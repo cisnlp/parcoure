@@ -1,11 +1,11 @@
 import json
 from app.document_retrieval import DocumentRetriever
-from app import utils
+from app import utils, models
 from app.general_align_reader import GeneralAlignReader 
 
 align_reader = GeneralAlignReader()
 doc_retriever = DocumentRetriever()
-
+plm = models.PLM()
 
 
 def get_links(editions, verse_id, edition_token_offset):
@@ -45,7 +45,6 @@ def get_nodes(editions, source_edition, important_tokens, verse_id):
             } for i,w in enumerate(tokens)])
         token_nom += len(tokens)
         max_pos  = max_pos if max_pos > len(tokens) else len(tokens)
-
     return nodes, edition_token_offset, max_pos, not_found_editions
 
 def get_rest_langs(edits, to_remove_edit):
@@ -95,9 +94,64 @@ def get_alignments_for_verse(verse_id, source_file, all_files, important_tokens)
     alignments["nodes"], edition_token_offset, alignments["poses"], not_found_editions = get_nodes(all_editions, source_edition, important_tokens, verse_id)
     
     alignments["links"] = get_links(all_editions, verse_id, edition_token_offset)
-
     messages = get_messages(not_found_editions, verse_id)
     edits_label = get_edits_label(all_editions, not_found_editions)
     alignments['label'] = f"Alignments for verse: {verse_id}. Editions in order: {edits_label}"
     
+    return alignments, messages
+
+def convert_alignment(initial_output):
+    result = []
+    data = initial_output['itermax']
+    utils.LOG.info(data)
+    for elem in data:
+        i, j = elem.split("-")
+        result.append((int(i), int(j)))
+    return result
+
+def get_links_from_input(sentences, offsets):
+    links = []
+
+    for i,sent1 in enumerate(sentences):
+        sent1_sp = sent1.split(" ")
+        for j,sent2 in enumerate(sentences[i+1:]):
+            setn2_sp = sent2.split(" ")
+            aligns = plm.aligner.get_word_aligns(sent1_sp, setn2_sp)['itermax']
+            #aligns = convert_alignment(raw_aligns)
+            links.extend([{"source": offsets[i] + f, "target":offsets[j+i+1] + s, "value":1} for f,s in aligns])
+
+    return links
+
+def get_nodes_from_input(sentences):
+    nodes = []
+    offsets = {}
+    max_pos = 0
+    token_nom = 1
+
+    for li, sent in enumerate(sentences):
+        offsets[li] = token_nom
+        tokens = sent.split(" ")
+            
+        nodes.extend([{
+            "id" : token_nom + i ,
+            "tag": w,
+            "group":li + 1,
+            "pos": i+1,
+            "bold":False,
+            "source_language": 1,
+            "target_langs": []
+            } for i,w in enumerate(tokens)])
+        token_nom += len(tokens)
+        max_pos  = max_pos if max_pos > len(tokens) else len(tokens)
+    
+    return nodes, offsets, max_pos
+
+def get_alignments_for_sentences(sentences):
+    alignments = {"nodes":[], "links":[], "groups":0, "poses":0}
+    alignments["groups"] = len(sentences)
+    alignments["nodes"], offsets, alignments["poses"] = get_nodes_from_input(sentences)
+
+    alignments["links"] = get_links_from_input(sentences, offsets)
+    messages = []
+    alignments['label'] = f"Alignments"
     return alignments, messages

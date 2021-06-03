@@ -2,32 +2,16 @@ from flask import render_template, request
 from app import app, models, utils
 from app.forms import *
 from flask_restful import reqparse
-import json
-import requests
-import os
+import json, requests, os
 from app.document_retrieval import DocumentRetriever
 from app.lexicon import Lexicon
 import app.controler as controler
 import app.alignment_controller as alignment_controler
 from app.stats import one_lang_stat_vals, two_langs_stat_vals, one_edition_stat_vals, two_edition_stat_vals, no_lang_stat_vals
 
-# setting up alignment models
-if utils.CIS:
-    plm = models.PLM()
-
 parser = reqparse.RequestParser()
 doc_retriever = DocumentRetriever()
 lexicon = Lexicon()
-
-def convert_alignment(initial_output):
-    processed_output = {}
-    for method, data in initial_output.items():
-        result = []
-        for elem in data:
-            i, j = elem.split("-")
-            result.append([int(i), int(j)])
-        processed_output[method] = result
-    return processed_output
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -80,42 +64,6 @@ def multalign():
     utils.LOG.info("Running index finished.")
     return render_template('multalign.html', title='ParCourE', form=form, alignment=alignment,
      errorA=None, errorB=None, corpus=utils.corpus_name)
-
-# @app.route('/', methods=['GET', 'POST'])
-# @app.route('/index', methods=['GET', 'POST'])
-# def index():
-#     utils.LOG.info("Running index ...") 
-#     form = AlignForm()
-#     alignment = None
-#     if form.validate_on_submit():
-#         utils.LOG.info("Received: {} ||| {}".format(form.english.data, form.foreign.data))
-#         if utils.CIS:
-#             res = plm.aligners[form.model.data].get_word_aligns(
-#                 [form.english.data.split(" "), form.foreign.data.split(" ")])
-#             res = convert_alignment(res)
-#         else:
-#             res = {"inter": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
-#                     "itermax": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))],
-#                     "mwmf": [[i, i] for i in range(min(len(form.english.data.split(" ")), len(form.foreign.data.split(" "))))]}
-#         alignment = {"e": form.english.data.split(" "),
-#                     "f": form.foreign.data.split(" "),
-#                     "alignment": res}
-#         utils.LOG.info("Sent: {}".format(alignment))
-#         utils.LOG.info("Running index finished.")
-#         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
-#     else:
-#         errorA = None
-#         errorB = None
-#         for error in form.errors:
-#             if error == "english":
-#                 errorA = True
-#             if error == "foreign":
-#                 errorB = True
-#         utils.LOG.info("Input error: {}".format(form.errors))
-#         utils.LOG.info("Running index finished.")
-#         return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=errorA, errorB=errorB)
-#     utils.LOG.info("Running index finished.")
-#     return render_template('index.html', title='SimAlign', form=form, alignment=alignment, errorA=None, errorB=None)
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -232,6 +180,43 @@ def dictionary():
     utils.LOG.info("2 Running lexicon finished.")
 
     return render_template('lexicon.html', title='ParCourE', form=form, dictionary=res, errorA=None, errorB=None, errorC=None)
+
+@app.route('/explore', methods=['GET', 'POST'])
+def multalignInput():
+    form = MultialignInputForm()
+    doc_alignments = []
+    if form.validate_on_submit():
+
+        all_messages = []
+        errorA = None
+        utils.LOG.info("Received: {} ".format( "\n".join([x.verse_id.data for x in form.sentences]) ) )
+        sentences = [x.verse_id.data.strip() for x in form.sentences]
+        sentences = list(filter(lambda x: len(x) > 1, sentences)) 
+        
+        if len(sentences) < 2:
+            errorA = 'Please provide at least two sentences.'
+        else:
+
+            alignments, messages = alignment_controler.get_alignments_for_sentences(sentences)
+            doc_alignments.append(alignments)
+            all_messages.extend(messages)
+
+        utils.LOG.info("Running multialigninput finished.")
+        return render_template('multalign_input.html', title='ParCourE', form=form,
+         docs_alignment=doc_alignments, doc_count=len(doc_alignments), messages=all_messages,
+          sentences = sentences, errorA=errorA)
+        
+    else:
+        errorA = None
+        for error in form.errors:
+            if error == "sentences":
+                errorA = form.errors['sentences'][0]
+        utils.LOG.info("Input error: {}".format(form.errors))
+        utils.LOG.info("Running multialigninput finished.")
+        return render_template('multalign_input.html', title='ParCourE', form=form,
+         docs_alignment=doc_alignments, doc_count=0, messages=[],
+         sentences=[], errorA=errorA)
+    
 
 def checkForErrorInInput(stat_type, lang1, lang2, lang_file1, lang_file2):
     if stat_type in two_langs_stat_vals:

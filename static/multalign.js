@@ -40,7 +40,7 @@ export default function define(runtime, observer) {
         });
   
 
-  const svg = d3.select(DOM.svg(maxWidth+10, height)).attr("class", "bold");
+  const svg = d3.select(DOM.svg(maxWidth+50, height)).attr("class", "bold");
 
   svg.append("style").text(`
 
@@ -150,27 +150,29 @@ export default function define(runtime, observer) {
       })
       .on("click", d => {
         console.log(d.tag);
-        var newForm = jQuery('<form>', {
-            'action': '/lexicon',
-            'method': 'post',
-        })
-        .append(jQuery('<input>', {
-            'name': 'source_language',
-            'value': d.source_language
-        }))
-        .append(jQuery('<input>', {
-            'name': 'query',
-            'value': d.tag
-        }));
+        if (d.target_languages.length > 0) {
+          var newForm = jQuery('<form>', {
+              'action': '/lexicon',
+              'method': 'post',
+          })
+          .append(jQuery('<input>', {
+              'name': 'source_language',
+              'value': d.source_language
+          }))
+          .append(jQuery('<input>', {
+              'name': 'query',
+              'value': d.tag
+          }));
 
-        for(let i = 0; i< d.target_languages.length; i++){
-            newForm.append(jQuery('<input>', {
-                'name': "target_languages",
-                'value': d.target_languages[i]
-            }))
+          for(let i = 0; i< d.target_languages.length; i++){
+              newForm.append(jQuery('<input>', {
+                  'name': "target_languages",
+                  'value': d.target_languages[i]
+              }))
+          }
+          
+          newForm.appendTo('body').submit();
         }
-        
-        newForm.appendTo('body').submit();
     });
 
  
@@ -260,7 +262,7 @@ FileAttachment("miserables.json").json()
 )});
    main.variable(observer("clusterView")).define("clusterView", [], function(ldata){return(
    false
- )});
+)});
 
   main.variable(observer("d3")).define("d3", ["require"], function(require){return(
 require("d3@5")
