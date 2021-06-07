@@ -66,7 +66,7 @@ $> curl localhost:9200
 ### 4. Word Aligner
 
 Install Simalign (It is mandatory for the input alignment page to work):
-`pip install --upgrade git+https://github.com/cisnlp/simalign.git#egg=simalign`
+```pip install --upgrade git+https://github.com/cisnlp/simalign.git#egg=simalign```
 
 For alignment of your parallel corpus you can use any word alignment tool you prefer. [Here](http://parcoure.cis.lmu.de/) we used [SimAlign](https://github.com/cisnlp/simalign) for as many languages as possible and [eflomal](https://github.com/robertostling/eflomal) for the remainign languages. 
 
