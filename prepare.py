@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser = configparser.ConfigParser()
     parser.read(config_file)
     print("\n\n################### feeding corpora to elasticsearch #####################")
-    utils.run_command(f"cd elasticSearch; chmod +x setup.sh; ./setup.sh {parser['section']['elastic_dir']}")
+    utils.run_command(f"cd elasticSearch; chmod +x setup.sh; ./setup.sh {parser['section']['elastic_dir']} {parser['section']['index_name']} {parser['section']['noedge_index_name']}")
 
 
 
