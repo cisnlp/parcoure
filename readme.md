@@ -29,7 +29,7 @@ Download the following files from [the opus website](https://opus.nlpl.eu/bible-
 - [de.zip](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/de.zip)
 - [pes.zip](https://object.pouta.csc.fi/OPUS-bible-uedin/v1/xml/pes.zip)
 
-After extraction, put the language specific data files and inter language alignment files in one direcotry. In this example we put `` English.xml English-WEB.xml Farsi.xml German.xml en-pes.xml de-en.xml de-pes.xml`` files in a directory called ``CES corpus``.
+After extraction, put the language specific data files and inter language alignment files in one direcotry. In this example we put `` English.xml English-WEB.xml Farsi.xml German.xml en-pes.xml de-en.xml de-pes.xml`` files in a directory called ``CES_Corpus``.
 
 ### 3. Elasticsearch
 
