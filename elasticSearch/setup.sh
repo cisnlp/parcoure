@@ -10,16 +10,18 @@ if [ "$#" -ne 1 ]; then
 fi
 
 corpus_location="$1"
+index_name="$2"
+index_noedge="$3"
 
 printf "delete index if exists\n"
 printf "______________________________________\n"
-curl -XDELETE http://localhost:9200/parcoure_index; echo;
-curl -XDELETE http://localhost:9200/parcoure_index_noedge; echo;
+curl -XDELETE http://localhost:9200/"$index_name"; echo;
+curl -XDELETE http://localhost:9200/"$index_noedge"; echo;
 
 printf "\n\n\ncreate index\n"
 printf "______________________________________\n"
-curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index -d @mapping.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
-curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index_noedge -d @mapping_noedge.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+curl -H "Content-Type: application/json" -XPUT http://localhost:9200/"$index_name" -d @mapping.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
+curl -H "Content-Type: application/json" -XPUT http://localhost:9200/"$index_noedge" -d @mapping_noedge.json; echo; # check type of the verse_id field in mapping part! all bible verse numbers fit in integer
 
 printf "\n\n\nfeed the corpora to elasticsearch\n"
 printf "______________________________________\n"
@@ -28,11 +30,11 @@ files=`ls $corpus_location`
 for file in $files
 do 
     if [ $(($counter % 500)) -eq 0]; then
-        curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1  > indexing.log; echo;
-        curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index_noedge/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
+        curl -H "Content-Type: application/json" -XPOST "localhost:9200/"$index_name"/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1  > indexing.log; echo;
+        curl -H "Content-Type: application/json" -XPOST "localhost:9200/"$index_noedge"/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
     else 
-        curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
-        curl -H "Content-Type: application/json" -XPOST "localhost:9200/parcoure_index_noedge/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
+        curl -H "Content-Type: application/json" -XPOST "localhost:9200/"$index_name"/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
+        curl -H "Content-Type: application/json" -XPOST "localhost:9200/"$index_noedge"/_bulk?pretty" --data-binary "@$corpus_location$file" 2>&1 > indexing.log ; echo;
     fi
 done
 
@@ -40,8 +42,8 @@ done
 printf "\n\n\ncheck the result\n"
 printf "______________________________________\n"
 #see number of indexed verses(documents)
-curl  -XGET "localhost:9200/parcoure_index/_stats/docs"; echo; echo;
-curl  -XGET "localhost:9200/parcoure_index_noedge/_stats/docs"; echo; echo;
+curl  -XGET "localhost:9200/"$index_name"/_stats/docs"; echo; echo;
+curl  -XGET "localhost:9200/"$index_noedge"/_stats/docs"; echo; echo;
 
 # create another index, in this one use exact match for langauges (instead of n-gram)
 # curl -H "Content-Type: application/json" -XPUT http://localhost:9200/parcoure_index -d @mapping_langauge.json; echo;
