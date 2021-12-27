@@ -8,7 +8,8 @@ def convert_text_to_index_json( text, lang, res_path):
     file_json_string = ""
     index_object = {"index":{}}
 
-    for pair in text.items():
+    counter = 0
+    for i, pair in enumerate(text.items()):
         index_data_entry = {
             "language" : lang,
             "content" : pair[1],
@@ -19,8 +20,14 @@ def convert_text_to_index_json( text, lang, res_path):
 
         file_json_string += json.dumps(index_object) + "\n"
         file_json_string += json.dumps(index_data_entry) + "\n"
+
+        if i%50000 == 0:
+            with open(res_path + lang + f"index_json{counter}.txt", 'w') as res_file:
+                res_file.write(file_json_string)
+            counter += 1
+            file_json_string = ""
     
-    with open(res_path + lang + "index_json.txt", 'w') as res_file:
+    with open(res_path + lang + f"index_json{counter}.txt", 'w') as res_file:
         res_file.write(file_json_string)
 
 def create_json_file_for_edition(edition, path):
@@ -37,11 +44,12 @@ if __name__ == "__main__":
         "You have to set the location to save the results in config.ini file under elastic_dir if it is not there!", 
 	epilog="example: python bible_to_json_convertor.py -n")
 
-    parser.add_argument("-b", action="store_true")
-    parser.add_argument("-n", action="store_true")
-    parser.add_argument("-e", default="")
-    parser.add_argument("-a", action="store_true")
-    parser.add_argument("-c", default="config.ini")
+    parser.add_argument("-b", action="store_true", help="only parse bert supported files")
+    parser.add_argument("-n", action="store_true", help="only parse non-bert supported files")
+    parser.add_argument("-e", default="", help="edition_name do it for one edition")
+    parser.add_argument("-a", action="store_true", help="all editions")
+    parser.add_argument("-c", default="config.ini", help="path to config.ini file")
+    parser.add_argument("-f", default="", help="editions file, calculate for editions in this file")
     
 
     args = parser.parse_args()
@@ -50,9 +58,7 @@ if __name__ == "__main__":
     cparser.read(args.c)
     elastic_search_index_files_path = cparser['section']['elastic_dir']
     
-    print(1)
     utils.setup(args.c)
-    print(2)
     align_reader = GeneralAlignReader()
     
     if args.b:
@@ -73,6 +79,11 @@ if __name__ == "__main__":
         for lang in align_reader.all_langs:
             for edition in align_reader.lang_files[lang]:
                 create_json_file_for_edition(edition, elastic_search_index_files_path)
+    elif args.f != "":
+        with open(args.f) as inf:
+            for line in inf:
+                line = line.strip().split('\t')
+                create_json_file_for_edition(line[1], elastic_search_index_files_path)
     else:
         print("please provide correct arguments")
         print(parser.description)
